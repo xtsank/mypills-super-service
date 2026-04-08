@@ -1,0 +1,309 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:149.0) Gecko/20100101 Firefox/149.0" version="29.6.6">
+  <diagram name="Страница-1" id="MPAVQK8mH8FRTig8lJDx">
+    <mxGraphModel dx="2253" dy="2072" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-1" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IAuthService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Register(ctx Context, cmd RegisterUserCmd): uuid, err&lt;br&gt;+ Login(ctx Context, cmd LoginUserCmd): token, err&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="320" x="-360" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-6" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-13" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-35">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="530" />
+            </Array>
+            <mxPoint x="160" y="24" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-2" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="AuthService" vertex="1">
+          <mxGeometry height="100" width="320" x="-360" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-3" parent="hC2xpGGSRJ-h7zPUy2lg-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ userRepo : IUserRepository" vertex="1">
+          <mxGeometry height="26" width="320" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-4" parent="hC2xpGGSRJ-h7zPUy2lg-2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-5" parent="hC2xpGGSRJ-h7zPUy2lg-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Register(ctx Context, cmd RegisterUserCmd): uuid, err&lt;/div&gt;&lt;div&gt;+ Login(ctx Context, cmd LoginUserCmd): token, err&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="320" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-7" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IUserRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Save(ctx Context, user *model.User): uuid, err&lt;br&gt;+ FindByID(ctx Context, id uuid): *model.User, err&lt;/p&gt;&lt;br&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="110" width="290" x="15" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-8" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-7" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-2" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="-200" y="780" />
+            </Array>
+            <mxPoint x="-350" y="506" as="sourcePoint" />
+            <mxPoint x="-190" y="506" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-18" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-14" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="PostgresUserRepository" vertex="1">
+          <mxGeometry height="100" width="300" x="10" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-15" parent="hC2xpGGSRJ-h7zPUy2lg-14" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ db : *Pool" vertex="1">
+          <mxGeometry height="26" width="300" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-16" parent="hC2xpGGSRJ-h7zPUy2lg-14" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="300" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-17" parent="hC2xpGGSRJ-h7zPUy2lg-14" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Save(ctx Context, user *model.User): uuid, err&lt;/div&gt;&lt;div&gt;+ FindByID(ctx Context, id uuid): *model.User, err&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="300" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-19" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IProfileService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Update(ctx Context, cmd UpdateProfileCmd): err&lt;br&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="300" x="340" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-20" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IMedicineService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div&gt;+ Select(ctx Context, cmd SelectMedicineCmd): []MedicineRecomendations, err&lt;/div&gt;&lt;div&gt;+ filterByUserInfo(needMeds []*model.Medicine, user *model.User) :&amp;nbsp;[]*model.Medicine, err&lt;/div&gt;&lt;div&gt;+ findAvailableMeds(needMeds, medsInCadinet *[]*model.Medicine) :&amp;nbsp;&amp;nbsp;[]*model.Medicine, err&lt;/div&gt;&lt;div&gt;+ buildMedicineRecomendations(totalMeds []*model.Medicine, user *model.User) :&amp;nbsp; []MedicineRecomendations, err&lt;/div&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="140" width="655" x="977.5" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-21" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;ICabinetService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddItem(ctx Context, cmd AddItemCmd): uuid, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ RemoveItem(ctx Context, cmd RemoveItemCmd): err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateQty(ctx Context, cmd UpdateQtyCmd): err&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="392.5" x="2236.25" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-22" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IAdminService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ EditMedicines(ctx Context, cmd EditMedicinesCmd) : err&lt;/p&gt;" vertex="1">
+          <mxGeometry height="100" width="330" x="2810" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-28" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-35">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="530" />
+            </Array>
+            <mxPoint x="160" y="24" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-29" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-23" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="ProfileService" vertex="1">
+          <mxGeometry height="100" width="320" x="330" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-24" parent="hC2xpGGSRJ-h7zPUy2lg-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ userRepo : IUserRepository" vertex="1">
+          <mxGeometry height="26" width="320" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-25" parent="hC2xpGGSRJ-h7zPUy2lg-23" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-26" parent="hC2xpGGSRJ-h7zPUy2lg-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ Update(ctx Context, cmd UpdateProfileCmd): err" vertex="1">
+          <mxGeometry height="40" width="320" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-27" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-7" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-23" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="775" />
+            </Array>
+            <mxPoint x="-50" y="765" as="sourcePoint" />
+            <mxPoint x="110" y="765" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-72" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-74" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-39">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="880" y="590" />
+            </Array>
+            <mxPoint x="850" y="585" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-30" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="MedicineService" vertex="1">
+          <mxGeometry height="170" width="660" x="975" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-31" parent="hC2xpGGSRJ-h7zPUy2lg-30" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ userRepo : IUserRepository&lt;/div&gt;&lt;div&gt;+ medicineRepo : IMedicineRepository&lt;/div&gt;&lt;div&gt;+ cabinetRepo : ICabinetRepository&lt;/div&gt;" vertex="1">
+          <mxGeometry height="54" width="660" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-32" parent="hC2xpGGSRJ-h7zPUy2lg-30" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="660" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-33" parent="hC2xpGGSRJ-h7zPUy2lg-30" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Select(ctx Context, cmd SelectMedicineCmd): []MedicineRecomendations, err&lt;/div&gt;&lt;div&gt;+ filterByUserInfo(needMeds []*model.Medicine, user *model.User) :&amp;nbsp;[]*model.Medicine, err&lt;/div&gt;&lt;div&gt;+ findAvailableMeds(needMeds, medsInCadinet *[]*model.Medicine) :&amp;nbsp;&amp;nbsp;[]*model.Medicine, err&lt;/div&gt;&lt;div&gt;+ buildMedicineRecomendations(totalMeds []*model.Medicine, user *model.User) :&amp;nbsp; []MedicineRecomendations, err&lt;/div&gt;" vertex="1">
+          <mxGeometry height="82" width="660" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-35" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="User" vertex="1">
+          <mxGeometry height="260" width="210" x="55" y="-100" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-36" parent="hC2xpGGSRJ-h7zPUy2lg-35" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ login : string&lt;br&gt;+ password : string&lt;/div&gt;&lt;div&gt;+ sex : bool&lt;/div&gt;&lt;div&gt;+ weight : float32&lt;/div&gt;&lt;div&gt;+ age : int&lt;/div&gt;&lt;div&gt;+ isPregnant : bool&lt;/div&gt;&lt;div&gt;+ isDriver : bool&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ illnesses : []uuid&lt;/div&gt;&lt;div&gt;+ allergies : []uuid&lt;/div&gt;" vertex="1">
+          <mxGeometry height="154" width="210" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-37" parent="hC2xpGGSRJ-h7zPUy2lg-35" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="210" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-38" parent="hC2xpGGSRJ-h7zPUy2lg-35" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ AddIllness(illnessID uuid): err&lt;br&gt;+ RemoveIllness(illnessID uuid): err&lt;br&gt;+ AddAllergy(allergyID uuid): err&lt;br&gt;+ RemoveAllergy(allergyID uuid): err" vertex="1">
+          <mxGeometry height="72" width="210" y="188" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-39" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Medicine" vertex="1">
+          <mxGeometry height="238" width="200" x="780" y="-65" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-40" parent="hC2xpGGSRJ-h7zPUy2lg-39" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ name : string&lt;/div&gt;&lt;div&gt;+ expireTime : int&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ isReceptor : bool&lt;/div&gt;&lt;div&gt;+ methodApply : string&lt;/div&gt;&lt;div&gt;+ safeForPregnant: bool&lt;/div&gt;&lt;div&gt;+ safeForDrivers : bool&lt;/div&gt;&lt;div&gt;+ form : uuid&lt;/div&gt;&lt;div&gt;+ unit : uuid&lt;/div&gt;&lt;div&gt;+ recommendations : []uuid&lt;/div&gt;&lt;div&gt;+ contraindications : []uuid&lt;/div&gt;&lt;div&gt;+ subsctances : []ActiveSubstance&lt;/div&gt;&lt;div&gt;+ docages : []DosageRule&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="204" width="200" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-41" parent="hC2xpGGSRJ-h7zPUy2lg-39" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="200" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-43" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="ActiveSubstance" vertex="1">
+          <mxGeometry height="78" width="160" x="520" y="-175" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-44" parent="hC2xpGGSRJ-h7zPUy2lg-43" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ concentration : float32&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="44" width="160" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-45" parent="hC2xpGGSRJ-h7zPUy2lg-43" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="160" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-47" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-43" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-39" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="54" />
+            </Array>
+            <mxPoint x="680" y="-5" as="sourcePoint" />
+            <mxPoint x="840" y="-5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-49" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;DosageRule&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="128" width="160" x="1080" y="-200" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-50" parent="hC2xpGGSRJ-h7zPUy2lg-49" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ minValue : float32&lt;/div&gt;&lt;div&gt;+ maxValue : float32&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ type : DosageType&lt;/div&gt;&lt;div&gt;+ amount : float32&lt;/div&gt;&lt;div&gt;+ frequency : int&lt;/div&gt;" vertex="1">
+          <mxGeometry height="94" width="160" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-51" parent="hC2xpGGSRJ-h7zPUy2lg-49" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="160" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-53" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-49" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-39" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1160" y="54" />
+            </Array>
+            <mxPoint x="1090" y="74.66" as="sourcePoint" />
+            <mxPoint x="1250" y="74.66" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-54" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="CabinetItem" vertex="1">
+          <mxGeometry height="118" width="200" x="1880" y="-65" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-55" parent="hC2xpGGSRJ-h7zPUy2lg-54" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ userId : uuid&lt;/div&gt;&lt;div&gt;+ medicineId : uuid&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ expireDate : date&lt;/div&gt;&lt;div&gt;+ quantity : float32&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="84" width="200" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-56" parent="hC2xpGGSRJ-h7zPUy2lg-54" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="200" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-58" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-54">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1980" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-59" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IMedicineRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Save(ctx Context, user *model.Medicine): uuid, err&lt;br&gt;+ FindByID(ctx Context, id uuid): *model.Medicine, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByIllness(ctx Context, illlnessId uuid) : []*model.Medicine, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Delete(ctx Context, id uuid) : err&lt;/p&gt;&lt;br&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="150" width="376.25" x="1116.88" y="839" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-60" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-59">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-61" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="PostgresMedicineRepository" vertex="1">
+          <mxGeometry height="130" width="390" x="1110" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-62" parent="hC2xpGGSRJ-h7zPUy2lg-61" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ db : *Pool" vertex="1">
+          <mxGeometry height="26" width="390" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-63" parent="hC2xpGGSRJ-h7zPUy2lg-61" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="390" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-64" parent="hC2xpGGSRJ-h7zPUy2lg-61" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Save(ctx Context, user *model.Medicine): uuid, err&lt;br&gt;+ FindByID(ctx Context, id uuid): *model.Medicine, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByIllness(ctx Context, illlnessId uuid) : []*model.Medicine, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Delete(ctx Context, id uuid) : err&lt;/p&gt;" vertex="1">
+          <mxGeometry height="70" width="390" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-65" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;ICabinetRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Save(ctx Context, item *model.CabinetItem): uuid, err&lt;br&gt;+ FindByID(ctx Context, id uuid): *model.CabinetItem, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByUserID(ctx Context, userID uuid) : []*model.CabinetItem, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Delete(ctx Context, id uuid) : err&lt;/p&gt;&lt;br&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="140" width="397.5" x="2236.25" y="699" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-66" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-67" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-65">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-67" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="PostgresCabinetRepository" vertex="1">
+          <mxGeometry height="130" width="395" x="2237.5" y="945" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-68" parent="hC2xpGGSRJ-h7zPUy2lg-67" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ db : *Pool" vertex="1">
+          <mxGeometry height="26" width="395" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-69" parent="hC2xpGGSRJ-h7zPUy2lg-67" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="395" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-70" parent="hC2xpGGSRJ-h7zPUy2lg-67" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Save(ctx Context, item *model.CabinetItem): uuid, err&lt;br&gt;+ FindByID(ctx Context, id uuid): *model.CabinetItem, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByUserID(ctx Context, userID uuid) : []*model.CabinetItem, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Delete(ctx Context, id uuid) : err&lt;/p&gt;" vertex="1">
+          <mxGeometry height="70" width="395" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-75" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-59" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-30" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="660" y="880" as="sourcePoint" />
+            <mxPoint x="820" y="880" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-76" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-7" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-30" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1305" y="770" />
+            </Array>
+            <mxPoint x="860" y="780" as="sourcePoint" />
+            <mxPoint x="1020" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-77" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-65" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-30" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1305" y="770" />
+            </Array>
+            <mxPoint x="1940" y="810" as="sourcePoint" />
+            <mxPoint x="2100" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-83" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-86" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-54">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1980" y="580" />
+            </Array>
+            <mxPoint x="1970" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-82" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;ICabinetService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&amp;nbsp;+ cabinetRepo : ICabinetRepository&amp;nbsp;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddItem(ctx Context, cmd AddItemCmd): uuid, err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ RemoveItem(ctx Context, cmd RemoveItemCmd): err&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateQty(ctx Context, cmd UpdateQtyCmd): err&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="392.5" x="2236.25" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-84" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-65" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-82" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="2432.5" y="550" as="sourcePoint" />
+            <mxPoint x="2432.5" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-91" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-87" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="hC2xpGGSRJ-h7zPUy2lg-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-87" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="AdminService" vertex="1">
+          <mxGeometry height="100" width="325" x="2812.5" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-88" parent="hC2xpGGSRJ-h7zPUy2lg-87" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ medicineRepo : IMedicineRepository" vertex="1">
+          <mxGeometry height="26" width="325" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-89" parent="hC2xpGGSRJ-h7zPUy2lg-87" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="325" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-90" parent="hC2xpGGSRJ-h7zPUy2lg-87" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ EditMedicines(ctx Context, cmd EditMedicinesCmd) : err" vertex="1">
+          <mxGeometry height="40" width="325" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="hC2xpGGSRJ-h7zPUy2lg-93" edge="1" parent="1" source="hC2xpGGSRJ-h7zPUy2lg-59" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="hC2xpGGSRJ-h7zPUy2lg-87" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1610" y="910" />
+              <mxPoint x="1610" y="1120" />
+              <mxPoint x="2980" y="1120" />
+            </Array>
+            <mxPoint x="1440" y="1100" as="sourcePoint" />
+            <mxPoint x="1600" y="1100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,141 @@
+Table users {
+  id int [pk, increment]
+  login text [unique, not null]
+  password text [not null]
+  gender boolean
+  age int
+  weight numeric
+  is_pregnant boolean
+  needs_driving boolean
+}
+
+Table diseases {
+  id int [pk, increment]
+  name text [not null]
+}
+
+Table substances {
+  id int [pk, increment]
+  name text [not null]
+}
+
+Table forms {
+  id int [pk, increment]
+  name text [not null]
+}
+
+Table units {
+  id int [pk, increment]
+  name text [not null]
+}
+
+Table medicines {
+  id int [pk, increment]
+  name text [not null]
+  expiration_date date
+  form_id int
+  unit_id int
+}
+
+Table medicine_info {
+  medicine_id int [pk]
+  affects_driving boolean
+  pregnancy_allowed boolean
+  usage_method text
+  dispensing_conditions text
+}
+
+Table dosage_types {
+  id int [pk, increment]
+  name text [not null]
+}
+
+Table dosages {
+  id int [pk, increment]
+  medicine_id int
+  dosage_type_id int
+  single_dose numeric
+  min_value numeric
+  max_value numeric
+  times_per_day int
+}
+
+Table user_medicines {
+  id int [pk, increment]
+  user_id int
+  medicine_id int
+  manufacture_date date
+  quantity numeric
+}
+
+Table user_diseases {
+  user_id int
+  disease_id int
+
+  indexes {
+    (user_id, disease_id) [pk]
+  }
+}
+
+Table user_allergies {
+  user_id int
+  substance_id int
+
+  indexes {
+    (user_id, substance_id) [pk]
+  }
+}
+
+Table medicine_substances {
+  medicine_id int
+  substance_id int
+  concentration numeric
+
+  indexes {
+    (medicine_id, substance_id) [pk]
+  }
+}
+
+Table medicine_recommendations {
+  medicine_id int
+  disease_id int
+
+  indexes {
+    (medicine_id, disease_id) [pk]
+  }
+}
+
+Table medicine_contraindications {
+  medicine_id int
+  disease_id int
+
+  indexes {
+    (medicine_id, disease_id) [pk]
+  }
+}
+
+Ref: medicines.form_id > forms.id
+Ref: medicines.unit_id > units.id
+
+Ref: medicine_info.medicine_id > medicines.id
+
+Ref: dosages.medicine_id > medicines.id
+Ref: dosages.dosage_type_id > dosage_types.id
+
+Ref: user_medicines.user_id > users.id
+Ref: user_medicines.medicine_id > medicines.id
+
+Ref: user_diseases.user_id > users.id
+Ref: user_diseases.disease_id > diseases.id
+
+Ref: user_allergies.user_id > users.id
+Ref: user_allergies.substance_id > substances.id
+
+Ref: medicine_substances.medicine_id > medicines.id
+Ref: medicine_substances.substance_id > substances.id
+
+Ref: medicine_recommendations.medicine_id > medicines.id
+Ref: medicine_recommendations.disease_id > diseases.id
+
+Ref: medicine_contraindications.medicine_id > medicines.id
+Ref: medicine_contraindications.disease_id > diseases.id
