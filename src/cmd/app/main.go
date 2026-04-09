@@ -4,10 +4,10 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xtsank/mypills-super-service/internal/transport/handler"
 
 	"github.com/xtsank/mypills-super-service/internal/infra/postgres"
 	"github.com/xtsank/mypills-super-service/internal/service"
-	"github.com/xtsank/mypills-super-service/internal/transport"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	log.Println("Service layer initialized")
 
-	authHandler := transport.NewAuthHandler(authService)
+	authHandler := handler.NewAuthHandler(authService)
 	log.Println("Transport layer initialized")
 
 	router := gin.Default()

@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/internal/domain/user"
+	"github.com/xtsank/mypills-super-service/internal/errors"
 	"github.com/xtsank/mypills-super-service/internal/service/command"
 )
 
@@ -23,13 +23,12 @@ func NewAuthService(userRepo user.IUserRepository) *AuthService {
 
 func (s *AuthService) Register(ctx context.Context, cmd command.CreateUserCmd) (*user.User, error) {
 	existingUser, err := s.userRepo.FindByLogin(ctx, cmd.Login)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if existingUser != nil {
-		return nil, errors.New("user already exists")
+		return nil, errors.ErrUserExists
 	}
 
 	hashedPassword := cmd.Password //TODO
