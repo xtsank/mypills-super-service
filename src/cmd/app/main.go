@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/xtsank/mypills-super-service/internal/transport/handler"
+	"github.com/xtsank/mypills-super-service/internal/transport/middleware"
 
 	"github.com/xtsank/mypills-super-service/internal/infra/postgres"
 	"github.com/xtsank/mypills-super-service/internal/service"
@@ -14,16 +15,17 @@ func main() {
 	log.Println("Application is starting...")
 
 	userRepo := postgres.NewPostgresUserRepository("mama")
-	log.Println("Repository layer initialized")
-
 	authService := service.NewAuthService(userRepo)
-	log.Println("Service layer initialized")
-
 	authHandler := handler.NewAuthHandler(authService)
-	log.Println("Transport layer initialized")
+	log.Println("Layers initialized")
 
-	router := gin.Default()
+	router := gin.New()
 	log.Println("Gin router created")
+
+	router.Use(middleware.ResponseHandler())
+	router.Use(middleware.Logger())
+	router.Use(middleware.ErrorHandler())
+	log.Println("Middlewares registered")
 
 	apiV1Group := router.Group("/api/v1")
 	{

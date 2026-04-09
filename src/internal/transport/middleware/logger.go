@@ -14,8 +14,14 @@ func Logger() gin.HandlerFunc {
 
 		log.Printf("[INFO] %d %s %s (%v)", c.Writer.Status(), c.Request.Method, c.Request.URL.Path, time.Since(start))
 
-		for _, err := range c.Errors {
-			log.Printf("[ERROR] %v %v", err.Error(), err.Unwrap()) //TODO
+		for _, err := range c.Errors.ByType(gin.ErrorTypePublic) {
+			log.Printf("[ERROR] %v", err.Err)
+
+			if meta, ok := err.Meta.(map[string]any); ok {
+				if underlying, exists := meta["underlying"]; exists {
+					log.Printf("[DEBUG] Underlying error: %v", underlying)
+				}
+			}
 		}
 	}
 }
