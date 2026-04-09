@@ -24,6 +24,6 @@ func ErrorHandler() gin.HandlerFunc {
 		c.Set(ResponsePayloadKey, appErr)
 		c.Set(ResponseStatusKey, appErr.HTTPStatus)
 
-		c.Errors = nil
+		//c.Errors = nil
 	}
 }

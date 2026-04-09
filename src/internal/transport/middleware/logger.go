@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -14,13 +15,15 @@ func Logger() gin.HandlerFunc {
 
 		log.Printf("[INFO] %d %s %s (%v)", c.Writer.Status(), c.Request.Method, c.Request.URL.Path, time.Since(start))
 
-		for _, err := range c.Errors.ByType(gin.ErrorTypePublic) {
-			log.Printf("[ERROR] %v", err.Err)
+		if len(c.Errors) > 0 {
+			lastErr := c.Errors.Last()
 
-			if meta, ok := err.Meta.(map[string]any); ok {
-				if underlying, exists := meta["underlying"]; exists {
-					log.Printf("[DEBUG] Underlying error: %v", underlying)
-				}
+			underlyingErr := errors.Unwrap(lastErr.Err)
+
+			if underlyingErr != nil {
+				log.Printf("[ERROR] Business error: '%v', Underlying system error: '%v'", lastErr.Err, underlyingErr)
+			} else {
+				log.Printf("[ERROR] Business error: '%v'", lastErr.Err)
 			}
 		}
 	}

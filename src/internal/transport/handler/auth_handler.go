@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xtsank/mypills-super-service/internal/errors"
 	"github.com/xtsank/mypills-super-service/internal/service/command"
 	"github.com/xtsank/mypills-super-service/internal/transport/dto"
 	"github.com/xtsank/mypills-super-service/internal/transport/middleware"
@@ -24,7 +25,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	err := c.BindJSON(&input)
 	if err != nil {
-		_ = c.Error(err)
+		_ = c.Error(errors.ErrInvalidInput.WithError(err))
 		return
 	}
 

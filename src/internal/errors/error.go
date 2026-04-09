@@ -34,5 +34,6 @@ func New(code, message string, status int) *AppError {
 var (
 	ErrUserExists = New("USER_EXISTS", "user with this login already exists", http.StatusConflict)
 
-	ErrInternal = New("INTERNAL_ERROR", "internal server error", http.StatusInternalServerError)
+	ErrInternal     = New("INTERNAL_ERROR", "internal server error", http.StatusInternalServerError)
+	ErrInvalidInput = New("INVALID_INPUT", "invalid input data provided", http.StatusBadRequest)
 )

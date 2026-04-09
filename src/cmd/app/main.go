@@ -22,8 +22,8 @@ func main() {
 	router := gin.New()
 	log.Println("Gin router created")
 
-	router.Use(middleware.ResponseHandler())
 	router.Use(middleware.Logger())
+	router.Use(middleware.ResponseHandler())
 	router.Use(middleware.ErrorHandler())
 	log.Println("Middlewares registered")
 
