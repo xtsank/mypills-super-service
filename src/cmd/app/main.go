@@ -54,12 +54,17 @@ func main() {
 	do.Provide(i, func(i do.Injector) (service.IProfileService, error) {
 		return service.NewProfileService(i)
 	})
-
-	do.Provide(i, handler.NewAuthHandler)
 	do.Provide(i, func(i do.Injector) (service.IPasswordHasher, error) {
 		return service.NewBcryptHasher(i)
 	})
 	do.Provide(i, service.NewJWTManager)
+
+	// Handlers
+	do.Provide(i, handler.NewAuthHandler)
+	do.Provide(i, handler.NewCabinetHandler)
+	do.Provide(i, handler.NewProfileHandler)
+	do.Provide(i, handler.NewMedicineHandler)
+	do.Provide(i, handler.NewAdminHandler)
 
 	router := gin.New()
 	log.Println("Gin router created")
@@ -73,7 +78,15 @@ func main() {
 	log.Println("Middlewares registered")
 
 	authHandler := do.MustInvoke[*handler.AuthHandler](i)
-	authHandler.RegisterRoutes(router.Group("/"))
+	authHandler.RegisterRoutes(router.Group("/register"))
+	cabinetHandler := do.MustInvoke[*handler.CabinetHandler](i)
+	cabinetHandler.RegisterRoutes(router.Group("/cabinet"))
+	profileHandler := do.MustInvoke[*handler.ProfileHandler](i)
+	profileHandler.RegisterRoutes(router.Group("/profile"))
+	medicineHandler := do.MustInvoke[*handler.MedicineHandler](i)
+	medicineHandler.RegisterRoutes(router.Group("/medicine"))
+	adminHandler := do.MustInvoke[*handler.AdminHandler](i)
+	adminHandler.RegisterRoutes(router.Group("/admin"))
 	log.Println("Routes registered")
 
 	serverAddress := ":8080"

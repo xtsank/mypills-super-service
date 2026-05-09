@@ -68,4 +68,6 @@ var (
 
 	ErrInternal     = New("INTERNAL_ERROR", "internal server error", http.StatusInternalServerError)
 	ErrInvalidInput = New("INVALID_INPUT", "invalid input data provided", http.StatusBadRequest)
+
+	ErrUnauthorized = New("UNAUTHORIZED", "unauthorized access", http.StatusUnauthorized)
 )

@@ -15,9 +15,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/admin/medicine": {
             "post": {
-                "description": "Проверяет логин и пароль, возвращая данные пользователя при успешной авторизации",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создает новое лекарство",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,12 +30,415 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Admin"
+                ],
+                "summary": "Добавление лекарства",
+                "parameters": [
+                    {
+                        "description": "Данные лекарства",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AddMedicineDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Лекарство создано",
+                        "schema": {
+                            "$ref": "#/definitions/AdminResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаляет лекарство по идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Удаление лекарства",
+                "parameters": [
+                    {
+                        "description": "Идентификатор лекарства",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RemoveMedicineDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Лекарство удалено",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет данные лекарства",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Обновление лекарства",
+                "parameters": [
+                    {
+                        "description": "Поля для обновления",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateMedicineDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Лекарство обновлено",
+                        "schema": {
+                            "$ref": "#/definitions/AdminResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "Лекарство не найдено",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/medicine/composition": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет список действующих веществ",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Обновление состава",
+                "parameters": [
+                    {
+                        "description": "Состав лекарства",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCompositionDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Состав обновлен",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/medicine/contraindications": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет список противопоказаний для лекарства",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Обновление противопоказаний",
+                "parameters": [
+                    {
+                        "description": "Список противопоказаний",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateLinksDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Противопоказания обновлены",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/medicine/dosage": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Добавляет правило дозировки к лекарству",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Добавление правила дозировки",
+                "parameters": [
+                    {
+                        "description": "Правило дозировки",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AddDosageRuleDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Правило дозировки добавлено",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаляет правило дозировки по идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Удаление правила дозировки",
+                "parameters": [
+                    {
+                        "description": "Идентификатор правила",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RemoveDosageRuleDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Правило дозировки удалено",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/medicine/indications": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет список показаний для лекарства",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Обновление показаний",
+                "parameters": [
+                    {
+                        "description": "Список показаний",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateLinksDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Показания обновлены",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Проверяет логин и пароль, возвращает токен",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
                 ],
                 "summary": "Авторизация пользователя",
                 "parameters": [
                     {
-                        "description": "Данные пользователя (JSON)",
+                        "description": "Данные для входа",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -39,12 +447,37 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Успешный вход",
+                        "schema": {
+                            "$ref": "#/definitions/AuthResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверные учетные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
             }
         },
         "/auth/register": {
             "post": {
-                "description": "Создает аккаунт, сохраняя данные о весе, возрасте и аллергиях для подбора лекарств",
+                "description": "Создает аккаунт и сохраняет профиль пользователя",
                 "consumes": [
                     "application/json"
                 ],
@@ -52,12 +485,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
-                        "description": "Данные пользователя (JSON)",
+                        "description": "Данные пользователя",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -66,11 +499,506 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "201": {
+                        "description": "Пользователь зарегистрирован",
+                        "schema": {
+                            "$ref": "#/definitions/AuthResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/cabinet/items": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Добавляет новый предмет в кабинет пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cabinet"
+                ],
+                "summary": "Добавление лекарства в кабинет",
+                "parameters": [
+                    {
+                        "description": "Данные предмета",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AddItemDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Предмет добавлен",
+                        "schema": {
+                            "$ref": "#/definitions/CabinetResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаляет предмет по идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cabinet"
+                ],
+                "summary": "Удаление предмета из кабинета",
+                "parameters": [
+                    {
+                        "description": "Идентификатор предмета",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RemoveItemDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Предмет удален",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Изменяет количество предмета в кабинете",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cabinet"
+                ],
+                "summary": "Обновление количества",
+                "parameters": [
+                    {
+                        "description": "Новое количество",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateQtyDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Количество обновлено",
+                        "schema": {
+                            "$ref": "#/definitions/CabinetResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/medicine/select": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает рекомендации по лекарствам для болезни",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Medicine"
+                ],
+                "summary": "Подбор лекарств",
+                "parameters": [
+                    {
+                        "description": "Данные для подбора",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SelectMedicineDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Рекомендации",
+                        "schema": {
+                            "$ref": "#/definitions/MedicineResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/me": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Позволяет изменить параметры пользователя (вес, возраст, болезни и т.д.).\nПередавайте только те поля, которые нужно изменить.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Обновление данных профиля",
+                "parameters": [
+                    {
+                        "description": "Новые данные профиля",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateProfileDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Профиль успешно обновлен",
+                        "schema": {
+                            "$ref": "#/definitions/ProfileResDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные входные данные",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
+        "ActiveSubstanceDto": {
+            "type": "object",
+            "properties": {
+                "concentration": {
+                    "type": "number",
+                    "format": "float32"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "ActiveSubstanceResDto": {
+            "type": "object",
+            "properties": {
+                "concentration": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "AddDosageRuleDto": {
+            "type": "object",
+            "required": [
+                "dosage",
+                "medicine_id"
+            ],
+            "properties": {
+                "dosage": {
+                    "$ref": "#/definitions/DosageRuleDto"
+                },
+                "medicine_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "AddItemDto": {
+            "type": "object",
+            "required": [
+                "date_of_manufacture",
+                "medicine_id",
+                "quantity"
+            ],
+            "properties": {
+                "date_of_manufacture": {
+                    "type": "string"
+                },
+                "medicine_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                }
+            }
+        },
+        "AddMedicineDto": {
+            "type": "object",
+            "required": [
+                "contraindications",
+                "dosages",
+                "effect_on_driver",
+                "effect_on_pregnant",
+                "expire_time",
+                "form_id",
+                "is_prescription",
+                "method_of_application",
+                "name",
+                "recommendations",
+                "substances",
+                "unit_id"
+            ],
+            "properties": {
+                "contraindications": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dosages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DosageRuleDto"
+                    }
+                },
+                "effect_on_driver": {
+                    "type": "boolean"
+                },
+                "effect_on_pregnant": {
+                    "type": "boolean"
+                },
+                "expire_time": {
+                    "type": "integer"
+                },
+                "form_id": {
+                    "type": "string"
+                },
+                "is_prescription": {
+                    "type": "boolean"
+                },
+                "method_of_application": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "substances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ActiveSubstanceDto"
+                    }
+                },
+                "unit_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "AdminResDto": {
+            "type": "object",
+            "properties": {
+                "contraindications": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dosages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DosageRuleResDto"
+                    }
+                },
+                "effect_on_driver": {
+                    "type": "boolean"
+                },
+                "effect_on_pregnant": {
+                    "type": "boolean"
+                },
+                "expire_time": {
+                    "type": "integer"
+                },
+                "form_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_prescription": {
+                    "type": "boolean"
+                },
+                "method_of_application": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "substances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ActiveSubstanceResDto"
+                    }
+                },
+                "unit_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "AppError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "httpstatus": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "AuthResDto": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/ProfileResDto"
+                }
+            }
+        },
+        "CabinetResDto": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "medicine_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                }
+            }
+        },
         "CreateUserDto": {
             "type": "object",
             "required": [
@@ -117,6 +1045,72 @@ const docTemplate = `{
                 }
             }
         },
+        "DosageRuleDto": {
+            "type": "object",
+            "properties": {
+                "dosageValue": {
+                    "type": "number",
+                    "format": "float32"
+                },
+                "numberOfDosesPerDay": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/DosageType"
+                },
+                "valueFrom": {
+                    "type": "integer"
+                },
+                "valueTo": {
+                    "type": "integer"
+                }
+            }
+        },
+        "DosageRuleResDto": {
+            "type": "object",
+            "properties": {
+                "dosage_value": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "number_of_doses_per_day": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/DosageTypeResDto"
+                },
+                "value_from": {
+                    "type": "integer"
+                },
+                "value_to": {
+                    "type": "integer"
+                }
+            }
+        },
+        "DosageType": {
+            "type": "string",
+            "enum": [
+                "weight",
+                "age"
+            ],
+            "x-enum-varnames": [
+                "ByWeight",
+                "ByAge"
+            ]
+        },
+        "DosageTypeResDto": {
+            "type": "string",
+            "enum": [
+                "weight",
+                "age"
+            ],
+            "x-enum-varnames": [
+                "ByWeight",
+                "ByAge"
+            ]
+        },
         "LoginUserDto": {
             "type": "object",
             "required": [
@@ -129,6 +1123,255 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "MedicineRecommendation": {
+            "type": "object",
+            "properties": {
+                "dosage": {
+                    "type": "number"
+                },
+                "frequency": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "method_of_application": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quantity_in_cabinet": {
+                    "type": "number"
+                },
+                "unit_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "MedicineResDto": {
+            "type": "object",
+            "properties": {
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MedicineRecommendation"
+                    }
+                }
+            }
+        },
+        "ProfileResDto": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "allergies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "illnesses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_driver": {
+                    "type": "boolean"
+                },
+                "is_pregnant": {
+                    "type": "boolean"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "boolean"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "RemoveDosageRuleDto": {
+            "type": "object",
+            "required": [
+                "rule_id"
+            ],
+            "properties": {
+                "rule_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "RemoveItemDto": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "RemoveMedicineDto": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "SelectMedicineDto": {
+            "type": "object",
+            "required": [
+                "illness_id"
+            ],
+            "properties": {
+                "illness_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "SuccessResDTO": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "UpdateCompositionDto": {
+            "type": "object",
+            "required": [
+                "medicine_id",
+                "substances"
+            ],
+            "properties": {
+                "medicine_id": {
+                    "type": "string"
+                },
+                "substances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ActiveSubstanceDto"
+                    }
+                }
+            }
+        },
+        "UpdateLinksDto": {
+            "type": "object",
+            "required": [
+                "ids",
+                "medicine_id"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "medicine_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "UpdateMedicineDto": {
+            "type": "object",
+            "required": [
+                "effect_on_driver",
+                "effect_on_pregnant",
+                "expire_time",
+                "form_id",
+                "id",
+                "is_prescription",
+                "method_of_application",
+                "unit_id"
+            ],
+            "properties": {
+                "effect_on_driver": {
+                    "type": "boolean"
+                },
+                "effect_on_pregnant": {
+                    "type": "boolean"
+                },
+                "expire_time": {
+                    "type": "integer"
+                },
+                "form_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_prescription": {
+                    "type": "boolean"
+                },
+                "method_of_application": {
+                    "type": "string"
+                },
+                "unit_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "UpdateProfileDto": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "allergies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "illnesses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_driver": {
+                    "type": "boolean"
+                },
+                "is_pregnant": {
+                    "type": "boolean"
+                },
+                "sex": {
+                    "type": "boolean"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "UpdateQtyDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "qty"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "number"
                 }
             }
         }

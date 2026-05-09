@@ -2,7 +2,6 @@ package command
 
 import (
 	"github.com/google/uuid"
-	"github.com/xtsank/mypills-super-service/src/internal/errors"
 )
 
 type CreateUserCmd struct {
@@ -28,23 +27,7 @@ func NewCreateUserCmd(
 	isDriver bool,
 	illnesses []uuid.UUID,
 	allergies []uuid.UUID,
-) (*CreateUserCmd, error) {
-	if len(login) < 8 {
-		return nil, errors.ErrLoginTooShort
-	}
-
-	if len(password) < 8 {
-		return nil, errors.ErrPasswordTooShort
-	}
-
-	if weight <= 0 || weight > 500 {
-		return nil, errors.ErrWrongWeight
-	}
-
-	if age <= 0 || age > 120 {
-		return nil, errors.ErrWrongAge
-	}
-
+) *CreateUserCmd {
 	return &CreateUserCmd{
 		Login:      login,
 		Password:   password,
@@ -56,5 +39,5 @@ func NewCreateUserCmd(
 		IsDriver:   isDriver,
 		Illnesses:  illnesses,
 		Allergies:  allergies,
-	}, nil
+	}
 }
