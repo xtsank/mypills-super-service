@@ -12,3 +12,24 @@ type UpdateMedicineCmd struct {
 	FormID              *uuid.UUID
 	UnitID              *uuid.UUID
 }
+
+func NewUpdateMedicineCmd(id uuid.UUID,
+	expireTime *int,
+	isPrescription *bool,
+	methodOfApplication *string,
+	effectOnPregnant *bool,
+	effectOnDriver *bool,
+	formId *uuid.UUID,
+	unitId *uuid.UUID,
+) *UpdateMedicineCmd {
+	return &UpdateMedicineCmd{
+		ID:                  id,
+		ExpireTime:          expireTime,
+		IsPrescription:      isPrescription,
+		MethodOfApplication: methodOfApplication,
+		EffectOnPregnant:    effectOnPregnant,
+		EffectOnDriver:      effectOnDriver,
+		FormID:              formId,
+		UnitID:              unitId,
+	}
+}
