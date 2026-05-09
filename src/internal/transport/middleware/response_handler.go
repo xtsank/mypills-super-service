@@ -10,10 +10,6 @@ func ResponseHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
-		if c.Writer.Written() {
-			return
-		}
-
 		payload, pExists := c.Get(ResponsePayloadKey)
 		status, sExists := c.Get(ResponseStatusKey)
 
@@ -24,7 +20,10 @@ func ResponseHandler() gin.HandlerFunc {
 			c.Status(http.StatusNoContent)
 			return
 		}
-
-		c.JSON(status.(int), payload)
+		s, ok := status.(int)
+		if !ok {
+			s = http.StatusInternalServerError
+		}
+		c.JSON(s, payload)
 	}
 }

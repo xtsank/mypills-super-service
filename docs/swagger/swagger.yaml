@@ -1,0 +1,85 @@
+definitions:
+  CreateUserDto:
+    properties:
+      age:
+        type: integer
+      allergies:
+        items:
+          type: string
+        type: array
+      illnesses:
+        items:
+          type: string
+        type: array
+      is_driver:
+        type: boolean
+      is_pregnant:
+        type: boolean
+      login:
+        minLength: 8
+        type: string
+      password:
+        minLength: 8
+        type: string
+      sex:
+        type: boolean
+      weight:
+        type: integer
+    required:
+    - age
+    - login
+    - password
+    - weight
+    type: object
+  LoginUserDto:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    required:
+    - login
+    - password
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Проверяет логин и пароль, возвращая данные пользователя при успешной
+        авторизации
+      parameters:
+      - description: Данные пользователя (JSON)
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/LoginUserDto'
+      produces:
+      - application/json
+      responses: {}
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Создает аккаунт, сохраняя данные о весе, возрасте и аллергиях для
+        подбора лекарств
+      parameters:
+      - description: Данные пользователя (JSON)
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/CreateUserDto'
+      produces:
+      - application/json
+      responses: {}
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+swagger: "2.0"

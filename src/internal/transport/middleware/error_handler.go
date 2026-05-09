@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	app_errors "github.com/xtsank/mypills-super-service/internal/errors"
+	apperrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 )
 
 func ErrorHandler() gin.HandlerFunc {
@@ -16,14 +16,12 @@ func ErrorHandler() gin.HandlerFunc {
 		}
 
 		err := c.Errors.Last().Err
-		var appErr *app_errors.AppError
+		var appErr *apperrors.AppError
 		if !errors.As(err, &appErr) {
-			appErr = app_errors.ErrInternal.WithError(err)
+			appErr = apperrors.ErrInternal.WithError(err)
 		}
 
 		c.Set(ResponsePayloadKey, appErr)
 		c.Set(ResponseStatusKey, appErr.HTTPStatus)
-
-		//c.Errors = nil
 	}
 }

@@ -4,42 +4,83 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/xtsank/mypills-super-service/internal/transport/handler"
-	"github.com/xtsank/mypills-super-service/internal/transport/middleware"
+	"github.com/samber/do/v2"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	"github.com/xtsank/mypills-super-service/src/internal/domain/cabinet_item"
+	"github.com/xtsank/mypills-super-service/src/internal/domain/medicine"
+	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
+	"github.com/xtsank/mypills-super-service/src/internal/transport/handler"
+	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 
-	"github.com/xtsank/mypills-super-service/internal/infra/postgres"
-	"github.com/xtsank/mypills-super-service/internal/service"
+	_ "github.com/xtsank/mypills-super-service/docs/swagger"
+	"github.com/xtsank/mypills-super-service/src/internal/service"
 )
 
 func main() {
-	log.Println("Application is starting...")
+	i := do.New()
 
-	userRepo := postgres.NewPostgresUserRepository("mama")
-	authService := service.NewAuthService(userRepo)
-	authHandler := handler.NewAuthHandler(authService)
-	log.Println("Layers initialized")
+	// DB
+	do.Provide(i, config.NewConfig)
+	do.Provide(i, db.NewDB)
+
+	// Repo
+	do.Provide(i, func(i do.Injector) (user.IUserRepository, error) {
+		return repository.NewPostgresUserRepository(i)
+	})
+	do.Provide(i, func(i do.Injector) (medicine.IMedicineRepository, error) {
+		return repository.NewPostgresMedicineRepository(i)
+	})
+	do.Provide(i, func(i do.Injector) (cabinet_item.ICabinetItemRepository, error) {
+		return repository.NewPostgresCabinetItemRepository(i)
+	})
+
+	// Services
+	do.Provide(i, func(i do.Injector) (service.IAuthService, error) {
+		return service.NewAuthService(i)
+	})
+	do.Provide(i, func(i do.Injector) (service.IAdminService, error) {
+		return service.NewAdminService(i)
+	})
+	do.Provide(i, func(i do.Injector) (service.ICabinetService, error) {
+		return service.NewCabinetService(i)
+	})
+	do.Provide(i, func(i do.Injector) (service.IMedicineService, error) {
+		return service.NewMedicineService(i)
+	})
+	do.Provide(i, func(i do.Injector) (service.IProfileService, error) {
+		return service.NewProfileService(i)
+	})
+
+	do.Provide(i, handler.NewAuthHandler)
+	do.Provide(i, func(i do.Injector) (service.IPasswordHasher, error) {
+		return service.NewBcryptHasher(i)
+	})
+	do.Provide(i, service.NewJWTManager)
 
 	router := gin.New()
 	log.Println("Gin router created")
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	log.Println("Swagger registered")
 
 	router.Use(middleware.Logger())
 	router.Use(middleware.ResponseHandler())
 	router.Use(middleware.ErrorHandler())
 	log.Println("Middlewares registered")
 
-	apiV1Group := router.Group("/api/v1")
-	{
-		authGroup := apiV1Group.Group("/auth")
-		{
-			authGroup.POST("/register", authHandler.Register)
-		}
-	}
+	authHandler := do.MustInvoke[*handler.AuthHandler](i)
+	authHandler.RegisterRoutes(router.Group("/"))
 	log.Println("Routes registered")
 
 	serverAddress := ":8080"
 	log.Printf("Starting server on %s", serverAddress)
 
-	if err := router.Run(serverAddress); err != nil {
+	err := router.Run(serverAddress)
+	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
