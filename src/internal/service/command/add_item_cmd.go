@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/xtsank/mypills-super-service/src/internal/errors"
 )
 
 type AddItemCmd struct {
@@ -14,19 +13,11 @@ type AddItemCmd struct {
 	Quantity          float32
 }
 
-func NewAddItemCmd(userId, medicineId uuid.UUID, date time.Time, quantity float32) (*AddItemCmd, error) {
-	if quantity <= 0 {
-		return nil, errors.ErrQtyTooLow
-	}
-
-	if date.After(time.Now()) {
-		return nil, errors.ErrDateTooLate
-	}
-
+func NewAddItemCmd(userId, medicineId uuid.UUID, date time.Time, quantity float32) *AddItemCmd {
 	return &AddItemCmd{
 		UserID:            userId,
 		MedicineID:        medicineId,
 		DateOfManufacture: date,
 		Quantity:          quantity,
-	}, nil
+	}
 }

@@ -12,9 +12,9 @@ import (
 )
 
 type ICabinetService interface {
-	AddItem(ctx context.Context, cmd command.AddItemCmd) (*res.CabinetResDto, error)
-	RemoveItem(ctx context.Context, cmd command.RemoveItemCmd) error
-	UpdateQty(ctx context.Context, cmd command.UpdateQtyCmd) (*res.CabinetResDto, error)
+	AddItem(ctx context.Context, cmd *command.AddItemCmd) (*res.CabinetResDto, error)
+	RemoveItem(ctx context.Context, cmd *command.RemoveItemCmd) error
+	UpdateQty(ctx context.Context, cmd *command.UpdateQtyCmd) (*res.CabinetResDto, error)
 }
 
 type CabinetService struct {
@@ -27,7 +27,7 @@ func NewCabinetService(i do.Injector) (*CabinetService, error) {
 	return &CabinetService{cabinetRepo: cabinetRepo}, nil
 }
 
-func (s *CabinetService) AddItem(ctx context.Context, cmd command.AddItemCmd) (*res.CabinetResDto, error) {
+func (s *CabinetService) AddItem(ctx context.Context, cmd *command.AddItemCmd) (*res.CabinetResDto, error) {
 	existingItem, err := s.cabinetRepo.FindExistingCabinetItem(ctx, cmd.UserID, cmd.MedicineID, cmd.DateOfManufacture)
 	if err != nil {
 		return nil, err
@@ -60,11 +60,11 @@ func (s *CabinetService) AddItem(ctx context.Context, cmd command.AddItemCmd) (*
 	return res.NewCabinetResDto(item), nil
 }
 
-func (s *CabinetService) RemoveItem(ctx context.Context, cmd command.RemoveItemCmd) error {
+func (s *CabinetService) RemoveItem(ctx context.Context, cmd *command.RemoveItemCmd) error {
 	return s.cabinetRepo.Delete(ctx, cmd.ID)
 }
 
-func (s *CabinetService) UpdateQty(ctx context.Context, cmd command.UpdateQtyCmd) (*res.CabinetResDto, error) {
+func (s *CabinetService) UpdateQty(ctx context.Context, cmd *command.UpdateQtyCmd) (*res.CabinetResDto, error) {
 	existingItem, err := s.cabinetRepo.FindById(ctx, cmd.ID)
 	if err != nil {
 		return nil, err

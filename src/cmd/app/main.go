@@ -56,6 +56,7 @@ func main() {
 	})
 
 	do.Provide(i, handler.NewAuthHandler)
+	do.Provide(i, handler.NewCabinetHandler)
 	do.Provide(i, func(i do.Injector) (service.IPasswordHasher, error) {
 		return service.NewBcryptHasher(i)
 	})
@@ -73,7 +74,9 @@ func main() {
 	log.Println("Middlewares registered")
 
 	authHandler := do.MustInvoke[*handler.AuthHandler](i)
-	authHandler.RegisterRoutes(router.Group("/"))
+	authHandler.RegisterRoutes(router.Group("/register"))
+	cabinetHandler := do.MustInvoke[*handler.CabinetHandler](i)
+	cabinetHandler.RegisterRoutes(router.Group("/cabinet"))
 	log.Println("Routes registered")
 
 	serverAddress := ":8080"

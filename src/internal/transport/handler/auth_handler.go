@@ -48,7 +48,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	cmd, err := command.NewCreateUserCmd(
+	cmd := command.NewCreateUserCmd(
 		input.Login,
 		input.Password,
 		input.Sex,
@@ -59,10 +59,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		input.Illnesses,
 		input.Allergies,
 	)
-	if err != nil {
-		_ = c.Error(err)
-		return
-	}
 
 	result, err := h.authService.Register(c.Request.Context(), cmd)
 	if err != nil {
