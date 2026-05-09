@@ -11,6 +11,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/dto/req"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/dto/res"
+	_ "github.com/xtsank/mypills-super-service/src/internal/transport/dto/res"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 )
 
@@ -34,6 +35,17 @@ func (h *CabinetHandler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // AddItem godoc
+// @Summary      Добавление лекарства в кабинет
+// @Description  Добавляет новый предмет в кабинет пользователя
+// @Tags         Cabinet
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        input  body      req.AddItemDto      true  "Данные предмета"
+// @Success      201    {object}  res.CabinetResDto   "Предмет добавлен"
+// @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
+// @Failure      401    {object}  errors.AppError     "Пользователь не авторизован"
+// @Router       /cabinet/items [post]
 func (h *CabinetHandler) AddItem(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 	if !exists {
@@ -68,6 +80,17 @@ func (h *CabinetHandler) AddItem(c *gin.Context) {
 }
 
 // RemoveItem godoc
+// @Summary      Удаление предмета из кабинета
+// @Description  Удаляет предмет по идентификатору
+// @Tags         Cabinet
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        input  body      req.RemoveItemDto   true  "Идентификатор предмета"
+// @Success      200    {object}  res.SuccessResDTO   "Предмет удален"
+// @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
+// @Failure      401    {object}  errors.AppError     "Пользователь не авторизован"
+// @Router       /cabinet/items [delete]
 func (h *CabinetHandler) RemoveItem(c *gin.Context) {
 	_, exists := c.Get(middleware.UserIDKey)
 	if !exists {
@@ -98,6 +121,17 @@ func (h *CabinetHandler) RemoveItem(c *gin.Context) {
 }
 
 // UpdateQty godoc
+// @Summary      Обновление количества
+// @Description  Изменяет количество предмета в кабинете
+// @Tags         Cabinet
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        input  body      req.UpdateQtyDto    true  "Новое количество"
+// @Success      200    {object}  res.CabinetResDto   "Количество обновлено"
+// @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
+// @Failure      401    {object}  errors.AppError     "Пользователь не авторизован"
+// @Router       /cabinet/items [patch]
 func (h *CabinetHandler) UpdateQty(c *gin.Context) {
 	_, exists := c.Get(middleware.UserIDKey)
 	if !exists {

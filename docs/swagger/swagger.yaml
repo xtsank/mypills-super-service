@@ -1,4 +1,152 @@
 definitions:
+  ActiveSubstanceDto:
+    properties:
+      concentration:
+        format: float32
+        type: number
+      id:
+        type: string
+    type: object
+  ActiveSubstanceResDto:
+    properties:
+      concentration:
+        type: number
+      id:
+        type: string
+    type: object
+  AddDosageRuleDto:
+    properties:
+      dosage:
+        $ref: '#/definitions/DosageRuleDto'
+      medicine_id:
+        type: string
+    required:
+    - dosage
+    - medicine_id
+    type: object
+  AddItemDto:
+    properties:
+      date_of_manufacture:
+        type: string
+      medicine_id:
+        type: string
+      quantity:
+        type: number
+    required:
+    - date_of_manufacture
+    - medicine_id
+    - quantity
+    type: object
+  AddMedicineDto:
+    properties:
+      contraindications:
+        items:
+          type: string
+        type: array
+      dosages:
+        items:
+          $ref: '#/definitions/DosageRuleDto'
+        type: array
+      effect_on_driver:
+        type: boolean
+      effect_on_pregnant:
+        type: boolean
+      expire_time:
+        type: integer
+      form_id:
+        type: string
+      is_prescription:
+        type: boolean
+      method_of_application:
+        type: string
+      name:
+        type: string
+      recommendations:
+        items:
+          type: string
+        type: array
+      substances:
+        items:
+          $ref: '#/definitions/ActiveSubstanceDto'
+        type: array
+      unit_id:
+        type: string
+    required:
+    - contraindications
+    - dosages
+    - effect_on_driver
+    - effect_on_pregnant
+    - expire_time
+    - form_id
+    - is_prescription
+    - method_of_application
+    - name
+    - recommendations
+    - substances
+    - unit_id
+    type: object
+  AdminResDto:
+    properties:
+      contraindications:
+        items:
+          type: string
+        type: array
+      dosages:
+        items:
+          $ref: '#/definitions/DosageRuleResDto'
+        type: array
+      effect_on_driver:
+        type: boolean
+      effect_on_pregnant:
+        type: boolean
+      expire_time:
+        type: integer
+      form_id:
+        type: string
+      id:
+        type: string
+      is_prescription:
+        type: boolean
+      method_of_application:
+        type: string
+      name:
+        type: string
+      recommendations:
+        items:
+          type: string
+        type: array
+      substances:
+        items:
+          $ref: '#/definitions/ActiveSubstanceResDto'
+        type: array
+      unit_id:
+        type: string
+    type: object
+  AppError:
+    properties:
+      code:
+        type: string
+      httpstatus:
+        type: integer
+      message:
+        type: string
+    type: object
+  AuthResDto:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/ProfileResDto'
+    type: object
+  CabinetResDto:
+    properties:
+      id:
+        type: string
+      medicine_id:
+        type: string
+      quantity:
+        type: number
+    type: object
   CreateUserDto:
     properties:
       age:
@@ -31,6 +179,51 @@ definitions:
     - password
     - weight
     type: object
+  DosageRuleDto:
+    properties:
+      dosageValue:
+        format: float32
+        type: number
+      numberOfDosesPerDay:
+        type: integer
+      type:
+        $ref: '#/definitions/DosageType'
+      valueFrom:
+        type: integer
+      valueTo:
+        type: integer
+    type: object
+  DosageRuleResDto:
+    properties:
+      dosage_value:
+        type: number
+      id:
+        type: string
+      number_of_doses_per_day:
+        type: integer
+      type:
+        $ref: '#/definitions/DosageTypeResDto'
+      value_from:
+        type: integer
+      value_to:
+        type: integer
+    type: object
+  DosageType:
+    enum:
+    - weight
+    - age
+    type: string
+    x-enum-varnames:
+    - ByWeight
+    - ByAge
+  DosageTypeResDto:
+    enum:
+    - weight
+    - age
+    type: string
+    x-enum-varnames:
+    - ByWeight
+    - ByAge
   LoginUserDto:
     properties:
       login:
@@ -41,17 +234,438 @@ definitions:
     - login
     - password
     type: object
+  MedicineRecommendation:
+    properties:
+      dosage:
+        type: number
+      frequency:
+        type: integer
+      id:
+        type: string
+      method_of_application:
+        type: string
+      name:
+        type: string
+      quantity_in_cabinet:
+        type: number
+      unit_name:
+        type: string
+    type: object
+  MedicineResDto:
+    properties:
+      recommendations:
+        items:
+          $ref: '#/definitions/MedicineRecommendation'
+        type: array
+    type: object
+  ProfileResDto:
+    properties:
+      age:
+        type: integer
+      allergies:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      illnesses:
+        items:
+          type: string
+        type: array
+      is_driver:
+        type: boolean
+      is_pregnant:
+        type: boolean
+      login:
+        type: string
+      sex:
+        type: boolean
+      weight:
+        type: integer
+    type: object
+  RemoveDosageRuleDto:
+    properties:
+      rule_id:
+        type: string
+    required:
+    - rule_id
+    type: object
+  RemoveItemDto:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  RemoveMedicineDto:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  SelectMedicineDto:
+    properties:
+      illness_id:
+        type: string
+    required:
+    - illness_id
+    type: object
+  SuccessResDTO:
+    properties:
+      status:
+        type: string
+    type: object
+  UpdateCompositionDto:
+    properties:
+      medicine_id:
+        type: string
+      substances:
+        items:
+          $ref: '#/definitions/ActiveSubstanceDto'
+        type: array
+    required:
+    - medicine_id
+    - substances
+    type: object
+  UpdateLinksDto:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+      medicine_id:
+        type: string
+    required:
+    - ids
+    - medicine_id
+    type: object
+  UpdateMedicineDto:
+    properties:
+      effect_on_driver:
+        type: boolean
+      effect_on_pregnant:
+        type: boolean
+      expire_time:
+        type: integer
+      form_id:
+        type: string
+      id:
+        type: string
+      is_prescription:
+        type: boolean
+      method_of_application:
+        type: string
+      unit_id:
+        type: string
+    required:
+    - effect_on_driver
+    - effect_on_pregnant
+    - expire_time
+    - form_id
+    - id
+    - is_prescription
+    - method_of_application
+    - unit_id
+    type: object
+  UpdateProfileDto:
+    properties:
+      age:
+        type: integer
+      allergies:
+        items:
+          type: string
+        type: array
+      illnesses:
+        items:
+          type: string
+        type: array
+      is_driver:
+        type: boolean
+      is_pregnant:
+        type: boolean
+      sex:
+        type: boolean
+      weight:
+        type: integer
+    type: object
+  UpdateQtyDto:
+    properties:
+      id:
+        type: string
+      qty:
+        type: number
+    required:
+    - id
+    - qty
+    type: object
 info:
   contact: {}
 paths:
+  /admin/medicine:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет лекарство по идентификатору
+      parameters:
+      - description: Идентификатор лекарства
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RemoveMedicineDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Лекарство удалено
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление лекарства
+      tags:
+      - Admin
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет данные лекарства
+      parameters:
+      - description: Поля для обновления
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateMedicineDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Лекарство обновлено
+          schema:
+            $ref: '#/definitions/AdminResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+        "404":
+          description: Лекарство не найдено
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление лекарства
+      tags:
+      - Admin
+    post:
+      consumes:
+      - application/json
+      description: Создает новое лекарство
+      parameters:
+      - description: Данные лекарства
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/AddMedicineDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Лекарство создано
+          schema:
+            $ref: '#/definitions/AdminResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление лекарства
+      tags:
+      - Admin
+  /admin/medicine/composition:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет список действующих веществ
+      parameters:
+      - description: Состав лекарства
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateCompositionDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Состав обновлен
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление состава
+      tags:
+      - Admin
+  /admin/medicine/contraindications:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет список противопоказаний для лекарства
+      parameters:
+      - description: Список противопоказаний
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateLinksDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Противопоказания обновлены
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление противопоказаний
+      tags:
+      - Admin
+  /admin/medicine/dosage:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет правило дозировки по идентификатору
+      parameters:
+      - description: Идентификатор правила
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RemoveDosageRuleDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Правило дозировки удалено
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление правила дозировки
+      tags:
+      - Admin
+    post:
+      consumes:
+      - application/json
+      description: Добавляет правило дозировки к лекарству
+      parameters:
+      - description: Правило дозировки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/AddDosageRuleDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Правило дозировки добавлено
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление правила дозировки
+      tags:
+      - Admin
+  /admin/medicine/indications:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет список показаний для лекарства
+      parameters:
+      - description: Список показаний
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateLinksDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Показания обновлены
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление показаний
+      tags:
+      - Admin
   /auth/login:
     post:
       consumes:
       - application/json
-      description: Проверяет логин и пароль, возвращая данные пользователя при успешной
-        авторизации
+      description: Проверяет логин и пароль, возвращает токен
       parameters:
-      - description: Данные пользователя (JSON)
+      - description: Данные для входа
         in: body
         name: input
         required: true
@@ -59,18 +673,33 @@ paths:
           $ref: '#/definitions/LoginUserDto'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: Успешный вход
+          schema:
+            $ref: '#/definitions/AuthResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Неверные учетные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/AppError'
       summary: Авторизация пользователя
       tags:
-      - auth
+      - Auth
   /auth/register:
     post:
       consumes:
       - application/json
-      description: Создает аккаунт, сохраняя данные о весе, возрасте и аллергиях для
-        подбора лекарств
+      description: Создает аккаунт и сохраняет профиль пользователя
       parameters:
-      - description: Данные пользователя (JSON)
+      - description: Данные пользователя
         in: body
         name: input
         required: true
@@ -78,8 +707,184 @@ paths:
           $ref: '#/definitions/CreateUserDto'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "201":
+          description: Пользователь зарегистрирован
+          schema:
+            $ref: '#/definitions/AuthResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "409":
+          description: Пользователь уже существует
+          schema:
+            $ref: '#/definitions/AppError'
       summary: Регистрация нового пользователя
       tags:
-      - auth
+      - Auth
+  /cabinet/items:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет предмет по идентификатору
+      parameters:
+      - description: Идентификатор предмета
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/RemoveItemDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Предмет удален
+          schema:
+            $ref: '#/definitions/SuccessResDTO'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление предмета из кабинета
+      tags:
+      - Cabinet
+    patch:
+      consumes:
+      - application/json
+      description: Изменяет количество предмета в кабинете
+      parameters:
+      - description: Новое количество
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateQtyDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Количество обновлено
+          schema:
+            $ref: '#/definitions/CabinetResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление количества
+      tags:
+      - Cabinet
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый предмет в кабинет пользователя
+      parameters:
+      - description: Данные предмета
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/AddItemDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Предмет добавлен
+          schema:
+            $ref: '#/definitions/CabinetResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление лекарства в кабинет
+      tags:
+      - Cabinet
+  /medicine/select:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает рекомендации по лекарствам для болезни
+      parameters:
+      - description: Данные для подбора
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/SelectMedicineDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Рекомендации
+          schema:
+            $ref: '#/definitions/MedicineResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/AppError'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Подбор лекарств
+      tags:
+      - Medicine
+  /profile/me:
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Позволяет изменить параметры пользователя (вес, возраст, болезни и т.д.).
+        Передавайте только те поля, которые нужно изменить.
+      parameters:
+      - description: Новые данные профиля
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateProfileDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Профиль успешно обновлен
+          schema:
+            $ref: '#/definitions/ProfileResDto'
+        "400":
+          description: Невалидные входные данные
+          schema:
+            $ref: '#/definitions/AppError'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление данных профиля
+      tags:
+      - Profile
 swagger: "2.0"

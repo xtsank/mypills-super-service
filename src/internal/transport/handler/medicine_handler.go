@@ -10,6 +10,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/service"
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/dto/req"
+	_ "github.com/xtsank/mypills-super-service/src/internal/transport/dto/res"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 )
 
@@ -31,6 +32,18 @@ func (h *MedicineHandler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // Select godoc
+// @Summary      Подбор лекарств
+// @Description  Возвращает рекомендации по лекарствам для болезни
+// @Tags         Medicine
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        input  body      req.SelectMedicineDto  true  "Данные для подбора"
+// @Success      200    {object}  res.MedicineResDto     "Рекомендации"
+// @Failure      400    {object}  errors.AppError        "Невалидные входные данные"
+// @Failure      401    {object}  errors.AppError        "Пользователь не авторизован"
+// @Failure      404    {object}  errors.AppError        "Пользователь не найден"
+// @Router       /medicine/select [post]
 func (h *MedicineHandler) Select(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 	if !exists {

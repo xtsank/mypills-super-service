@@ -10,6 +10,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/service"
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/dto/req"
+	_ "github.com/xtsank/mypills-super-service/src/internal/transport/dto/res"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 )
 
@@ -31,6 +32,18 @@ func (h *ProfileHandler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // UpdateProfile godoc
+// @Summary      Обновление данных профиля
+// @Description  Позволяет изменить параметры пользователя (вес, возраст, болезни и т.д.).
+// @Description  Передавайте только те поля, которые нужно изменить.
+// @Tags         Profile
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        input  body      req.UpdateProfileDto  true  "Новые данные профиля"
+// @Success      200    {object}  res.ProfileResDto     "Профиль успешно обновлен"
+// @Failure      400    {object}  errors.AppError       "Невалидные входные данные"
+// @Failure      401    {object}  errors.AppError       "Пользователь не авторизован"
+// @Router       /profile/me [patch]
 func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 	if !exists {

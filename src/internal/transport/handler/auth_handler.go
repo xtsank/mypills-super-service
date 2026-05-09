@@ -11,6 +11,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 
 	"github.com/xtsank/mypills-super-service/src/internal/service"
+	_ "github.com/xtsank/mypills-super-service/src/internal/transport/dto/res"
 )
 
 type AuthHandler struct {
@@ -33,11 +34,14 @@ func (h *AuthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 
 // Register godoc
 // @Summary      Регистрация нового пользователя
-// @Description  Создает аккаунт, сохраняя данные о весе, возрасте и аллергиях для подбора лекарств
-// @Tags         auth
+// @Description  Создает аккаунт и сохраняет профиль пользователя
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
-// @Param        input  body      req.CreateUserDto  true  "Данные пользователя (JSON)"
+// @Param        input  body      req.CreateUserDto  true  "Данные пользователя"
+// @Success      201    {object}  res.AuthResDto     "Пользователь зарегистрирован"
+// @Failure      400    {object}  errors.AppError    "Невалидные входные данные"
+// @Failure      409    {object}  errors.AppError    "Пользователь уже существует"
 // @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var input req.CreateUserDto
@@ -72,11 +76,15 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // Login godoc
 // @Summary      Авторизация пользователя
-// @Description  Проверяет логин и пароль, возвращая данные пользователя при успешной авторизации
-// @Tags         auth
+// @Description  Проверяет логин и пароль, возвращает токен
+// @Tags         Auth
 // @Accept       json
 // @Produce      json
-// @Param        input  body      req.LoginUserDto  true  "Данные пользователя (JSON)"
+// @Param        input  body      req.LoginUserDto  true  "Данные для входа"
+// @Success      200    {object}  res.AuthResDto    "Успешный вход"
+// @Failure      400    {object}  errors.AppError   "Невалидные входные данные"
+// @Failure      401    {object}  errors.AppError   "Неверные учетные данные"
+// @Failure      404    {object}  errors.AppError   "Пользователь не найден"
 // @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var input req.LoginUserDto
