@@ -23,7 +23,7 @@ type MedicineService struct {
 	cabinetRepo  cabinet_item.ICabinetItemRepository
 }
 
-func NewMedicineService(i do.Injector) (*MedicineService, error) {
+func NewMedicineService(i do.Injector) (IMedicineService, error) {
 	userRepo := do.MustInvoke[user.IUserRepository](i)
 	medicineRepo := do.MustInvoke[medicine.IMedicineRepository](i)
 	cabinetRepo := do.MustInvoke[cabinet_item.ICabinetItemRepository](i)

@@ -22,7 +22,7 @@ type AuthService struct {
 	tokenManager TokenManager
 }
 
-func NewAuthService(i do.Injector) (*AuthService, error) {
+func NewAuthService(i do.Injector) (IAuthService, error) {
 	userRepo := do.MustInvoke[user.IUserRepository](i)
 	hasher := do.MustInvoke[IPasswordHasher](i)
 	tokenManager := do.MustInvoke[TokenManager](i)

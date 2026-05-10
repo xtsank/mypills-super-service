@@ -18,7 +18,7 @@ type ProfileService struct {
 	userRepo user.IUserRepository
 }
 
-func NewProfileService(i do.Injector) (*ProfileService, error) {
+func NewProfileService(i do.Injector) (IProfileService, error) {
 	userRepo := do.MustInvoke[user.IUserRepository](i)
 
 	return &ProfileService{userRepo: userRepo}, nil

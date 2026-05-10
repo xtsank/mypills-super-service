@@ -1,11 +1,11 @@
 .PHONY: swag run
 
 swag:
-	swag init -g src/cmd/app/main.go -o docs/swagger --parseDependency --parseInternal --useStructName
+	swag init -q -g src/cmd/app/main.go -o docs/swagger --parseDependency --parseInternal --useStructName
 
 run: swag
 	go mod tidy
-	go run src/cmd/app/main.go
+	go run src/cmd/app/main.go src/cmd/app/app.go
 
 test_bl:
 	go test -v -cover -count=1 ./src/internal/service

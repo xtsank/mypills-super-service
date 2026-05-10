@@ -12,11 +12,11 @@ import (
 )
 
 type Config struct {
-	User     string
-	Password string
-	Name     string
-	Port     string
-	Host     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBPort     string
+	DBHost     string
 
 	JWTSecret     string
 	TokenDuration time.Duration
@@ -25,6 +25,8 @@ type Config struct {
 	DBMaxIdleConns    int
 	DBConnMaxLifetime time.Duration
 	DBConnMaxIdleTime time.Duration
+
+	ServerAddress string
 }
 
 func NewConfig(i do.Injector) (*Config, error) {
@@ -45,11 +47,11 @@ func NewConfig(i do.Injector) (*Config, error) {
 	maxIdleTime := parseDurationEnv("DB_CONN_MAX_IDLE_TIME", 5*time.Minute)
 
 	return &Config{
-		User:          os.Getenv("DB_USER"),
-		Password:      os.Getenv("DB_PASSWORD"),
-		Name:          os.Getenv("DB_NAME"),
-		Port:          os.Getenv("DB_PORT"),
-		Host:          os.Getenv("DB_HOST"),
+		DBUser:        os.Getenv("DB_USER"),
+		DBPassword:    os.Getenv("DB_PASSWORD"),
+		DBName:        os.Getenv("DB_NAME"),
+		DBPort:        os.Getenv("DB_PORT"),
+		DBHost:        os.Getenv("DB_HOST"),
 		JWTSecret:     os.Getenv("SECRET_KEY"),
 		TokenDuration: time.Duration(durationInt) * time.Second,
 
@@ -57,12 +59,14 @@ func NewConfig(i do.Injector) (*Config, error) {
 		DBMaxIdleConns:    maxIdle,
 		DBConnMaxLifetime: maxLifetime,
 		DBConnMaxIdleTime: maxIdleTime,
+
+		ServerAddress: os.Getenv("SERVER_PORT"),
 	}, nil
 }
 
 func (c *Config) ConnectionString() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		c.Host, c.Port, c.User, c.Password, c.Name)
+		c.DBHost, c.DBPort, c.DBUser, c.DBPassword, c.DBName)
 }
 
 func (c *Config) GetJWTConfig() (string, time.Duration) {
