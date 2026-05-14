@@ -71,7 +71,7 @@ func (s *CabinetService) UpdateQty(ctx context.Context, cmd *command.UpdateQtyCm
 	}
 
 	if existingItem == nil {
-		return nil, errors.ErrCabinetItemNotFound
+		return nil, errors.ErrCabinetItemNotFound.WithSource()
 	}
 
 	existingItem.Quantity = cmd.Quantity

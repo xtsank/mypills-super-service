@@ -14,7 +14,7 @@ type UpdateCompositionCmd struct {
 func NewUpdateCompositionCmd(id uuid.UUID, substances []*req.ActiveSubstanceDto) (*UpdateCompositionCmd, error) {
 	for _, s := range substances {
 		if s.Concentration <= 0 {
-			return nil, errors.ErrInvalidConcentration
+			return nil, errors.ErrInvalidConcentration.WithSource()
 		}
 	}
 

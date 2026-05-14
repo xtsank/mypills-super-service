@@ -77,7 +77,7 @@ func (s *AdminService) UpdateMedicine(ctx context.Context, cmd *command.UpdateMe
 		return nil, err
 	}
 	if med == nil {
-		return nil, errors.ErrMedicineNotFound
+		return nil, errors.ErrMedicineNotFound.WithSource()
 	}
 
 	if cmd.ExpireTime != nil {

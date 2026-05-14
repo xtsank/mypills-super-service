@@ -40,7 +40,7 @@ func (h *CabinetHandler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Tags         Cabinet
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.AddItemDto      true  "Данные предмета"
 // @Success      201    {object}  res.CabinetResDto   "Предмет добавлен"
 // @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
@@ -49,7 +49,7 @@ func (h *CabinetHandler) RegisterRoutes(rg *gin.RouterGroup) {
 func (h *CabinetHandler) AddItem(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 	if !exists {
-		_ = c.Error(errors.ErrUnauthorized)
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
 		return
 	}
 	userID := userIDValue.(uuid.UUID)
@@ -85,7 +85,7 @@ func (h *CabinetHandler) AddItem(c *gin.Context) {
 // @Tags         Cabinet
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.RemoveItemDto   true  "Идентификатор предмета"
 // @Success      200    {object}  res.SuccessResDTO   "Предмет удален"
 // @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
@@ -94,7 +94,7 @@ func (h *CabinetHandler) AddItem(c *gin.Context) {
 func (h *CabinetHandler) RemoveItem(c *gin.Context) {
 	_, exists := c.Get(middleware.UserIDKey)
 	if !exists {
-		_ = c.Error(errors.ErrUnauthorized)
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
 		return
 	}
 
@@ -126,7 +126,7 @@ func (h *CabinetHandler) RemoveItem(c *gin.Context) {
 // @Tags         Cabinet
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.UpdateQtyDto    true  "Новое количество"
 // @Success      200    {object}  res.CabinetResDto   "Количество обновлено"
 // @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
@@ -135,7 +135,7 @@ func (h *CabinetHandler) RemoveItem(c *gin.Context) {
 func (h *CabinetHandler) UpdateQty(c *gin.Context) {
 	_, exists := c.Get(middleware.UserIDKey)
 	if !exists {
-		_ = c.Error(errors.ErrUnauthorized)
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
 		return
 	}
 

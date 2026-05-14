@@ -186,7 +186,7 @@ func (r *PostgresMedicineRepository) FindByID(ctx context.Context, id uuid.UUID)
 		return nil, err
 	}
 	if ent == nil {
-		return nil, appErrors.ErrMedicineNotFound
+		return nil, appErrors.ErrMedicineNotFound.WithSource()
 	}
 
 	substances, err := r.getSubstances(ctx, ent.ID)
@@ -364,7 +364,10 @@ func (r *PostgresMedicineRepository) Create(ctx context.Context, med *medicine.M
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) deleteSubstances(ctx context.Context, tx *sqlx.Tx, medID uuid.UUID) error {
@@ -468,7 +471,10 @@ func (r *PostgresMedicineRepository) Update(ctx context.Context, med *medicine.M
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) deleteBase(ctx context.Context, tx *sqlx.Tx, id uuid.UUID) error {
@@ -507,7 +513,10 @@ func (r *PostgresMedicineRepository) Delete(ctx context.Context, id uuid.UUID) e
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) UpdateIndications(ctx context.Context, medicineID uuid.UUID, ids []uuid.UUID) error {
@@ -524,7 +533,10 @@ func (r *PostgresMedicineRepository) UpdateIndications(ctx context.Context, medi
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) UpdateContraindications(ctx context.Context, medicineID uuid.UUID, ids []uuid.UUID) error {
@@ -541,7 +553,10 @@ func (r *PostgresMedicineRepository) UpdateContraindications(ctx context.Context
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) UpdateComposition(ctx context.Context, medicineID uuid.UUID, substances []medicine.ActiveSubstance) error {
@@ -558,7 +573,10 @@ func (r *PostgresMedicineRepository) UpdateComposition(ctx context.Context, medi
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) AddDosageRule(ctx context.Context, medicineID uuid.UUID, rule *medicine.DosageRule) error {
@@ -572,7 +590,10 @@ func (r *PostgresMedicineRepository) AddDosageRule(ctx context.Context, medicine
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }
 
 func (r *PostgresMedicineRepository) DeleteDosageRule(ctx context.Context, ruleID uuid.UUID) error {
@@ -587,5 +608,8 @@ func (r *PostgresMedicineRepository) DeleteDosageRule(ctx context.Context, ruleI
 		return appErrors.ErrInternal.WithError(err)
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
 }

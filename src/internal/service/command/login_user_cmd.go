@@ -14,11 +14,11 @@ func NewLoginUserCmd(
 	password string,
 ) (*LoginUserCmd, error) {
 	if len(login) < 8 {
-		return nil, errors.ErrLoginTooShort
+		return nil, errors.ErrLoginTooShort.WithSource()
 	}
 
 	if len(password) < 8 {
-		return nil, errors.ErrPasswordTooShort
+		return nil, errors.ErrPasswordTooShort.WithSource()
 	}
 
 	return &LoginUserCmd{

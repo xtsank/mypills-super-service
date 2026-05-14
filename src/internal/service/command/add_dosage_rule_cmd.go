@@ -13,13 +13,13 @@ type AddDosageRuleCmd struct {
 
 func NewAddDosageRuleCmd(id uuid.UUID, dosage *req.DosageRuleDto) (*AddDosageRuleCmd, error) {
 	if dosage.ValueFrom < 0 || dosage.ValueTo < dosage.ValueFrom {
-		return nil, errors.ErrInvalidDosageRange
+		return nil, errors.ErrInvalidDosageRange.WithSource()
 	}
 	if dosage.DosageValue <= 0 {
-		return nil, errors.ErrInvalidDosageValue
+		return nil, errors.ErrInvalidDosageValue.WithSource()
 	}
 	if dosage.NumberOfDosesPerDay <= 0 {
-		return nil, errors.ErrInvalidNumDoses
+		return nil, errors.ErrInvalidNumDoses.WithSource()
 	}
 
 	return &AddDosageRuleCmd{

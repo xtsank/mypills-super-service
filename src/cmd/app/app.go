@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do/v2"
 	swaggerFiles "github.com/swaggo/files"
@@ -19,7 +21,8 @@ type App struct {
 	router *gin.Engine
 }
 
-func (app *App) provideDB() {
+func (app *App) provideMiddleware() {
+	do.Provide(app.i, middleware.NewLogger)
 	do.Provide(app.i, config.NewConfig)
 	do.Provide(app.i, db.NewDB)
 }
@@ -49,7 +52,7 @@ func (app *App) provideHandler() {
 }
 
 func (app *App) provideAll() {
-	app.provideDB()
+	app.provideMiddleware()
 	app.provideRepo()
 	app.provideService()
 	app.provideHandler()
@@ -60,7 +63,7 @@ func (app *App) initSwagger() {
 }
 
 func (app *App) initMiddlewares() {
-	app.router.Use(middleware.Logger())
+	app.router.Use(middleware.Logger(app.i))
 	app.router.Use(middleware.ResponseHandler())
 	app.router.Use(middleware.ErrorHandler())
 }
@@ -71,17 +74,20 @@ func (app *App) initRoutes() {
 	authHandler := do.MustInvoke[*handler.AuthHandler](app.i)
 	authHandler.RegisterRoutes(api)
 
+	protected := api.Group("/")
+	protected.Use(middleware.TokenVerifier(app.i))
+
 	cabinetHandler := do.MustInvoke[*handler.CabinetHandler](app.i)
-	cabinetHandler.RegisterRoutes(api)
+	cabinetHandler.RegisterRoutes(protected)
 
 	profileHandler := do.MustInvoke[*handler.ProfileHandler](app.i)
-	profileHandler.RegisterRoutes(api)
+	profileHandler.RegisterRoutes(protected)
 
 	medicineHandler := do.MustInvoke[*handler.MedicineHandler](app.i)
-	medicineHandler.RegisterRoutes(api)
+	medicineHandler.RegisterRoutes(protected)
 
 	adminHandler := do.MustInvoke[*handler.AdminHandler](app.i)
-	adminHandler.RegisterRoutes(api)
+	adminHandler.RegisterRoutes(protected)
 }
 
 func (app *App) initAll() {
@@ -106,11 +112,19 @@ func NewApp() *App {
 
 func (app *App) Run() error {
 	cfg := do.MustInvoke[*config.Config](app.i)
+	logger := do.MustInvoke[*slog.Logger](app.i)
 
 	addr := cfg.ServerAddress
 	if addr != "" && addr[0] != ':' {
 		addr = ":" + addr
 	}
 
+	logger.Info("server_start", slog.String("address", addr))
+
 	return app.router.Run(addr)
 }
+
+func (app *App) Logger() *slog.Logger {
+	return do.MustInvoke[*slog.Logger](app.i)
+}
+

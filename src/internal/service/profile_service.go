@@ -30,7 +30,7 @@ func (s *ProfileService) UpdateProfile(ctx context.Context, cmd *command.UpdateP
 		return nil, err
 	}
 	if u == nil {
-		return nil, errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound.WithSource()
 	}
 
 	if cmd.Sex != nil {

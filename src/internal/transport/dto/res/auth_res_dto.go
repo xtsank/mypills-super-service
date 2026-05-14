@@ -1,7 +1,6 @@
 package res
 
 import (
-	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
 )
 
@@ -12,7 +11,7 @@ type AuthResDto struct {
 
 func NewAuthResDto(u *user.User, token string) *AuthResDto {
 	return &AuthResDto{
-		Token: uuid.New().String(),
+		Token: token,
 		User:  NewProfileResDto(u),
 	}
 }

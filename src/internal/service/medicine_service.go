@@ -106,7 +106,7 @@ func (s *MedicineService) Select(ctx context.Context, cmd *command.SelectMedicin
 		return nil, err
 	}
 	if u == nil {
-		return nil, errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound.WithSource()
 	}
 
 	allMeds, err := s.medicineRepo.FindByIllness(ctx, cmd.IllnessID)

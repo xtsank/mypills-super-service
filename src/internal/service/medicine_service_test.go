@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -86,7 +87,7 @@ func (m *mockCabinetRepoForMed) FindById(ctx context.Context, id uuid.UUID) (*ca
 func TestMedicineService_Select_UserNotFound(t *testing.T) {
 	s := &MedicineService{userRepo: &mockUserRepoForMed{u: nil}}
 	_, err := s.Select(context.Background(), &command.SelectMedicineCmd{UserID: uuid.New()})
-	if err == nil || err != svcErrors.ErrUserNotFound {
+	if !errors.Is(err, svcErrors.ErrUserNotFound) {
 		t.Fatalf("expected ErrUserNotFound, got %v", err)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/samber/do/v2"
+	apperrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 )
 
@@ -49,7 +50,12 @@ func (m *JWTManager) GenerateToken(userID uuid.UUID, isAdmin bool) (string, erro
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte(m.secretKey))
+	signedToken, err := token.SignedString([]byte(m.secretKey))
+	if err != nil {
+		return "", apperrors.ErrInternal.WithError(err)
+	}
+
+	return signedToken, nil
 }
 
 func (m *JWTManager) VerifyToken(tokenStr string) (uuid.UUID, bool, error) {
@@ -61,12 +67,12 @@ func (m *JWTManager) VerifyToken(tokenStr string) (uuid.UUID, bool, error) {
 	})
 
 	if err != nil {
-		return uuid.Nil, false, err
+		return uuid.Nil, false, apperrors.ErrUnauthorized.WithError(err)
 	}
 
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
 		return claims.UserID, claims.IsAdmin, nil
 	}
 
-	return uuid.Nil, false, fmt.Errorf("invalid token")
+	return uuid.Nil, false, apperrors.ErrUnauthorized.WithSource()
 }

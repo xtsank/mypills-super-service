@@ -47,7 +47,7 @@ func TestCabinetService_AddItem_Existing(t *testing.T) {
 	s := &CabinetService{cabinetRepo: repo}
 
 	cmd := command.AddItemCmd{UserID: uuid.New(), MedicineID: uuid.New(), DateOfManufacture: ex.DateOfManufacture, Quantity: 3}
-	dto, err := s.AddItem(context.Background(), cmd)
+	dto, err := s.AddItem(context.Background(), &cmd)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -64,7 +64,7 @@ func TestCabinetService_AddItem_New(t *testing.T) {
 	s := &CabinetService{cabinetRepo: repo}
 
 	cmd := command.AddItemCmd{UserID: uuid.New(), MedicineID: uuid.New(), DateOfManufacture: time.Time{}, Quantity: 4}
-	dto, err := s.AddItem(context.Background(), cmd)
+	dto, err := s.AddItem(context.Background(), &cmd)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -80,7 +80,7 @@ func TestCabinetService_UpdateQty_NotFound(t *testing.T) {
 	repo := &mockCabinetRepo{existing: nil}
 	s := &CabinetService{cabinetRepo: repo}
 
-	_, err := s.UpdateQty(context.Background(), command.UpdateQtyCmd{ID: uuid.New(), Quantity: 1})
+	_, err := s.UpdateQty(context.Background(), &command.UpdateQtyCmd{ID: uuid.New(), Quantity: 1})
 	if !errors.Is(err, svcErrors.ErrCabinetItemNotFound) {
 		t.Fatalf("expected ErrCabinetItemNotFound, got %v", err)
 	}
@@ -91,7 +91,7 @@ func TestCabinetService_UpdateQty_Success(t *testing.T) {
 	repo := &mockCabinetRepo{existing: ex}
 	s := &CabinetService{cabinetRepo: repo}
 
-	dto, err := s.UpdateQty(context.Background(), command.UpdateQtyCmd{ID: ex.ID, Quantity: 10})
+	dto, err := s.UpdateQty(context.Background(), &command.UpdateQtyCmd{ID: ex.ID, Quantity: 10})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
@@ -108,7 +108,7 @@ func TestCabinetService_RemoveItem(t *testing.T) {
 	repo := &mockCabinetRepo{}
 	s := &CabinetService{cabinetRepo: repo}
 
-	err := s.RemoveItem(context.Background(), command.RemoveItemCmd{ID: id})
+	err := s.RemoveItem(context.Background(), &command.RemoveItemCmd{ID: id})
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
