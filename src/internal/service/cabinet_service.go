@@ -21,7 +21,7 @@ type CabinetService struct {
 	cabinetRepo cabinet_item.ICabinetItemRepository
 }
 
-func NewCabinetService(i do.Injector) (*CabinetService, error) {
+func NewCabinetService(i do.Injector) (ICabinetService, error) {
 	cabinetRepo := do.MustInvoke[cabinet_item.ICabinetItemRepository](i)
 
 	return &CabinetService{cabinetRepo: cabinetRepo}, nil
@@ -71,7 +71,7 @@ func (s *CabinetService) UpdateQty(ctx context.Context, cmd *command.UpdateQtyCm
 	}
 
 	if existingItem == nil {
-		return nil, errors.ErrCabinetItemNotFound
+		return nil, errors.ErrCabinetItemNotFound.WithSource()
 	}
 
 	existingItem.Quantity = cmd.Quantity

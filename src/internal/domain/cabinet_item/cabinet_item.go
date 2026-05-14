@@ -17,11 +17,11 @@ type CabinetItem struct {
 
 func NewCabinetItem(id, userID, medID uuid.UUID, date time.Time, quantity float32) (*CabinetItem, error) {
 	if quantity <= 0 {
-		return nil, errors.ErrQtyTooLow
+		return nil, errors.ErrQtyTooLow.WithSource()
 	}
 
 	if date.After(time.Now()) {
-		return nil, errors.ErrDateTooLate
+		return nil, errors.ErrDateTooLate.WithSource()
 	}
 
 	return &CabinetItem{

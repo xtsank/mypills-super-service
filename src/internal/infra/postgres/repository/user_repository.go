@@ -103,7 +103,7 @@ func (r *PostgresUserRepository) FindByLogin(ctx context.Context, login string) 
 		return nil, err
 	}
 	if ent == nil {
-		return nil, appErrors.ErrUserNotFound
+		return nil, appErrors.ErrUserNotFound.WithSource()
 	}
 
 	illnesses, err := r.getIllnesses(ctx, ent.ID)
@@ -137,7 +137,7 @@ func (r *PostgresUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*u
 		return nil, err
 	}
 	if ent == nil {
-		return nil, appErrors.ErrUserNotFound
+		return nil, appErrors.ErrUserNotFound.WithSource()
 	}
 
 	illnesses, err := r.getIllnesses(ctx, ent.ID)
@@ -324,5 +324,9 @@ func (r *PostgresUserRepository) Update(ctx context.Context, u *user.User) error
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+
+	return nil
 }

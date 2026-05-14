@@ -44,7 +44,7 @@ func (h *AdminHandler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.AddMedicineDto   true  "Данные лекарства"
 // @Success      201    {object}  res.AdminResDto      "Лекарство создано"
 // @Failure      400    {object}  errors.AppError      "Невалидные входные данные"
@@ -96,7 +96,7 @@ func (h *AdminHandler) AddMedicine(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.UpdateMedicineDto  true  "Поля для обновления"
 // @Success      200    {object}  res.AdminResDto        "Лекарство обновлено"
 // @Failure      400    {object}  errors.AppError        "Невалидные входные данные"
@@ -141,7 +141,7 @@ func (h *AdminHandler) UpdateMedicine(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.RemoveMedicineDto  true  "Идентификатор лекарства"
 // @Success      200    {object}  res.SuccessResDTO      "Лекарство удалено"
 // @Failure      400    {object}  errors.AppError        "Невалидные входные данные"
@@ -174,7 +174,7 @@ func (h *AdminHandler) RemoveMedicine(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.UpdateLinksDto  true  "Список показаний"
 // @Success      200    {object}  res.SuccessResDTO   "Показания обновлены"
 // @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
@@ -207,7 +207,7 @@ func (h *AdminHandler) UpdateIndications(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.UpdateLinksDto  true  "Список противопоказаний"
 // @Success      200    {object}  res.SuccessResDTO   "Противопоказания обновлены"
 // @Failure      400    {object}  errors.AppError     "Невалидные входные данные"
@@ -240,7 +240,7 @@ func (h *AdminHandler) UpdateContraindications(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.UpdateCompositionDto  true  "Состав лекарства"
 // @Success      200    {object}  res.SuccessResDTO         "Состав обновлен"
 // @Failure      400    {object}  errors.AppError           "Невалидные входные данные"
@@ -278,7 +278,7 @@ func (h *AdminHandler) UpdateComposition(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.AddDosageRuleDto  true  "Правило дозировки"
 // @Success      200    {object}  res.SuccessResDTO     "Правило дозировки добавлено"
 // @Failure      400    {object}  errors.AppError       "Невалидные входные данные"
@@ -316,7 +316,7 @@ func (h *AdminHandler) AddDosageRule(c *gin.Context) {
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.RemoveDosageRuleDto  true  "Идентификатор правила"
 // @Success      200    {object}  res.SuccessResDTO        "Правило дозировки удалено"
 // @Failure      400    {object}  errors.AppError          "Невалидные входные данные"
@@ -346,12 +346,12 @@ func (h *AdminHandler) RemoveDosageRule(c *gin.Context) {
 func isAdmin(c *gin.Context) bool {
 	isAdminValue, exists := c.Get(middleware.IsAdminKey)
 	if !exists {
-		_ = c.Error(errors.ErrUnauthorized)
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
 		return false
 	}
 	isAdmin, ok := isAdminValue.(bool)
 	if !ok || !isAdmin {
-		_ = c.Error(errors.ErrUnauthorized)
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
 		return false
 	}
 	return true

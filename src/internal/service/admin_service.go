@@ -26,7 +26,7 @@ type AdminService struct {
 	medicineRepo medicine.IMedicineRepository
 }
 
-func NewAdminService(i do.Injector) (*AdminService, error) {
+func NewAdminService(i do.Injector) (IAdminService, error) {
 	medicineRepo := do.MustInvoke[medicine.IMedicineRepository](i)
 
 	return &AdminService{medicineRepo: medicineRepo}, nil
@@ -77,7 +77,7 @@ func (s *AdminService) UpdateMedicine(ctx context.Context, cmd *command.UpdateMe
 		return nil, err
 	}
 	if med == nil {
-		return nil, errors.ErrMedicineNotFound
+		return nil, errors.ErrMedicineNotFound.WithSource()
 	}
 
 	if cmd.ExpireTime != nil {

@@ -33,19 +33,19 @@ func NewUser(
 	allergies []uuid.UUID,
 ) (*User, error) {
 	if len(login) == 0 {
-		return nil, errors.ErrLoginTooShort
+		return nil, errors.ErrLoginTooShort.WithSource()
 	}
 
 	if len(password) == 0 {
-		return nil, errors.ErrPasswordTooShort
+		return nil, errors.ErrPasswordTooShort.WithSource()
 	}
 
 	if weight <= 0 || weight > 500 {
-		return nil, errors.ErrWrongWeight
+		return nil, errors.ErrWrongWeight.WithSource()
 	}
 
 	if age <= 0 || age > 120 {
-		return nil, errors.ErrWrongAge
+		return nil, errors.ErrWrongAge.WithSource()
 	}
 
 	if illnesses == nil {

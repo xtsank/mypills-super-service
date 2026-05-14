@@ -13,6 +13,7 @@ import (
 	"github.com/samber/do/v2"
 	cfgpkg "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
+	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 )
 
 // setupTestDB connects to the database using the same providers as main (config + db.NewDB).
@@ -23,6 +24,7 @@ func setupTestDB(t *testing.T) *sqlx.DB {
 	loadTestEnv(t)
 
 	i := do.New()
+	do.Provide(i, middleware.NewLogger)
 	do.Provide(i, cfgpkg.NewConfig)
 
 	var d *sqlx.DB

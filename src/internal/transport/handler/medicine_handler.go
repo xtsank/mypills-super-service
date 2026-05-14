@@ -37,7 +37,7 @@ func (h *MedicineHandler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Tags         Medicine
 // @Accept       json
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security BearerAuth
 // @Param        input  body      req.SelectMedicineDto  true  "Данные для подбора"
 // @Success      200    {object}  res.MedicineResDto     "Рекомендации"
 // @Failure      400    {object}  errors.AppError        "Невалидные входные данные"
@@ -47,7 +47,7 @@ func (h *MedicineHandler) RegisterRoutes(rg *gin.RouterGroup) {
 func (h *MedicineHandler) Select(c *gin.Context) {
 	userIDValue, exists := c.Get(middleware.UserIDKey)
 	if !exists {
-		_ = c.Error(errors.ErrUnauthorized)
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
 		return
 	}
 	userID := userIDValue.(uuid.UUID)

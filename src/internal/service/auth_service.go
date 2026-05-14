@@ -22,7 +22,7 @@ type AuthService struct {
 	tokenManager TokenManager
 }
 
-func NewAuthService(i do.Injector) (*AuthService, error) {
+func NewAuthService(i do.Injector) (IAuthService, error) {
 	userRepo := do.MustInvoke[user.IUserRepository](i)
 	hasher := do.MustInvoke[IPasswordHasher](i)
 	tokenManager := do.MustInvoke[TokenManager](i)
@@ -41,7 +41,7 @@ func (s *AuthService) Register(ctx context.Context, cmd *command.CreateUserCmd) 
 	}
 
 	if exists {
-		return nil, errors.ErrUserExists
+		return nil, errors.ErrUserExists.WithSource()
 	}
 
 	hashedPassword, err := s.hasher.Hash(cmd.Password)
@@ -86,12 +86,12 @@ func (s *AuthService) Login(ctx context.Context, cmd *command.LoginUserCmd) (*re
 	}
 
 	if u == nil {
-		return nil, errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound.WithSource()
 	}
 
 	err = s.hasher.Compare(u.Password, cmd.Password)
 	if err != nil {
-		return nil, errors.ErrInvalidCredentials
+		return nil, errors.ErrInvalidCredentials.WithSource()
 	}
 
 	token, err := s.tokenManager.GenerateToken(u.ID, u.IsAdmin)

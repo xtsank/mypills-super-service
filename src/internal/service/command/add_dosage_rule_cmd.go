@@ -2,7 +2,6 @@ package command
 
 import (
 	"github.com/google/uuid"
-	"github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/dto/req"
 )
 
@@ -12,16 +11,6 @@ type AddDosageRuleCmd struct {
 }
 
 func NewAddDosageRuleCmd(id uuid.UUID, dosage *req.DosageRuleDto) (*AddDosageRuleCmd, error) {
-	if dosage.ValueFrom < 0 || dosage.ValueTo < dosage.ValueFrom {
-		return nil, errors.ErrInvalidDosageRange
-	}
-	if dosage.DosageValue <= 0 {
-		return nil, errors.ErrInvalidDosageValue
-	}
-	if dosage.NumberOfDosesPerDay <= 0 {
-		return nil, errors.ErrInvalidNumDoses
-	}
-
 	return &AddDosageRuleCmd{
 		MedicineID: id,
 		Dosage:     dosage,

@@ -12,6 +12,18 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./src/internal/infra/postgres/init:/docker-entrypoint-initdb.d
+  app:
+    build: .
+    container_name: mypills-app
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "${SERVER_PORT}:8080"
+    volumes:
+      - ./logs:/root/logs
 
 volumes:
   pgdata:

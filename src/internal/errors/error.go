@@ -2,14 +2,19 @@ package errors
 
 import (
 	"net/http"
+	"runtime"
 )
 
 type AppError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 
-	HTTPStatus int
+	HTTPStatus int `json:"-"`
 	underlying error
+
+	SourceFile string `json:"-"`
+	SourceLine int    `json:"-"`
+	SourceFunc string `json:"-"`
 }
 
 func (e *AppError) Error() string {
@@ -20,9 +25,23 @@ func (e *AppError) Unwrap() error {
 	return e.underlying
 }
 
+func (e *AppError) WithSource() *AppError {
+	cloned := *e
+	if cloned.SourceFile == "" {
+		cloned.captureSource(1)
+	}
+	return &cloned
+}
+
 func (e *AppError) WithError(err error) *AppError {
-	e.underlying = err
-	return e
+	cloned := *e
+	cloned.underlying = err
+
+	if cloned.SourceFile == "" {
+		cloned.captureSource(1)
+	}
+
+	return &cloned
 }
 
 func (e *AppError) Is(target error) bool {
@@ -32,6 +51,20 @@ func (e *AppError) Is(target error) bool {
 	}
 
 	return e.Code == t.Code
+}
+
+func (e *AppError) captureSource(skip int) {
+	pc, file, line, ok := runtime.Caller(skip + 1)
+	if !ok {
+		return
+	}
+
+	e.SourceFile = file
+	e.SourceLine = line
+
+	if fn := runtime.FuncForPC(pc); fn != nil {
+		e.SourceFunc = fn.Name()
+	}
 }
 
 func New(code, message string, status int) *AppError {

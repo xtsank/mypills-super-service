@@ -15,21 +15,21 @@ func TokenVerifier(i do.Injector) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			_ = c.Error(errors.ErrUnauthorized)
+			_ = c.Error(errors.ErrUnauthorized.WithSource())
 			c.Abort()
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			_ = c.Error(errors.ErrUnauthorized)
+			_ = c.Error(errors.ErrUnauthorized.WithSource())
 			c.Abort()
 			return
 		}
 
 		userID, isAdmin, err := tokenManager.VerifyToken(parts[1])
 		if err != nil {
-			_ = c.Error(errors.ErrUnauthorized.WithError(err))
+			_ = c.Error(err)
 			c.Abort()
 			return
 		}

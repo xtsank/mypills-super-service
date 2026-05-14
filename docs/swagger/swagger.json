@@ -8,7 +8,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Создает новое лекарство",
@@ -57,7 +57,7 @@
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Удаляет лекарство по идентификатору",
@@ -106,7 +106,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Обновляет данные лекарства",
@@ -163,7 +163,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Обновляет список действующих веществ",
@@ -214,7 +214,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Обновляет список противопоказаний для лекарства",
@@ -265,7 +265,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Добавляет правило дозировки к лекарству",
@@ -314,7 +314,7 @@
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Удаляет правило дозировки по идентификатору",
@@ -365,7 +365,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Обновляет список показаний для лекарства",
@@ -514,7 +514,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Добавляет новый предмет в кабинет пользователя",
@@ -563,7 +563,7 @@
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Удаляет предмет по идентификатору",
@@ -612,7 +612,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Изменяет количество предмета в кабинете",
@@ -663,7 +663,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Возвращает рекомендации по лекарствам для болезни",
@@ -720,7 +720,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Позволяет изменить параметры пользователя (вес, возраст, болезни и т.д.).\nПередавайте только те поля, которые нужно изменить.",
@@ -954,9 +954,6 @@
             "properties": {
                 "code": {
                     "type": "string"
-                },
-                "httpstatus": {
-                    "type": "integer"
                 },
                 "message": {
                     "type": "string"
@@ -1363,6 +1360,14 @@
                     "type": "number"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type 'Bearer ' followed by your token",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

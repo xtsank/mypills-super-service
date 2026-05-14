@@ -126,8 +126,6 @@ definitions:
     properties:
       code:
         type: string
-      httpstatus:
-        type: integer
       message:
         type: string
     type: object
@@ -430,7 +428,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Удаление лекарства
       tags:
       - Admin
@@ -465,7 +463,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Обновление лекарства
       tags:
       - Admin
@@ -496,7 +494,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Добавление лекарства
       tags:
       - Admin
@@ -528,7 +526,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Обновление состава
       tags:
       - Admin
@@ -560,7 +558,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Обновление противопоказаний
       tags:
       - Admin
@@ -592,7 +590,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Удаление правила дозировки
       tags:
       - Admin
@@ -623,7 +621,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Добавление правила дозировки
       tags:
       - Admin
@@ -655,7 +653,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Обновление показаний
       tags:
       - Admin
@@ -751,7 +749,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Удаление предмета из кабинета
       tags:
       - Cabinet
@@ -782,7 +780,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Обновление количества
       tags:
       - Cabinet
@@ -813,7 +811,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Добавление лекарства в кабинет
       tags:
       - Cabinet
@@ -849,7 +847,7 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Подбор лекарств
       tags:
       - Medicine
@@ -883,8 +881,14 @@ paths:
           schema:
             $ref: '#/definitions/AppError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Обновление данных профиля
       tags:
       - Profile
+securityDefinitions:
+  BearerAuth:
+    description: Type 'Bearer ' followed by your token
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -18,7 +18,7 @@ type ProfileService struct {
 	userRepo user.IUserRepository
 }
 
-func NewProfileService(i do.Injector) (*ProfileService, error) {
+func NewProfileService(i do.Injector) (IProfileService, error) {
 	userRepo := do.MustInvoke[user.IUserRepository](i)
 
 	return &ProfileService{userRepo: userRepo}, nil
@@ -30,7 +30,7 @@ func (s *ProfileService) UpdateProfile(ctx context.Context, cmd *command.UpdateP
 		return nil, err
 	}
 	if u == nil {
-		return nil, errors.ErrUserNotFound
+		return nil, errors.ErrUserNotFound.WithSource()
 	}
 
 	if cmd.Sex != nil {

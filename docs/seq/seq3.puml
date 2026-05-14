@@ -1,0 +1,35 @@
+@startuml
+title Сценарий: Подбор препарата при возникновении симптома
+
+actor "Пользователь" as User
+participant "Система" as System
+database "База данных" as DB
+
+User -> System: Выбрать симптом
+activate System
+
+System -> DB: Найти лекарства по симптому
+activate DB
+DB --> System: Список лекарств
+deactivate DB
+
+System -> System: Проверить безопасность (аллергии, противопоказания)
+
+System -> DB: Получить данные аптечки пользователя
+activate DB
+DB --> System: Список лекарств в наличии
+deactivate DB
+
+System -> System: Сопоставить найденные лекарства с аптечкой
+
+System -> DB: Получить правила дозировки
+activate DB
+DB --> System: Правила дозировки
+deactivate DB
+
+System -> System: Рассчитать дозировку
+
+System --> User: Показать рекомендацию
+deactivate System
+
+@enduml
