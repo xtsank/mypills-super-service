@@ -89,7 +89,7 @@ Search ..> CalcDose : <<include>>
 Search ..> CheckStatus : <<include>>
 
 Admin --> ManageMeds
-@endum
+@enduml
 ```
 
 ## ER-диаграмма

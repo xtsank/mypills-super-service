@@ -13,7 +13,7 @@ test_bl:
 	go test -v -cover -count=1 ./src/internal/service
 
 test_repo:
-	go test -v -cover ./src/internal/infra/postgres/repository
+	@export DB_HOST=localhost; go test -v -cover -count=1 ./src/internal/infra/postgres/repository
 
 test: test_bl test_repo
 

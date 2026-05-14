@@ -103,5 +103,4 @@ var (
 	ErrInvalidInput = New("INVALID_INPUT", "invalid input data provided", http.StatusBadRequest)
 
 	ErrUnauthorized = New("UNAUTHORIZED", "unauthorized access", http.StatusUnauthorized)
-	ErrNotFound    = New("NOT_FOUND", "resource not found", http.StatusNotFound)
 )
