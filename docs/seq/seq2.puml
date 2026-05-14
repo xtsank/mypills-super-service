@@ -1,0 +1,21 @@
+@startuml
+title Сценарий: Вход существующего пользователя
+
+actor "Пользователь" as User
+participant "Система" as System
+database "База данных" as DB
+
+User -> System: Ввести логин и пароль
+activate System
+
+System -> DB: Найти пользователя по логину
+activate DB
+DB --> System: Данные пользователя
+deactivate DB
+
+System -> System: Проверить пароль
+
+System --> User: Вход выполнен
+deactivate System
+
+@enduml

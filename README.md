@@ -38,7 +38,7 @@
 
 ### Администратор
 
-Следит за корректностью наполнения системы данными: добавление новых лекарственных средств, действующих веществ, актуализацию 
+Следит за корректностью наполнения системы данными: добавление новых лекарственных средств, актуализация 
 медицинских инструкций и правил дозирования.
 
 ### Неавторизованный пользователь
@@ -46,51 +46,7 @@
 Может войти или зарегистрироваться, указав детальную информацию о себе для грамотного подбора лекарства. 
 
 ## Use-case - диаграмма
-```puml
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Администратор" as Admin
-actor "Пользователь" as User
-actor "Неавторизованный пользователь" as Guest
-Admin ---|> User
-
-rectangle "Система 💊 MyPills" {
-    (Войти) as Login
-    (Зарегистрироваться) as Reg
-    (Заполнить профиль здоровья) as Profile
-    (Редактировать профиль здоровья) as UpdProfile
-    
-    (Подобрать лекарство по симптому) as Search
-    (Проверить аллергии) as CheckAllergy
-    (Проверить заболевания) as CheckIll
-    (Проверить статус) as CheckStatus
-    (Рассчитать дозировки) as CalcDose
-    
-    (Добавить лекарство в аптечку) as AddMed
-    (Провести ревизию аптечки) as Revision
-    
-    (Редактировать справочник) as ManageMeds
-}
-
-Guest ---> Login
-Guest ---> Reg
-Reg ..> Profile : <<include>>
-
-User ---> Search
-User ---> AddMed
-User ---> Revision
-User ---> UpdProfile
-
-Search ..> CheckAllergy : <<include>>
-Search ..> CheckIll : <<include>>
-Search ..> CalcDose : <<include>>
-Search ..> CheckStatus : <<include>>
-
-Admin --> ManageMeds
-@enduml
-```
+![](docs/use-case/use-case.svg)
 
 ## ER-диаграмма
 ![ER-диаграмма MyPills](docs/erd/erd.svg)
@@ -139,104 +95,7 @@ Admin --> ManageMeds
 
 ---
 ## Формализация бизнес-процессов
-```puml
-@startuml
-skinparam defaultFontSize 12
-skinparam activity {
-  BackgroundColor #F9F9F9
-  BorderColor #333
-  ArrowColor #333
-}
-skinparam partitionBorderColor #333
-skinparam partitionBackgroundColor #EEE
-
-|Пользователь|
-start
-:Открыть приложение;
-
-if (Уже зарегистрирован?) then (нет)
-  :Выполнить регистрацию;
-  :Заполнить профиль здоровья;
-    |Сервер|
-:Проверить данные;
-:Сохранить профиль;
-  |База данных|
-:Запись в БД;
-
-  |Пользователь|
-else (да)
-  :Выполнить вход;
-endif
-
-|Пользователь|
-:Главный экран;
-
-repeat
-  :Выбрать действие;
-  
-  if (Управление аптечкой?) then (да)
-    :Показать список лекарств;
-    :Отметить просроченные;
-    
-    if (Добавление?) then (да)
-      :Ввести номер/название;
-      |Сервер|
-      :Записать в аптечку;
-      |База данных|
-      :Сохранить запись;
-      |Пользователь|
-    elseif (Удаление?) then (да)
-      :Выбрать упаковку;
-      |Сервер|
-      :Удалить запись;
-      |База данных|
-      :Удалить из БД;
-      |Пользователь|
-    endif
-    |Сервер|
-    :Обновить данные;
-    |База данных|
-    :Обновить БД;
-  elseif (Редактирование профиля?) then (да)
-    :Изменить данные;
-    |Сервер|
-    :Сохранить изменения;
-    |База данных|
-    :Записать в БД;
-  elseif (Подбор по симптому?) then (да)
-    :Выбрать симптом;
-    |Сервер|
-    :Выполнить подбор;
-    |База данных|
-    :Чтение из БД;
-    |Сервер|
-    if (Найдено в аптечке?) then (да)
-      :Показать рекомендацию;
-      |Пользователь|
-      if (Подтвердить приём?) then (да)
-        :Подтвердить;
-        |Сервер|
-        :Списать количество;
-        |База данных|
-        :Обновить остаток;
-      else
-        :Отменить;
-      endif
-    else (нет)
-      :Сообщить об отсутствии;
-    endif
-  endif
-  
-  |Пользователь|
-  :Обновить главный экран;
-repeat while (Продолжить?) is (да)
--> нет;
-
-|Сервер|
-:Выйти из аккаунта;
-stop
-@enduml
-```
+![](docs/bpmn/bpmn.svg)
 
 ## Тип приложения
 
@@ -246,116 +105,26 @@ Web Multi Page Application
 
 ### Context (L1)
 
-![](docs/c4/Context.png)
+![](docs/c4/Context.svg)
 
 ### Container (L2)
 
-![](docs/c4/Containers.png)
+![](docs/c4/Containers.svg)
 
 ### Component (L3)
 
-![](docs/c4/Components.png)
+![](docs/c4/Components.svg)
 
 ### Code (L4)
 
-![](docs/class/Code.png)
+![](docs/class/Code.svg)
 
 ## Диаграммы последовательностей
 
-
-```puml
-@startuml
-title Сценарий: Регистрация нового пользователя
-
-actor "Пользователь" as User
-participant "Система" as System
-database "База данных" as DB
-
-User -> System: 1. Ввести данные регистрации
-activate System
-
-System -> System: 2. Валидация данных
-
-System -> DB: 3. Проверить уникальность логина
-activate DB
-DB --> System: Логин свободен
-deactivate DB
-
-System -> System: 4. Хешировать пароль
-
-System -> DB: 5. Сохранить пользователя
-activate DB
-DB --> System: Пользователь создан
-deactivate DB
-
-System --> User: 6. Регистрация успешна
-deactivate System
-
-@enduml
-```
-
-```puml
-@startuml
-title Сценарий: Вход существующего пользователя
-
-actor "Пользователь" as User
-participant "Система" as System
-database "База данных" as DB
-
-User -> System: Ввести логин и пароль
-activate System
-
-System -> DB: Найти пользователя по логину
-activate DB
-DB --> System: Данные пользователя
-deactivate DB
-
-System -> System: Проверить пароль
-
-System --> User: Вход выполнен
-deactivate System
-
-@enduml
-```
-
-```puml
-@startuml
-title Сценарий: Подбор препарата при возникновении симптома
-
-actor "Пользователь" as User
-participant "Система" as System
-database "База данных" as DB
-
-User -> System: Выбрать симптом
-activate System
-
-System -> DB: Найти лекарства по симптому
-activate DB
-DB --> System: Список лекарств
-deactivate DB
-
-System -> System: Проверить безопасность (аллергии, противопоказания)
-
-System -> DB: Получить данные аптечки пользователя
-activate DB
-DB --> System: Список лекарств в наличии
-deactivate DB
-
-System -> System: Сопоставить найденные лекарства с аптечкой
-
-System -> DB: Получить правила дозировки
-activate DB
-DB --> System: Правила дозировки
-deactivate DB
-
-System -> System: Рассчитать дозировку
-
-System --> User: Показать рекомендацию
-deactivate System
-
-@enduml
-```
+![](docs/seq/seq1.svg)
+![](docs/seq/seq2.svg)
+![](docs/seq/seq3.svg)
 
 ## Диаграмма БД
 
-![](docs/dm_schema/schema_db.png)
+![](docs/dm_schema/schema.svg)

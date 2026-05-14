@@ -1,0 +1,28 @@
+@startuml
+title Сценарий: Регистрация нового пользователя
+
+actor "Пользователь" as User
+participant "Система" as System
+database "База данных" as DB
+
+User -> System: 1. Ввести данные регистрации
+activate System
+
+System -> System: 2. Валидация данных
+
+System -> DB: 3. Проверить уникальность логина
+activate DB
+DB --> System: Логин свободен
+deactivate DB
+
+System -> System: 4. Хешировать пароль
+
+System -> DB: 5. Сохранить пользователя
+activate DB
+DB --> System: Пользователь создан
+deactivate DB
+
+System --> User: 6. Регистрация успешна
+deactivate System
+
+@enduml

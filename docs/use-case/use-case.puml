@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Администратор" as Admin
+actor "Пользователь" as User
+actor "Неавторизованный пользователь" as Guest
+Admin ---|> User
+
+rectangle "Система MyPills" {
+    (Войти) as Login
+    (Зарегистрироваться) as Reg
+    (Заполнить профиль здоровья) as Profile
+    (Редактировать профиль здоровья) as UpdProfile
+
+    (Подобрать лекарство по симптому) as Search
+    (Проверить аллергии) as CheckAllergy
+    (Проверить заболевания) as CheckIll
+    (Проверить статус) as CheckStatus
+    (Рассчитать дозировки) as CalcDose
+
+    (Добавить лекарство в аптечку) as AddMed
+    (Провести ревизию аптечки) as Revision
+
+    (Редактировать справочник) as ManageMeds
+}
+
+Guest ---> Login
+Guest ---> Reg
+Reg ..> Profile : <<include>>
+
+User ---> Search
+User ---> AddMed
+User ---> Revision
+User ---> UpdProfile
+
+Search ..> CheckAllergy : <<include>>
+Search ..> CheckIll : <<include>>
+Search ..> CalcDose : <<include>>
+Search ..> CheckStatus : <<include>>
+
+Admin --> ManageMeds
+@enduml

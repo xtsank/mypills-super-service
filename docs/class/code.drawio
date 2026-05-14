@@ -1,0 +1,356 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Страница-1" id="fOSO4dDHrmpG93o9Ztwf">
+    <mxGraphModel dx="5007" dy="2713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-1" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IAuthService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Register(ctx context.Context, cmd *command.CreateUserCmd) (*res.AuthResDto, error)&amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Login(ctx context.Context, cmd *command.LoginUserCmd) (*res.AuthResDto, error)&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="490" x="-445" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-2" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-4" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="AuthService" vertex="1">
+          <mxGeometry height="100" width="495" x="-447.5" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-5" parent="Ec4PKi7d0ytt0PHMZjSc-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ userRepo : IUserRepository" vertex="1">
+          <mxGeometry height="26" width="495" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-6" parent="Ec4PKi7d0ytt0PHMZjSc-4" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="495" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-7" parent="Ec4PKi7d0ytt0PHMZjSc-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Register(ctx context.Context, cmd *command.CreateUserCmd) (*res.AuthResDto, error)&lt;/div&gt;&lt;div&gt;+ Login(ctx context.Context, cmd *command.LoginUserCmd) (*res.AuthResDto, error)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="495" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-8" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IUserRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByLogin(ctx context.Context, login string) (*User, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByID(ctx context.Context, id uuid.UUID) (*User, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ ExistsByLogin(ctx context.Context, login string) (bool, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Create(ctx context.Context, user *User) error&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Update(ctx context.Context, user *User) error&lt;/p&gt;&lt;br&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="200" width="290" x="20" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-9" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-8" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;curved=0;" target="Ec4PKi7d0ytt0PHMZjSc-4" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="-200" y="770" />
+            </Array>
+            <mxPoint x="-350" y="506" as="sourcePoint" />
+            <mxPoint x="-190" y="506" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-10" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-11" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="PostgresUserRepository" vertex="1">
+          <mxGeometry height="190" width="300" x="15" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-12" parent="Ec4PKi7d0ytt0PHMZjSc-11" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ db *sqlx.DB" vertex="1">
+          <mxGeometry height="26" width="300" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-13" parent="Ec4PKi7d0ytt0PHMZjSc-11" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="300" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-14" parent="Ec4PKi7d0ytt0PHMZjSc-11" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByLogin(ctx context.Context, login string) (*User, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByID(ctx context.Context, id uuid.UUID) (*User, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ ExistsByLogin(ctx context.Context, login string) (bool, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Create(ctx context.Context, user *User) error&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Update(ctx context.Context, user *User) error&lt;/p&gt;" vertex="1">
+          <mxGeometry height="130" width="300" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-15" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IProfileService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateProfile(ctx context.Context, cmd *command.UpdateProfileCmd) (*res.ProfileResDto, error)&lt;br&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="500" x="240" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-16" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IMedicineService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div&gt;+ Select(ctx context.Context, cmd *command.SelectMedicineCmd) (*res.MedicineResDto, error)&lt;/div&gt;&lt;br&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="100" width="655" x="977.51" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-17" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;ICabinetService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddItem(ctx context.Context, cmd *command.AddItemCmd) (*res.CabinetResDto, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ RemoveItem(ctx context.Context, cmd *command.RemoveItemCmd) error&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateQty(ctx context.Context, cmd *command.UpdateQtyCmd) (*res.CabinetResDto, error)&lt;/p&gt;" vertex="1">
+          <mxGeometry height="130" width="510" x="1741.25" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-18" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IAdminService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddMedicine(ctx context.Context, cmd *command.AddMedicineCmd) (*res.AdminResDto, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateMedicine(ctx context.Context, cmd *command.UpdateMedicineCmd) (*res.AdminResDto, error)&amp;nbsp; + RemoveMedicine(ctx context.Context, cmd *command.RemoveMedicineCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateIndications(ctx context.Context, cmd command.UpdateLinksCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateContraindications(ctx context.Context, cmd command.UpdateLinksCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateComposition(ctx context.Context, cmd command.UpdateCompositionCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddDosageRule(ctx context.Context, cmd command.AddDosageRuleCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ DeleteDosageRule(ctx context.Context, cmd command.RemoveDosageRuleCmd) error&lt;/p&gt;" vertex="1">
+          <mxGeometry height="200" width="566.25" x="2280" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-20" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-21" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="ProfileService" vertex="1">
+          <mxGeometry height="100" width="500" x="240" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-22" parent="Ec4PKi7d0ytt0PHMZjSc-21" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ userRepo : IUserRepository" vertex="1">
+          <mxGeometry height="26" width="500" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-23" parent="Ec4PKi7d0ytt0PHMZjSc-21" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="500" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-24" parent="Ec4PKi7d0ytt0PHMZjSc-21" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateProfile(ctx context.Context, cmd *command.UpdateProfileCmd) (*res.ProfileResDto, error)&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="40" width="500" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-25" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-8" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-21" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="770" />
+            </Array>
+            <mxPoint x="-50" y="765" as="sourcePoint" />
+            <mxPoint x="110" y="765" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-26" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-28" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="MedicineService" vertex="1">
+          <mxGeometry height="120" width="660" x="975" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-29" parent="Ec4PKi7d0ytt0PHMZjSc-28" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ userRepo : IUserRepository&lt;/div&gt;&lt;div&gt;+ medicineRepo : IMedicineRepository&lt;/div&gt;&lt;div&gt;+ cabinetRepo : ICabinetRepository&lt;/div&gt;" vertex="1">
+          <mxGeometry height="54" width="660" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-30" parent="Ec4PKi7d0ytt0PHMZjSc-28" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="660" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-31" parent="Ec4PKi7d0ytt0PHMZjSc-28" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Select(ctx context.Context, cmd *command.SelectMedicineCmd) (*res.MedicineResDto, error)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="32" width="660" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-32" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="User" vertex="1">
+          <mxGeometry height="260" width="210" x="-100" y="1180" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-33" parent="Ec4PKi7d0ytt0PHMZjSc-32" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ login : string&lt;br&gt;+ password : string&lt;/div&gt;&lt;div&gt;+ sex : bool&lt;/div&gt;&lt;div&gt;+ weight : float32&lt;/div&gt;&lt;div&gt;+ age : int&lt;/div&gt;&lt;div&gt;+ isPregnant : bool&lt;/div&gt;&lt;div&gt;+ isDriver : bool&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ illnesses : []uuid&lt;/div&gt;&lt;div&gt;+ allergies : []uuid&lt;/div&gt;" vertex="1">
+          <mxGeometry height="154" width="210" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-34" parent="Ec4PKi7d0ytt0PHMZjSc-32" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="210" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-35" parent="Ec4PKi7d0ytt0PHMZjSc-32" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ AddIllness(illnessID uuid): err&lt;br&gt;+ RemoveIllness(illnessID uuid): err&lt;br&gt;+ AddAllergy(allergyID uuid): err&lt;br&gt;+ RemoveAllergy(allergyID uuid): err" vertex="1">
+          <mxGeometry height="72" width="210" y="188" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-36" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Medicine" vertex="1">
+          <mxGeometry height="238" width="200" x="530" y="1315" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-37" parent="Ec4PKi7d0ytt0PHMZjSc-36" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ name : string&lt;/div&gt;&lt;div&gt;+ expireTime : int&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ isReceptor : bool&lt;/div&gt;&lt;div&gt;+ methodApply : string&lt;/div&gt;&lt;div&gt;+ safeForPregnant: bool&lt;/div&gt;&lt;div&gt;+ safeForDrivers : bool&lt;/div&gt;&lt;div&gt;+ form : uuid&lt;/div&gt;&lt;div&gt;+ unit : uuid&lt;/div&gt;&lt;div&gt;+ recommendations : []uuid&lt;/div&gt;&lt;div&gt;+ contraindications : []uuid&lt;/div&gt;&lt;div&gt;+ subsctances : []ActiveSubstance&lt;/div&gt;&lt;div&gt;+ docages : []DosageRule&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="204" width="200" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-38" parent="Ec4PKi7d0ytt0PHMZjSc-36" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="200" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-39" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="ActiveSubstance" vertex="1">
+          <mxGeometry height="78" width="160" x="270" y="1205" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-40" parent="Ec4PKi7d0ytt0PHMZjSc-39" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ concentration : float32&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="44" width="160" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-41" parent="Ec4PKi7d0ytt0PHMZjSc-39" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="160" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-42" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-39" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-36" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="1434" />
+            </Array>
+            <mxPoint x="430" y="1375" as="sourcePoint" />
+            <mxPoint x="590" y="1375" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-43" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;DosageRule&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="128" width="160" x="830" y="1180" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-44" parent="Ec4PKi7d0ytt0PHMZjSc-43" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ minValue : float32&lt;/div&gt;&lt;div&gt;+ maxValue : float32&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ type : DosageType&lt;/div&gt;&lt;div&gt;+ amount : float32&lt;/div&gt;&lt;div&gt;+ frequency : int&lt;/div&gt;" vertex="1">
+          <mxGeometry height="94" width="160" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-45" parent="Ec4PKi7d0ytt0PHMZjSc-43" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="160" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-46" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-43" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-36" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="910" y="1434" />
+            </Array>
+            <mxPoint x="840" y="1454.66" as="sourcePoint" />
+            <mxPoint x="1000" y="1454.66" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-47" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="CabinetItem" vertex="1">
+          <mxGeometry height="118" width="200" x="-80" y="1560" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-48" parent="Ec4PKi7d0ytt0PHMZjSc-47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : uuid&lt;/div&gt;&lt;div&gt;+ userId : uuid&lt;/div&gt;&lt;div&gt;+ medicineId : uuid&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ expireDate : date&lt;/div&gt;&lt;div&gt;+ quantity : float32&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="84" width="200" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-49" parent="Ec4PKi7d0ytt0PHMZjSc-47" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="200" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-51" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;IMedicineRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByIllness(ctx context.Context, illnessID uuid.UUID) ([]*Medicine, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByID(ctx context.Context, id uuid.UUID) (*Medicine, error)&amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Create(ctx context.Context, medicine *Medicine) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Update(ctx context.Context, medicine *Medicine) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Delete(ctx context.Context, id uuid.UUID) error&amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateIndications(ctx context.Context, medicineID uuid.UUID, ids []uuid.UUID) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateContraindications(ctx context.Context, medicineID uuid.UUID, ids []uuid.UUID) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateComposition(ctx context.Context, medicineID uuid.UUID, substances []ActiveSubstance) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddDosageRule(ctx context.Context, medicineID uuid.UUID, rule *DosageRule) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ DeleteDosageRule(ctx context.Context, medicineID uuid.UUID) error&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="311" width="376.25" x="1116.88" y="839" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-52" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-53" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="PostgresMedicineRepository" vertex="1">
+          <mxGeometry height="290" width="390" x="1110" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-54" parent="Ec4PKi7d0ytt0PHMZjSc-53" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ db *sqlx.DB" vertex="1">
+          <mxGeometry height="26" width="390" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-55" parent="Ec4PKi7d0ytt0PHMZjSc-53" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="390" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-56" parent="Ec4PKi7d0ytt0PHMZjSc-53" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByIllness(ctx context.Context, illnessID uuid.UUID) ([]*Medicine, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ FindByID(ctx context.Context, id uuid.UUID) (*Medicine, error)&amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Create(ctx context.Context, medicine *Medicine) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Update(ctx context.Context, medicine *Medicine) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ Delete(ctx context.Context, id uuid.UUID) error&amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateIndications(ctx context.Context, medicineID uuid.UUID, ids []uuid.UUID) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateContraindications(ctx context.Context, medicineID uuid.UUID, ids []uuid.UUID) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateComposition(ctx context.Context, medicineID uuid.UUID, substances []ActiveSubstance) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddDosageRule(ctx context.Context, medicineID uuid.UUID, rule *DosageRule) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ DeleteDosageRule(ctx context.Context, medicineID uuid.UUID) error&lt;/p&gt;" vertex="1">
+          <mxGeometry height="230" width="390" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-57" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;ICabinetRepository&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;div&gt;+ FindByUserID(ctx context.Context, userID uuid.UUID) ([]*CabinetItem, error)&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ FindExistingCabinetItem(ctx context.Context, userID uuid.UUID, medicineID uuid.UUID, date time.Time) (*CabinetItem, error)&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ FindById(ctx context.Context, id uuid.UUID) (*CabinetItem, error)&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ Update(ctx context.Context, cabinetItem *CabinetItem) error&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ Save(ctx context.Context, cabinetItem *CabinetItem) error&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ Delete(ctx context.Context, id uuid.UUID) error&lt;/div&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;&lt;br&gt;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="201" width="397.5" x="1801.25" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-58" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-59" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="PostgresCabinetRepository" vertex="1">
+          <mxGeometry height="190" width="395" x="1802.5" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-60" parent="Ec4PKi7d0ytt0PHMZjSc-59" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ db : *Pool" vertex="1">
+          <mxGeometry height="26" width="395" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-61" parent="Ec4PKi7d0ytt0PHMZjSc-59" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="395" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-62" parent="Ec4PKi7d0ytt0PHMZjSc-59" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ FindByUserID(ctx context.Context, userID uuid.UUID) ([]*CabinetItem, error)&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ FindExistingCabinetItem(ctx context.Context, userID uuid.UUID, medicineID uuid.UUID, date time.Time) (*CabinetItem, error)&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ FindById(ctx context.Context, id uuid.UUID) (*CabinetItem, error)&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ Update(ctx context.Context, cabinetItem *CabinetItem) error&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ Save(ctx context.Context, cabinetItem *CabinetItem) error&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ Delete(ctx context.Context, id uuid.UUID) error&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="395" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-63" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-51" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-28" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="660" y="880" as="sourcePoint" />
+            <mxPoint x="820" y="880" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-64" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-8" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-28" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1305" y="770" />
+            </Array>
+            <mxPoint x="860" y="780" as="sourcePoint" />
+            <mxPoint x="1020" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-65" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-57" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-28" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1305" y="770" />
+            </Array>
+            <mxPoint x="1940" y="810" as="sourcePoint" />
+            <mxPoint x="2100" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-66" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-68" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;ICabinetService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&amp;nbsp;+ cabinetRepo : ICabinetRepository&amp;nbsp;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddItem(ctx context.Context, cmd *command.AddItemCmd) (*res.CabinetResDto, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ RemoveItem(ctx context.Context, cmd *command.RemoveItemCmd) error&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateQty(ctx context.Context, cmd *command.UpdateQtyCmd) (*res.CabinetResDto, error)&lt;/p&gt;" vertex="1">
+          <mxGeometry height="115" width="510" x="1741.25" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-69" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-57" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-68" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <mxPoint x="1996.25" y="550" as="sourcePoint" />
+            <mxPoint x="1996.25" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-70" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ec4PKi7d0ytt0PHMZjSc-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-71" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="AdminService" vertex="1">
+          <mxGeometry height="190" width="580" x="2273.12" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-72" parent="Ec4PKi7d0ytt0PHMZjSc-71" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ medicineRepo : IMedicineRepository" vertex="1">
+          <mxGeometry height="26" width="580" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-73" parent="Ec4PKi7d0ytt0PHMZjSc-71" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="580" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-74" parent="Ec4PKi7d0ytt0PHMZjSc-71" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddMedicine(ctx context.Context, cmd *command.AddMedicineCmd) (*res.AdminResDto, error)&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+UpdateMedicine(ctx context.Context, cmd *command.UpdateMedicineCmd) (*res.AdminResDto, error)&amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ RemoveMedicine(ctx context.Context, cmd *command.RemoveMedicineCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateIndications(ctx context.Context, cmd command.UpdateLinksCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateContraindications(ctx context.Context, cmd command.UpdateLinksCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateComposition(ctx context.Context, cmd command.UpdateCompositionCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddDosageRule(ctx context.Context, cmd command.AddDosageRuleCmd) error&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ DeleteDosageRule(ctx context.Context, cmd command.RemoveDosageRuleCmd) error&lt;/p&gt;" vertex="1">
+          <mxGeometry height="130" width="580" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-75" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-51" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-71" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1610" y="990" />
+              <mxPoint x="1610" y="1470" />
+              <mxPoint x="2563" y="1470" />
+            </Array>
+            <mxPoint x="1440" y="1100" as="sourcePoint" />
+            <mxPoint x="1600" y="1100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-77" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="AuthHandler" vertex="1">
+          <mxGeometry height="100" width="320" x="-360" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-78" parent="Ec4PKi7d0ytt0PHMZjSc-77" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ authService : IAuthService" vertex="1">
+          <mxGeometry height="26" width="320" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-79" parent="Ec4PKi7d0ytt0PHMZjSc-77" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-80" parent="Ec4PKi7d0ytt0PHMZjSc-77" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Register(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ Login(c *gin.Context)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="320" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-81" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-1" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="Ec4PKi7d0ytt0PHMZjSc-77" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="-175" y="367" as="sourcePoint" />
+            <mxPoint x="-390" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-82" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="ProfileHandler" vertex="1">
+          <mxGeometry height="100" width="320" x="330" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-83" parent="Ec4PKi7d0ytt0PHMZjSc-82" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ profileService : IProfileService&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="26" width="320" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-84" parent="Ec4PKi7d0ytt0PHMZjSc-82" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-85" parent="Ec4PKi7d0ytt0PHMZjSc-82" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ UpdateProfile(c *gin.Context)" vertex="1">
+          <mxGeometry height="40" width="320" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-86" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-15" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-82" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="200" y="280" as="sourcePoint" />
+            <mxPoint x="200" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-88" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="MedicineHandler" vertex="1">
+          <mxGeometry height="90" width="414.99" x="1097.51" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-89" parent="Ec4PKi7d0ytt0PHMZjSc-88" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ medicineService : IMedicineService&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="24" width="414.99" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-90" parent="Ec4PKi7d0ytt0PHMZjSc-88" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="414.99" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-91" parent="Ec4PKi7d0ytt0PHMZjSc-88" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ Select(c *gin.Context)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="32" width="414.99" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-92" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-16" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-88" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="930" y="260" as="sourcePoint" />
+            <mxPoint x="930" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-93" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;CabinetHandler&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&amp;nbsp;+ cabinetService : ICabinetService&amp;nbsp;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ AddItem(c *gin.Context)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ RemoveItem(c *gin.Context)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:4px;&quot;&gt;+ UpdateQty(c *gin.Context)&lt;/p&gt;" vertex="1">
+          <mxGeometry height="120" width="392.5" x="1800" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-94" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-17" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-93" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="1900" y="320" as="sourcePoint" />
+            <mxPoint x="1900" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-95" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="AdminHandler" vertex="1">
+          <mxGeometry height="190" width="325" x="2400.63" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-96" parent="Ec4PKi7d0ytt0PHMZjSc-95" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ adminService : IAdminService&amp;nbsp;" vertex="1">
+          <mxGeometry height="26" width="325" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-97" parent="Ec4PKi7d0ytt0PHMZjSc-95" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="325" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-98" parent="Ec4PKi7d0ytt0PHMZjSc-95" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ AddMedicine(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ UpdateMedicine(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ RemoveMedicine(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ UpdateIndications(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ UpdateContraindications(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ UpdateComposition(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ AddDosageRule(c *gin.Context)&lt;/div&gt;&lt;div&gt;+ RemoveDosageRule(c *gin.Context)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="325" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ec4PKi7d0ytt0PHMZjSc-99" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-18" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" target="Ec4PKi7d0ytt0PHMZjSc-95" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points" />
+            <mxPoint x="2314.38" y="320" as="sourcePoint" />
+            <mxPoint x="2314.38" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

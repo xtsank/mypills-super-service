@@ -1,141 +1,115 @@
-Table users {
-  id int [pk, increment]
-  login text [unique, not null]
-  password text [not null]
-  gender boolean
-  age int
-  weight numeric
-  is_pregnant boolean
-  needs_driving boolean
+Table Users {
+  id uuid [pk]
+  login varchar [not null, unique]
+  password varchar [not null]
+  is_admin boolean [not null]
+  sex boolean [not null]
+  weight int [not null]
+  age int [not null]
+  is_pregnant boolean [not null]
+  is_driver boolean [not null]
 }
 
-Table diseases {
-  id int [pk, increment]
-  name text [not null]
+Table Medicine {
+  id uuid [pk]
+  form_id uuid [not null]
+  unit_id uuid [not null]
+  name varchar [not null]
+  expire_time int [not null]
+  effect_on_driver boolean [not null]
+  effect_on_pregnant boolean [not null]
+  method_of_application varchar [not null]
+  is_prescription boolean [not null]
 }
 
-Table substances {
-  id int [pk, increment]
-  name text [not null]
+Table Form {
+  id uuid [pk]
+  name varchar [not null]
 }
 
-Table forms {
-  id int [pk, increment]
-  name text [not null]
+Table Unit {
+  id uuid [pk]
+  name varchar [not null]
 }
 
-Table units {
-  id int [pk, increment]
-  name text [not null]
+Table Dosage {
+  id uuid [pk]
+  medicine_id uuid [not null]
+  value_from int [not null]
+  value_to int [not null]
+  dosage_type varchar [not null]
+  dosage_value float [not null]
+  number_of_doses_per_day int [not null]
 }
 
-Table medicines {
-  id int [pk, increment]
-  name text [not null]
-  expiration_date date
-  form_id int
-  unit_id int
+Table Substance {
+  id uuid [pk]
+  name varchar [not null]
 }
 
-Table medicine_info {
-  medicine_id int [pk]
-  affects_driving boolean
-  pregnancy_allowed boolean
-  usage_method text
-  dispensing_conditions text
+Table Illness {
+  id uuid [pk]
+  name varchar [not null]
 }
 
-Table dosage_types {
-  id int [pk, increment]
-  name text [not null]
+Table Recommendations {
+  id uuid [pk, default: `gen_random_uuid()`]
+  medicine_id uuid [not null]
+  illness_id uuid [not null]
 }
 
-Table dosages {
-  id int [pk, increment]
-  medicine_id int
-  dosage_type_id int
-  single_dose numeric
-  min_value numeric
-  max_value numeric
-  times_per_day int
+Table Contraindications {
+  id uuid [pk, default: `gen_random_uuid()`]
+  medicine_id uuid [not null]
+  illness_id uuid [not null]
 }
 
-Table user_medicines {
-  id int [pk, increment]
-  user_id int
-  medicine_id int
-  manufacture_date date
-  quantity numeric
+Table Medicine_Substance {
+  id uuid [pk, default: `gen_random_uuid()`]
+  medicine_id uuid [not null]
+  substance_id uuid [not null]
+  concentration float [not null]
 }
 
-Table user_diseases {
-  user_id int
-  disease_id int
-
-  indexes {
-    (user_id, disease_id) [pk]
-  }
+Table User_Illness {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  illness_id uuid [not null]
 }
 
-Table user_allergies {
-  user_id int
-  substance_id int
-
-  indexes {
-    (user_id, substance_id) [pk]
-  }
+Table User_Substance {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  substance_id uuid [not null]
 }
 
-Table medicine_substances {
-  medicine_id int
-  substance_id int
-  concentration numeric
-
-  indexes {
-    (medicine_id, substance_id) [pk]
-  }
+Table User_Medicine {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  medicine_id uuid [not null]
+  date_of_manufacture date [not null]
+  quantity float [not null]
 }
 
-Table medicine_recommendations {
-  medicine_id int
-  disease_id int
+Ref: Medicine.unit_id > Unit.id
+Ref: Medicine.form_id > Form.id
 
-  indexes {
-    (medicine_id, disease_id) [pk]
-  }
-}
+Ref: Dosage.medicine_id > Medicine.id
 
-Table medicine_contraindications {
-  medicine_id int
-  disease_id int
+Ref: Recommendations.medicine_id > Medicine.id
+Ref: Recommendations.illness_id > Illness.id
 
-  indexes {
-    (medicine_id, disease_id) [pk]
-  }
-}
+Ref: Contraindications.medicine_id > Medicine.id
+Ref: Contraindications.illness_id > Illness.id
 
-Ref: medicines.form_id > forms.id
-Ref: medicines.unit_id > units.id
+Ref: Medicine_Substance.medicine_id > Medicine.id
+Ref: Medicine_Substance.substance_id > Substance.id
 
-Ref: medicine_info.medicine_id > medicines.id
+Ref: User_Illness.user_id > Users.id
+Ref: User_Illness.illness_id > Illness.id
 
-Ref: dosages.medicine_id > medicines.id
-Ref: dosages.dosage_type_id > dosage_types.id
+Ref: User_Substance.user_id > Users.id
+Ref: User_Substance.substance_id > Substance.id
 
-Ref: user_medicines.user_id > users.id
-Ref: user_medicines.medicine_id > medicines.id
-
-Ref: user_diseases.user_id > users.id
-Ref: user_diseases.disease_id > diseases.id
-
-Ref: user_allergies.user_id > users.id
-Ref: user_allergies.substance_id > substances.id
-
-Ref: medicine_substances.medicine_id > medicines.id
-Ref: medicine_substances.substance_id > substances.id
-
-Ref: medicine_recommendations.medicine_id > medicines.id
-Ref: medicine_recommendations.disease_id > diseases.id
-
-Ref: medicine_contraindications.medicine_id > medicines.id
-Ref: medicine_contraindications.disease_id > diseases.id
+Ref: User_Medicine.user_id > Users.id
+Ref: User_Medicine.medicine_id > Medicine.id
