@@ -989,6 +989,7 @@
             "type": "object",
             "required": [
                 "age",
+                "email",
                 "login",
                 "password",
                 "weight"
@@ -1002,6 +1003,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "illnesses": {
                     "type": "array",
@@ -1161,6 +1165,9 @@
                         "type": "string"
                     }
                 },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -1178,6 +1185,12 @@
                 },
                 "login": {
                     "type": "string"
+                },
+                "notify_enabled": {
+                    "type": "boolean"
+                },
+                "notify_interval_minutes": {
+                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"
@@ -1326,6 +1339,9 @@
                         "type": "string"
                     }
                 },
+                "email": {
+                    "type": "string"
+                },
                 "illnesses": {
                     "type": "array",
                     "items": {
@@ -1337,6 +1353,12 @@
                 },
                 "is_pregnant": {
                     "type": "boolean"
+                },
+                "notify_enabled": {
+                    "type": "boolean"
+                },
+                "notify_interval_minutes": {
+                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"

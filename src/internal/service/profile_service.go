@@ -33,6 +33,16 @@ func (s *ProfileService) UpdateProfile(ctx context.Context, cmd *command.UpdateP
 		return nil, errors.ErrUserNotFound.WithSource()
 	}
 
+	if u.Notify == nil {
+		u.Notify = &user.NotifyInfo{Enabled: false}
+	}
+
+	if cmd.Email != nil {
+		if *cmd.Email == "" {
+			return nil, errors.ErrEmailRequired.WithSource()
+		}
+		u.Email = *cmd.Email
+	}
 	if cmd.Sex != nil {
 		u.Sex = *cmd.Sex
 	}
@@ -47,6 +57,16 @@ func (s *ProfileService) UpdateProfile(ctx context.Context, cmd *command.UpdateP
 	}
 	if cmd.IsDriver != nil {
 		u.IsDriver = *cmd.IsDriver
+	}
+	if cmd.NotifyEnabled != nil {
+		u.Notify.Enabled = *cmd.NotifyEnabled
+	}
+	if cmd.NotifyIntervalMinutes != nil {
+		allowed := map[int]struct{}{1: {}, 30: {}, 60: {}, 720: {}, 1440: {}}
+		if _, ok := allowed[*cmd.NotifyIntervalMinutes]; !ok {
+			return nil, errors.ErrInvalidNotifyInterval.WithSource()
+		}
+		u.Notify.IntervalMinutes = *cmd.NotifyIntervalMinutes
 	}
 	if cmd.Illnesses != nil {
 		u.Illnesses = cmd.Illnesses

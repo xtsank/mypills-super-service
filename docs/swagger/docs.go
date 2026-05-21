@@ -1000,6 +1000,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "age",
+                "email",
                 "login",
                 "password",
                 "weight"
@@ -1013,6 +1014,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "illnesses": {
                     "type": "array",
@@ -1172,6 +1176,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -1189,6 +1196,12 @@ const docTemplate = `{
                 },
                 "login": {
                     "type": "string"
+                },
+                "notify_enabled": {
+                    "type": "boolean"
+                },
+                "notify_interval_minutes": {
+                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"
@@ -1337,6 +1350,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "email": {
+                    "type": "string"
+                },
                 "illnesses": {
                     "type": "array",
                     "items": {
@@ -1348,6 +1364,12 @@ const docTemplate = `{
                 },
                 "is_pregnant": {
                     "type": "boolean"
+                },
+                "notify_enabled": {
+                    "type": "boolean"
+                },
+                "notify_interval_minutes": {
+                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"

@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"log/slog"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do/v2"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/xtsank/mypills-super-service/docs/swagger"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/email"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
@@ -39,6 +42,8 @@ func (app *App) provideService() {
 	do.Provide(app.i, service.NewCabinetService)
 	do.Provide(app.i, service.NewMedicineService)
 	do.Provide(app.i, service.NewProfileService)
+	do.Provide(app.i, email.NewSMTPSender)
+	do.Provide(app.i, service.NewNotificationService)
 	do.Provide(app.i, service.NewBcryptHasher)
 	do.Provide(app.i, service.NewJWTManager)
 }
@@ -118,6 +123,9 @@ func NewApp() *App {
 func (app *App) Run() error {
 	cfg := do.MustInvoke[*config.Config](app.i)
 	logger := do.MustInvoke[*slog.Logger](app.i)
+	notificationService := do.MustInvoke[service.INotificationService](app.i)
+
+	startNotificationTicker(notificationService, cfg)
 
 	addr := cfg.ServerAddress
 	if addr != "" && addr[0] != ':' {
@@ -127,6 +135,15 @@ func (app *App) Run() error {
 	logger.Info("server_start", slog.String("address", addr))
 
 	return app.router.Run(addr)
+}
+
+func startNotificationTicker(service service.INotificationService, cfg *config.Config) {
+	ticker := time.NewTicker(cfg.NotificationCheckInterval)
+	go func() {
+		for range ticker.C {
+			service.SendDueNotifications(context.Background())
+		}
+	}()
 }
 
 func (app *App) Logger() *slog.Logger {

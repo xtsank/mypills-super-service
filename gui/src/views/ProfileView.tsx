@@ -1,4 +1,4 @@
-import { Button, Checkbox, NumberInput, TagInput, TextInput } from "../components/Controls";
+import { Button, Checkbox, NumberInput, SelectInput, TagInput, TextInput } from "../components/Controls";
 import { useProfileViewModel } from "../viewmodels/useProfileViewModel";
 
 export function ProfileView() {
@@ -8,6 +8,7 @@ export function ProfileView() {
     <div className="section">
       <div className="section__title">Профиль</div>
       <TextInput label="Логин" value={vm.login} onChange={() => undefined} readOnly />
+      <TextInput label="Почта" value={vm.email} onChange={vm.setEmail} />
 
       <div className="inline">
         <NumberInput label="Возраст" value={vm.age} onChange={vm.setAge} />
@@ -33,6 +34,16 @@ export function ProfileView() {
       <div className="inline">
         <TagInput label="Аллергии" value={vm.allergies} onChange={vm.setAllergies} placeholder="через запятую" />
         <TagInput label="Болезни" value={vm.illnesses} onChange={vm.setIllnesses} placeholder="через запятую" />
+      </div>
+
+      <div className="inline">
+        <Checkbox label="Отправлять уведомления" checked={vm.notifyEnabled} onChange={vm.setNotifyEnabled} />
+        <SelectInput
+          label="Интервал"
+          value={vm.notifyIntervalMinutes}
+          options={vm.notifyIntervalOptions}
+          onChange={vm.setNotifyIntervalMinutes}
+        />
       </div>
 
       <div className="inline">

@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/cabinet_item"
+	"github.com/xtsank/mypills-super-service/src/internal/dto"
 	svcErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 )
@@ -38,6 +39,9 @@ func (m *mockCabinetRepo) FindById(ctx context.Context, id uuid.UUID) (*cabinet_
 	return m.existing, nil
 }
 func (m *mockCabinetRepo) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*cabinet_item.CabinetItem, error) {
+	return nil, nil
+}
+func (m *mockCabinetRepo) FindExpiredByUserID(ctx context.Context, userID uuid.UUID) ([]*dto.ExpiredItemDto, error) {
 	return nil, nil
 }
 

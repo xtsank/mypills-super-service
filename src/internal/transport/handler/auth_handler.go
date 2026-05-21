@@ -54,6 +54,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	cmd := command.NewCreateUserCmd(
 		input.Login,
+		input.Email,
 		input.Password,
 		input.Sex,
 		input.Weight,

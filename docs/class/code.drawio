@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Страница-1" id="fOSO4dDHrmpG93o9Ztwf">
-    <mxGraphModel dx="5007" dy="2713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="4789" dy="2035" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -348,6 +348,44 @@
             <Array as="points" />
             <mxPoint x="2314.38" y="320" as="sourcePoint" />
             <mxPoint x="2314.38" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-1" parent="1" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;INotificationService&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;br&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;+ SendDueNotifications(ctx context.Context)" vertex="1">
+          <mxGeometry height="120" width="490" x="-1060" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-6" edge="1" parent="1" source="W33LrC3sHJdmPj56_Zl8-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="W33LrC3sHJdmPj56_Zl8-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-2" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="NotificationService" vertex="1">
+          <mxGeometry height="118" width="495" x="-1062.5" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-3" parent="W33LrC3sHJdmPj56_Zl8-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ userRepo : IUserRepository&lt;/div&gt;+ cabinetRepo : ICabinetRepository" vertex="1">
+          <mxGeometry height="44" width="495" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-4" parent="W33LrC3sHJdmPj56_Zl8-2" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="495" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-5" parent="W33LrC3sHJdmPj56_Zl8-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ SendDueNotifications(ctx context.Context)" vertex="1">
+          <mxGeometry height="40" width="495" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-7" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-8" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;curved=0;" target="W33LrC3sHJdmPj56_Zl8-2" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="-815" y="770" />
+            </Array>
+            <mxPoint x="-440" y="950" as="sourcePoint" />
+            <mxPoint x="-660" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="W33LrC3sHJdmPj56_Zl8-8" edge="1" parent="1" source="Ec4PKi7d0ytt0PHMZjSc-57" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;curved=0;exitX=0.422;exitY=0.011;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry relative="1" width="160" as="geometry">
+            <Array as="points">
+              <mxPoint x="1969" y="640" />
+              <mxPoint x="580" y="640" />
+              <mxPoint x="-815" y="640" />
+            </Array>
+            <mxPoint x="1801.250000000001" y="764.110346358792" as="sourcePoint" />
+            <mxPoint x="-815" y="588" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>

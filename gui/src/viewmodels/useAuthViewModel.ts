@@ -8,6 +8,7 @@ export function useAuthViewModel() {
   const process = useProcess();
   const [isLoading, setIsLoading] = useState(false);
   const [loginValue, setLoginValue] = useState("");
+  const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
 
   const [age, setAge] = useState("");
@@ -38,6 +39,7 @@ export function useAuthViewModel() {
     try {
       const response = await register({
         login: loginValue,
+        email: emailValue,
         password: passwordValue,
         age: Number(age),
         weight: Number(weight),
@@ -61,6 +63,7 @@ export function useAuthViewModel() {
   return {
     isLoading,
     loginValue,
+    emailValue,
     passwordValue,
     age,
     weight,
@@ -70,6 +73,7 @@ export function useAuthViewModel() {
     allergies,
     illnesses,
     setLoginValue,
+    setEmailValue,
     setPasswordValue,
     setAge,
     setWeight,

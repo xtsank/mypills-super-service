@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
@@ -32,6 +33,12 @@ func (m *mockUserRepoForAuth) FindByID(ctx context.Context, id uuid.UUID) (*user
 func (m *mockUserRepoForAuth) Update(ctx context.Context, u *user.User) error {
 	panic("not implemented")
 }
+func (m *mockUserRepoForAuth) FindNotifyEnabled(ctx context.Context) ([]*user.User, error) {
+	return nil, nil
+}
+func (m *mockUserRepoForAuth) UpdateNotify(ctx context.Context, id uuid.UUID, enabled bool, intervalMinutes int, lastNotifiedAt *time.Time) error {
+	return nil
+}
 
 type mockHasher struct {
 	hashVal string
@@ -59,7 +66,7 @@ func TestAuthService_Register_Success(t *testing.T) {
 
 	s := &AuthService{userRepo: userRepo, hasher: hasher, tokenManager: tokenManager}
 
-	cmd := &command.CreateUserCmd{Login: "a", Password: "p", IsAdmin: false, Weight: 70, Age: 30}
+	cmd := &command.CreateUserCmd{Login: "a", Email: "a@example.com", Password: "p", IsAdmin: false, Weight: 70, Age: 30}
 
 	dto, err := s.Register(context.Background(), cmd)
 	if err != nil {
@@ -77,7 +84,7 @@ func TestAuthService_Register_UserExists(t *testing.T) {
 	userRepo := &mockUserRepoForAuth{exists: true}
 	s := &AuthService{userRepo: userRepo, hasher: &mockHasher{}, tokenManager: &mockTokenManager{}}
 
-	_, err := s.Register(context.Background(), &command.CreateUserCmd{Login: "a", Password: "p"})
+	_, err := s.Register(context.Background(), &command.CreateUserCmd{Login: "a", Email: "a@example.com", Password: "p"})
 	if !errors.Is(err, svcErrors.ErrUserExists) {
 		t.Fatalf("expected ErrUserExists, got %v", err)
 	}
@@ -94,7 +101,7 @@ func TestAuthService_Login_NotFound(t *testing.T) {
 }
 
 func TestAuthService_Login_InvalidCredentials(t *testing.T) {
-	u := &user.User{ID: uuid.New(), Login: "l", Password: "h"}
+	u := &user.User{ID: uuid.New(), Login: "l", Email: "l@example.com", Password: "h", Notify: &user.NotifyInfo{Enabled: false, IntervalMinutes: 1440}}
 	userRepo := &mockUserRepoForAuth{u: u}
 	s := &AuthService{userRepo: userRepo, hasher: &mockHasher{cmpErr: errors.New("bad")}, tokenManager: &mockTokenManager{}}
 
@@ -105,7 +112,7 @@ func TestAuthService_Login_InvalidCredentials(t *testing.T) {
 }
 
 func TestAuthService_Login_Success(t *testing.T) {
-	u := &user.User{ID: uuid.New(), Login: "l", Password: "h", IsAdmin: true}
+	u := &user.User{ID: uuid.New(), Login: "l", Email: "l@example.com", Password: "h", IsAdmin: true, Notify: &user.NotifyInfo{Enabled: false, IntervalMinutes: 1440}}
 	userRepo := &mockUserRepoForAuth{u: u}
 	s := &AuthService{userRepo: userRepo, hasher: &mockHasher{}, tokenManager: &mockTokenManager{token: "tok"}}
 

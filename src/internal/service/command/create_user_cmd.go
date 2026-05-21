@@ -6,6 +6,7 @@ import (
 
 type CreateUserCmd struct {
 	Login      string
+	Email      string
 	Password   string
 	IsAdmin    bool
 	Sex        bool
@@ -19,6 +20,7 @@ type CreateUserCmd struct {
 
 func NewCreateUserCmd(
 	login string,
+	email string,
 	password string,
 	sex bool,
 	weight int,
@@ -30,6 +32,7 @@ func NewCreateUserCmd(
 ) *CreateUserCmd {
 	return &CreateUserCmd{
 		Login:      login,
+		Email:      email,
 		Password:   password,
 		IsAdmin:    false,
 		Sex:        sex,

@@ -6,6 +6,7 @@ export type AppError = {
 export type ProfileResDto = {
   id: string;
   login: string;
+  email: string;
   age: number;
   weight: number;
   sex: boolean;
@@ -13,6 +14,8 @@ export type ProfileResDto = {
   illnesses: string[];
   is_driver: boolean;
   is_pregnant: boolean;
+  notify_enabled: boolean;
+  notify_interval_minutes: number;
 };
 
 export type AuthResDto = {
@@ -22,6 +25,7 @@ export type AuthResDto = {
 
 export type CreateUserDto = {
   login: string;
+  email: string;
   password: string;
   age: number;
   weight: number;
@@ -37,7 +41,10 @@ export type LoginUserDto = {
   password: string;
 };
 
-export type UpdateProfileDto = Partial<Omit<CreateUserDto, "login" | "password">>;
+export type UpdateProfileDto = Partial<Omit<CreateUserDto, "login" | "password">> & {
+  notify_enabled?: boolean;
+  notify_interval_minutes?: number;
+};
 
 export type CabinetResDto = {
   id: string;

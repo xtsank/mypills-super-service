@@ -23,7 +23,7 @@ docker-db:
 	sudo docker exec -it mypills-db psql -U user -d mypills
 
 log:
-	@set -a; . ./.env; set +a; tail -n 200 -f "$${LOG_FILE:-logs/app.log}"
+	tail -n 200 -f "logs/app.log"
 
 make_admin:
 	./scripts/make_admin.sh $(login)

@@ -153,6 +153,8 @@ definitions:
         items:
           type: string
         type: array
+      email:
+        type: string
       illnesses:
         items:
           type: string
@@ -173,6 +175,7 @@ definitions:
         type: integer
     required:
     - age
+    - email
     - login
     - password
     - weight
@@ -264,6 +267,8 @@ definitions:
         items:
           type: string
         type: array
+      email:
+        type: string
       id:
         type: string
       illnesses:
@@ -276,6 +281,10 @@ definitions:
         type: boolean
       login:
         type: string
+      notify_enabled:
+        type: boolean
+      notify_interval_minutes:
+        type: integer
       sex:
         type: boolean
       weight:
@@ -374,6 +383,8 @@ definitions:
         items:
           type: string
         type: array
+      email:
+        type: string
       illnesses:
         items:
           type: string
@@ -382,6 +393,10 @@ definitions:
         type: boolean
       is_pregnant:
         type: boolean
+      notify_enabled:
+        type: boolean
+      notify_interval_minutes:
+        type: integer
       sex:
         type: boolean
       weight:
