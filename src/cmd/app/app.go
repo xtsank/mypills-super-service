@@ -59,10 +59,14 @@ func (app *App) provideAll() {
 }
 
 func (app *App) initSwagger() {
-	app.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	swagger := app.router.Group("/swagger")
+	swagger.Use(middleware.TokenVerifier(app.i))
+	swagger.Use(middleware.AdminOnly())
+	swagger.GET("/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 func (app *App) initMiddlewares() {
+	app.router.Use(middleware.Cors())
 	app.router.Use(middleware.Logger(app.i))
 	app.router.Use(middleware.ResponseHandler())
 	app.router.Use(middleware.ErrorHandler())
@@ -71,11 +75,12 @@ func (app *App) initMiddlewares() {
 func (app *App) initRoutes() {
 	api := app.router.Group("/")
 
-	authHandler := do.MustInvoke[*handler.AuthHandler](app.i)
-	authHandler.RegisterRoutes(api)
-
 	protected := api.Group("/")
 	protected.Use(middleware.TokenVerifier(app.i))
+	protected.Use(middleware.AdminOnly())
+
+	authHandler := do.MustInvoke[*handler.AuthHandler](app.i)
+	authHandler.RegisterRoutes(api)
 
 	cabinetHandler := do.MustInvoke[*handler.CabinetHandler](app.i)
 	cabinetHandler.RegisterRoutes(protected)
@@ -127,4 +132,3 @@ func (app *App) Run() error {
 func (app *App) Logger() *slog.Logger {
 	return do.MustInvoke[*slog.Logger](app.i)
 }
-

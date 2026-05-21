@@ -11,6 +11,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
 	appErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/queries"
 )
 
 type PostgresUserRepository struct {
@@ -25,7 +26,7 @@ func NewPostgresUserRepository(i do.Injector) (user.IUserRepository, error) {
 
 func (r *PostgresUserRepository) ExistsByLogin(ctx context.Context, login string) (bool, error) {
 	var exists bool
-	query := `select exists(select 1 from Users where login = $1)`
+	query := queries.User.ExistsByLogin
 
 	err := r.db.GetContext(ctx, &exists, query, login)
 	if err != nil {
@@ -37,7 +38,7 @@ func (r *PostgresUserRepository) ExistsByLogin(ctx context.Context, login string
 
 func (r *PostgresUserRepository) findBaseByLogin(ctx context.Context, login string) (*entity.UserEntity, error) {
 	var ent entity.UserEntity
-	query := `SELECT * FROM Users WHERE login = $1`
+	query := queries.User.FindByLogin
 
 	err := r.db.GetContext(ctx, &ent, query, login)
 	if err != nil {
@@ -52,7 +53,7 @@ func (r *PostgresUserRepository) findBaseByLogin(ctx context.Context, login stri
 
 func (r *PostgresUserRepository) findBaseByID(ctx context.Context, id uuid.UUID) (*entity.UserEntity, error) {
 	var ent entity.UserEntity
-	query := `SELECT * FROM Users WHERE id = $1`
+	query := queries.User.FindByID
 
 	err := r.db.GetContext(ctx, &ent, query, id)
 	if err != nil {
@@ -67,7 +68,7 @@ func (r *PostgresUserRepository) findBaseByID(ctx context.Context, id uuid.UUID)
 
 func (r *PostgresUserRepository) getIllnesses(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
 	var illnesses []uuid.UUID
-	query := `SELECT illness_id FROM User_Illness WHERE user_id = $1`
+	query := queries.User.SelectIllnesses
 
 	err := r.db.SelectContext(ctx, &illnesses, query, userID)
 	if err != nil {
@@ -83,7 +84,7 @@ func (r *PostgresUserRepository) getIllnesses(ctx context.Context, userID uuid.U
 
 func (r *PostgresUserRepository) getAllergies(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
 	var allergies []uuid.UUID
-	query := `SELECT substance_id FROM User_Substance WHERE user_id = $1`
+	query := queries.User.SelectAllergies
 
 	err := r.db.SelectContext(ctx, &allergies, query, userID)
 	if err != nil {
@@ -178,8 +179,7 @@ func (r *PostgresUserRepository) insertBase(ctx context.Context, tx *sqlx.Tx, u 
 		IsDriver:   u.IsDriver,
 	}
 
-	query := `INSERT INTO Users (id, login, password, is_admin, sex, weight, age, is_pregnant, is_driver)
-              VALUES (:id, :login, :password, :is_admin, :sex, :weight, :age, :is_pregnant, :is_driver)`
+	query := queries.User.InsertUser
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -201,7 +201,7 @@ func (r *PostgresUserRepository) insertIllnesses(ctx context.Context, tx *sqlx.T
 		}
 	}
 
-	query := `INSERT INTO User_Illness (user_id, illness_id) VALUES (:user_id, :illness_id)`
+	query := queries.User.InsertIllness
 	_, err := tx.NamedExecContext(ctx, query, rows)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -222,7 +222,7 @@ func (r *PostgresUserRepository) insertAllergies(ctx context.Context, tx *sqlx.T
 		}
 	}
 
-	query := `INSERT INTO User_Substance (user_id, substance_id) VALUES (:user_id, :substance_id)`
+	query := queries.User.InsertAllergy
 	_, err := tx.NamedExecContext(ctx, query, rows)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -257,7 +257,7 @@ func (r *PostgresUserRepository) Create(ctx context.Context, u *user.User) error
 }
 
 func (r *PostgresUserRepository) deleteIllnesses(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) error {
-	query := `DELETE FROM User_Illness WHERE user_id = $1`
+	query := queries.User.DeleteIllnesses
 	_, err := tx.ExecContext(ctx, query, userID)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -266,7 +266,7 @@ func (r *PostgresUserRepository) deleteIllnesses(ctx context.Context, tx *sqlx.T
 }
 
 func (r *PostgresUserRepository) deleteAllergies(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) error {
-	query := `DELETE FROM User_Substance WHERE user_id = $1`
+	query := queries.User.DeleteAllergies
 	_, err := tx.ExecContext(ctx, query, userID)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -287,10 +287,7 @@ func (r *PostgresUserRepository) updateBase(ctx context.Context, tx *sqlx.Tx, u 
 		IsDriver:   u.IsDriver,
 	}
 
-	query := `UPDATE Users 
-              SET sex = :sex, weight = :weight, age = :age, 
-                  is_pregnant = :is_pregnant, is_driver = :is_driver
-              WHERE id = :id`
+		  query := queries.User.UpdateUser
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/domain/medicine"
 	appErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/queries"
 )
 
 type PostgresMedicineRepository struct {
@@ -25,7 +26,7 @@ func NewPostgresMedicineRepository(i do.Injector) (medicine.IMedicineRepository,
 
 func (r *PostgresMedicineRepository) findBaseByID(ctx context.Context, id uuid.UUID) (*entity.MedicineEntity, error) {
 	var ent entity.MedicineEntity
-	query := `SELECT * FROM Medicine WHERE id = $1`
+	query := queries.Medicine.SelectByID
 
 	err := r.db.GetContext(ctx, &ent, query, id)
 	if err != nil {
@@ -40,10 +41,7 @@ func (r *PostgresMedicineRepository) findBaseByID(ctx context.Context, id uuid.U
 
 func (r *PostgresMedicineRepository) findBasesByIllness(ctx context.Context, illnessID uuid.UUID) ([]entity.MedicineEntity, error) {
 	var ents []entity.MedicineEntity
-	query := `
-       SELECT m.* FROM Medicine m
-       JOIN Recommendations r ON m.id = r.medicine_id
-       WHERE r.illness_id = $1`
+	query := queries.Medicine.SelectByIllness
 
 	err := r.db.SelectContext(ctx, &ents, query, illnessID)
 	if err != nil {
@@ -55,7 +53,7 @@ func (r *PostgresMedicineRepository) findBasesByIllness(ctx context.Context, ill
 
 func (r *PostgresMedicineRepository) getSubstances(ctx context.Context, medID uuid.UUID) ([]medicine.ActiveSubstance, error) {
 	var ents []entity.MedicineSubstanceEntity
-	query := `SELECT * FROM Medicine_Substance WHERE medicine_id = $1`
+	query := queries.Medicine.SelectSubstances
 
 	err := r.db.SelectContext(ctx, &ents, query, medID)
 	if err != nil {
@@ -76,7 +74,7 @@ func (r *PostgresMedicineRepository) getSubstances(ctx context.Context, medID uu
 func (r *PostgresMedicineRepository) getDosages(ctx context.Context, medID uuid.UUID) ([]medicine.DosageRule, error) {
 	var ents []entity.DosageEntity
 
-	query := `SELECT * FROM Dosage WHERE medicine_id = $1`
+	query := queries.Medicine.SelectDosages
 
 	err := r.db.SelectContext(ctx, &ents, query, medID)
 	if err != nil {
@@ -103,7 +101,7 @@ func (r *PostgresMedicineRepository) getDosages(ctx context.Context, medID uuid.
 
 func (r *PostgresMedicineRepository) getContraindications(ctx context.Context, medID uuid.UUID) ([]uuid.UUID, error) {
 	var illnesses []uuid.UUID
-	query := `SELECT illness_id FROM Contraindications WHERE medicine_id = $1`
+	query := queries.Medicine.SelectContraindications
 
 	err := r.db.SelectContext(ctx, &illnesses, query, medID)
 	if err != nil {
@@ -119,7 +117,7 @@ func (r *PostgresMedicineRepository) getContraindications(ctx context.Context, m
 
 func (r *PostgresMedicineRepository) getRecommendations(ctx context.Context, medID uuid.UUID) ([]uuid.UUID, error) {
 	var illnesses []uuid.UUID
-	query := `SELECT illness_id FROM Recommendations WHERE medicine_id = $1`
+	query := queries.Medicine.SelectRecommendations
 
 	err := r.db.SelectContext(ctx, &illnesses, query, medID)
 	if err != nil {
@@ -230,11 +228,7 @@ func (r *PostgresMedicineRepository) insertBase(ctx context.Context, tx *sqlx.Tx
 		UnitId:              med.Unit,
 	}
 
-	query := `INSERT INTO Medicine  (id, name, expire_time, is_prescription, 
-                                   method_of_application, effect_on_pregnant, effect_on_driver, 
-                                   form_id, unit_id)
-              VALUES (:id, :name, :expire_time, :is_prescription, :method_of_application, :effect_on_pregnant,
-                      :effect_on_driver, :form_id, :unit_id)`
+		  query := queries.Medicine.InsertMedicine
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -257,8 +251,7 @@ func (r *PostgresMedicineRepository) insertSubstances(ctx context.Context, tx *s
 		}
 	}
 
-	query := `INSERT INTO Medicine_Substance (medicine_id, substance_id, concentration) 
-              VALUES (:medicine_id, :substance_id, :concentration)`
+	query := queries.Medicine.InsertSubstances
 
 	_, err := tx.NamedExecContext(ctx, query, rows)
 	if err != nil {
@@ -280,7 +273,7 @@ func (r *PostgresMedicineRepository) insertRecommendations(ctx context.Context, 
 		}
 	}
 
-	query := `INSERT INTO Recommendations (medicine_id, illness_id) VALUES (:medicine_id, :illness_id)`
+	query := queries.Medicine.InsertRecommendations
 	_, err := tx.NamedExecContext(ctx, query, rows)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -301,7 +294,7 @@ func (r *PostgresMedicineRepository) insertContraindications(ctx context.Context
 		}
 	}
 
-	query := `INSERT INTO Contraindications (medicine_id, illness_id) VALUES (:medicine_id, :illness_id)`
+	query := queries.Medicine.InsertContraindications
 	_, err := tx.NamedExecContext(ctx, query, rows)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -327,8 +320,7 @@ func (r *PostgresMedicineRepository) insertDosages(ctx context.Context, tx *sqlx
 		}
 	}
 
-	query := `INSERT INTO Dosage (id, medicine_id, value_from, value_to, dosage_type, dosage_value, number_of_doses_per_day)
-              VALUES (:id, :medicine_id, :value_from, :value_to, :dosage_type, :dosage_value, :number_of_doses_per_day)`
+	query := queries.Medicine.InsertDosages
 
 	_, err := tx.NamedExecContext(ctx, query, ents)
 	if err != nil {
@@ -371,7 +363,7 @@ func (r *PostgresMedicineRepository) Create(ctx context.Context, med *medicine.M
 }
 
 func (r *PostgresMedicineRepository) deleteSubstances(ctx context.Context, tx *sqlx.Tx, medID uuid.UUID) error {
-	query := `DELETE FROM Medicine_Substance WHERE medicine_id = $1`
+	query := queries.Medicine.DeleteSubstances
 	_, err := tx.ExecContext(ctx, query, medID)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -380,7 +372,7 @@ func (r *PostgresMedicineRepository) deleteSubstances(ctx context.Context, tx *s
 }
 
 func (r *PostgresMedicineRepository) deleteDosages(ctx context.Context, tx *sqlx.Tx, medID uuid.UUID) error {
-	query := `DELETE FROM Dosage WHERE medicine_id = $1`
+	query := queries.Medicine.DeleteDosages
 	_, err := tx.ExecContext(ctx, query, medID)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -389,7 +381,7 @@ func (r *PostgresMedicineRepository) deleteDosages(ctx context.Context, tx *sqlx
 }
 
 func (r *PostgresMedicineRepository) deleteRecommendations(ctx context.Context, tx *sqlx.Tx, medID uuid.UUID) error {
-	query := `DELETE FROM Recommendations WHERE medicine_id = $1`
+	query := queries.Medicine.DeleteRecommendations
 	_, err := tx.ExecContext(ctx, query, medID)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -398,7 +390,7 @@ func (r *PostgresMedicineRepository) deleteRecommendations(ctx context.Context, 
 }
 
 func (r *PostgresMedicineRepository) deleteContraindications(ctx context.Context, tx *sqlx.Tx, medID uuid.UUID) error {
-	query := `DELETE FROM Contraindications WHERE medicine_id = $1`
+	query := queries.Medicine.DeleteContraindications
 	_, err := tx.ExecContext(ctx, query, medID)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -419,11 +411,7 @@ func (r *PostgresMedicineRepository) updateBase(ctx context.Context, tx *sqlx.Tx
 		UnitId:              med.Unit,
 	}
 
-	query := `UPDATE Medicine 
-              SET name = :name, expire_time = :expire_time, is_prescription = :is_prescription, 
-                  method_of_application = :method_of_application, effect_on_pregnant = :effect_on_pregnant, 
-                  effect_on_driver = :effect_on_driver, form_id = :form_id, unit_id = :unit_id
-              WHERE id = :id`
+		  query := queries.Medicine.UpdateMedicine
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -478,7 +466,7 @@ func (r *PostgresMedicineRepository) Update(ctx context.Context, med *medicine.M
 }
 
 func (r *PostgresMedicineRepository) deleteBase(ctx context.Context, tx *sqlx.Tx, id uuid.UUID) error {
-	query := `delete from Medicine where id = $1`
+	query := queries.Medicine.DeleteMedicine
 	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
@@ -603,7 +591,7 @@ func (r *PostgresMedicineRepository) DeleteDosageRule(ctx context.Context, ruleI
 	}
 	defer tx.Rollback()
 
-	query := `delete from Dosage where id = $1`
+	query := queries.Medicine.DeleteDosageRule
 	if _, err := tx.ExecContext(ctx, query, ruleID); err != nil {
 		return appErrors.ErrInternal.WithError(err)
 	}

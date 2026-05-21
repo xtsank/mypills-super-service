@@ -25,12 +25,6 @@ type DosageEntity struct {
 	NumberOfDosesPerDay int       `db:"number_of_doses_per_day"`
 }
 
-type MedicineIllnessEntity struct {
-	ID         uuid.UUID `db:"id"`
-	MedicineId uuid.UUID `db:"medicine_id"`
-	IllnessId  uuid.UUID `db:"illness_id"`
-}
-
 type MedicineSubstanceEntity struct {
 	ID            uuid.UUID `db:"id"`
 	MedicineId    uuid.UUID `db:"medicine_id"`

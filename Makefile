@@ -1,5 +1,7 @@
 .PHONY: build run swag
 
+login=admin111
+
 build: swag
 	go build -o build/mypills-app ./src/cmd/app/main.go ./src/cmd/app/app.go
 
@@ -22,3 +24,6 @@ docker-db:
 
 log:
 	@set -a; . ./.env; set +a; tail -n 200 -f "$${LOG_FILE:-logs/app.log}"
+
+make_admin:
+	./scripts/make_admin.sh $(login)
