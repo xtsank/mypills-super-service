@@ -12,6 +12,7 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/domain/cabinet_item"
 	appErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/queries"
 )
 
 type PostgresCabinetItemRepository struct {
@@ -25,7 +26,7 @@ func NewPostgresCabinetItemRepository(i do.Injector) (cabinet_item.ICabinetItemR
 
 func (r *PostgresCabinetItemRepository) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*cabinet_item.CabinetItem, error) {
 	var ents []entity.CabinetItemEntity
-	query := `SELECT * FROM User_Medicine WHERE user_id = $1`
+	query := queries.CabinetItem.SelectByUserID
 
 	err := r.db.SelectContext(ctx, &ents, query, userID)
 	if err != nil {
@@ -44,8 +45,7 @@ func (r *PostgresCabinetItemRepository) FindByUserID(ctx context.Context, userID
 
 func (r *PostgresCabinetItemRepository) FindExistingCabinetItem(ctx context.Context, userID uuid.UUID, medID uuid.UUID, date time.Time) (*cabinet_item.CabinetItem, error) {
 	var ent entity.CabinetItemEntity
-	query := `SELECT * FROM User_Medicine 
-              WHERE user_id = $1 AND medicine_id = $2 AND date_of_manufacture = $3::date`
+	query := queries.CabinetItem.SelectExistingByKey
 
 	err := r.db.GetContext(ctx, &ent, query, userID, medID, date)
 	if err != nil {
@@ -60,7 +60,7 @@ func (r *PostgresCabinetItemRepository) FindExistingCabinetItem(ctx context.Cont
 
 func (r *PostgresCabinetItemRepository) FindById(ctx context.Context, id uuid.UUID) (*cabinet_item.CabinetItem, error) {
 	var ent entity.CabinetItemEntity
-	query := `SELECT * FROM User_Medicine WHERE id = $1`
+	query := queries.CabinetItem.SelectByID
 
 	err := r.db.GetContext(ctx, &ent, query, id)
 	if err != nil {
@@ -79,7 +79,7 @@ func (r *PostgresCabinetItemRepository) Update(ctx context.Context, item *cabine
 		Quantity: item.Quantity,
 	}
 
-	query := `UPDATE User_Medicine SET quantity = :quantity WHERE id = :id`
+	query := queries.CabinetItem.UpdateQuantity
 
 	_, err := r.db.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -97,8 +97,7 @@ func (r *PostgresCabinetItemRepository) Save(ctx context.Context, item *cabinet_
 		Quantity:          item.Quantity,
 	}
 
-	query := `INSERT INTO User_Medicine (id, user_id, medicine_id, date_of_manufacture, quantity)
-              VALUES (:id, :user_id, :medicine_id, :date_of_manufacture, :quantity)`
+	query := queries.CabinetItem.InsertItem
 
 	_, err := r.db.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -108,7 +107,7 @@ func (r *PostgresCabinetItemRepository) Save(ctx context.Context, item *cabinet_
 }
 
 func (r *PostgresCabinetItemRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	query := `DELETE FROM User_Medicine WHERE id = $1`
+	query := queries.CabinetItem.DeleteByID
 	_, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
