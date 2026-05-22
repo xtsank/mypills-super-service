@@ -4,13 +4,6 @@ workspace {
         admin = person "Администратор"
         guest = person "Гость"
 
-        pharmacyService = softwareSystem "Сервис онлайн-аптеки" {
-            tags "Integration"
-        }
-        notificationService = softwareSystem "Сервис уведомлений"{
-            tags "Integration"
-        }
-
         mypills = softwareSystem "MyPills" {
             frontend = container "Пользовательский интерфейс"
             backend = container "Бэкенд" {
@@ -28,6 +21,7 @@ workspace {
                     medicineService = component "Сервис подбора лекарств"
                     cabinetService = component "Сервис управления аптечкой"
                     adminService = component "Сервис администратора"
+                    notifyService = component "Сервис уведомлений"
                 }
 
                 daLayer = group "Компонент доступа к данным" {
@@ -47,8 +41,6 @@ workspace {
         user -> mypills "Использует для управления аптечкой и подбора лекарства по симптому"
         admin -> mypills "Администрирует справочник лекарств"
         guest -> mypills "Регистрируется в системе"
-        mypills -> pharmacyService "Перенаправляет для заказа необходимых лекарств"
-        mypills -> notificationService "Отправляет уведомления об истечении срока годности"
 
         user -> frontend "Смотрит наличие лекарств и ищет подходящие по симптому"
         admin -> frontend "Видит панель управления для редактирования справочника"
@@ -56,8 +48,6 @@ workspace {
         frontend -> backend "Делает запросы к"
         backend -> database "Читает из и пишет в"
         backend -> cache "Читает из и пишет в"
-        backend -> pharmacyService "Перенаправляет для заказа необходимых лекарств"
-        backend -> notificationService "Отправляет уведомления об истечении срока годности"
 
         frontend -> authController "Вызывает"
         frontend -> profileController "Вызывает"
@@ -76,6 +66,8 @@ workspace {
         medicineService -> cabinetRepository "Использует"
         cabinetService -> cabinetRepository "Использует"
         adminService -> medicineRepository "Использует"
+        notifyService -> cabinetRepository "Использует"
+        notifyService -> userRepository "Использует"
         userRepository -> database "SQL"
         medicineRepository -> database "SQL"
         cabinetRepository -> database "SQL"

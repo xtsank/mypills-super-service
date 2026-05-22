@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"log/slog"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do/v2"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/xtsank/mypills-super-service/docs/swagger"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/email"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
@@ -31,6 +34,7 @@ func (app *App) provideRepo() {
 	do.Provide(app.i, repository.NewPostgresUserRepository)
 	do.Provide(app.i, repository.NewPostgresMedicineRepository)
 	do.Provide(app.i, repository.NewPostgresCabinetItemRepository)
+	do.Provide(app.i, repository.NewPostgresDictionaryRepository)
 }
 
 func (app *App) provideService() {
@@ -39,6 +43,9 @@ func (app *App) provideService() {
 	do.Provide(app.i, service.NewCabinetService)
 	do.Provide(app.i, service.NewMedicineService)
 	do.Provide(app.i, service.NewProfileService)
+	do.Provide(app.i, service.NewDictionaryService)
+	do.Provide(app.i, email.NewSMTPSender)
+	do.Provide(app.i, service.NewNotificationService)
 	do.Provide(app.i, service.NewBcryptHasher)
 	do.Provide(app.i, service.NewJWTManager)
 }
@@ -49,6 +56,7 @@ func (app *App) provideHandler() {
 	do.Provide(app.i, handler.NewProfileHandler)
 	do.Provide(app.i, handler.NewMedicineHandler)
 	do.Provide(app.i, handler.NewAdminHandler)
+	do.Provide(app.i, handler.NewDictionaryHandler)
 }
 
 func (app *App) provideAll() {
@@ -81,6 +89,9 @@ func (app *App) initRoutes() {
 
 	authHandler := do.MustInvoke[*handler.AuthHandler](app.i)
 	authHandler.RegisterRoutes(api)
+
+	dictionaryHandler := do.MustInvoke[*handler.DictionaryHandler](app.i)
+	dictionaryHandler.RegisterRoutes(api)
 
 	cabinetHandler := do.MustInvoke[*handler.CabinetHandler](app.i)
 	cabinetHandler.RegisterRoutes(protected)
@@ -118,6 +129,9 @@ func NewApp() *App {
 func (app *App) Run() error {
 	cfg := do.MustInvoke[*config.Config](app.i)
 	logger := do.MustInvoke[*slog.Logger](app.i)
+	notificationService := do.MustInvoke[service.INotificationService](app.i)
+
+	startNotificationTicker(notificationService, cfg, logger)
 
 	addr := cfg.ServerAddress
 	if addr != "" && addr[0] != ':' {
@@ -127,6 +141,18 @@ func (app *App) Run() error {
 	logger.Info("server_start", slog.String("address", addr))
 
 	return app.router.Run(addr)
+}
+
+func startNotificationTicker(service service.INotificationService, cfg *config.Config, logger *slog.Logger) {
+	interval := cfg.NotificationCheckInterval
+	logger.Info("notification_ticker_start", slog.String("interval", interval.String()))
+	ticker := time.NewTicker(interval)
+	go func() {
+		for range ticker.C {
+			logger.Debug("notification_ticker_tick")
+			service.SendDueNotifications(context.Background())
+		}
+	}()
 }
 
 func (app *App) Logger() *slog.Logger {

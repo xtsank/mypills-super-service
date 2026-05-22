@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/medicine"
 	svcErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 	req "github.com/xtsank/mypills-super-service/src/internal/transport/dto/req"
 )
@@ -75,6 +76,10 @@ func (m *mockMedicineRepo) DeleteDosageRule(ctx context.Context, ruleID uuid.UUI
 	return nil
 }
 func (m *mockMedicineRepo) FindByIllness(ctx context.Context, illnessID uuid.UUID) ([]*medicine.Medicine, error) {
+	return nil, nil
+}
+
+func (m *mockMedicineRepo) ListDosageRules(ctx context.Context) ([]entity.DosageRuleWithMedicineEntity, error) {
 	return nil, nil
 }
 

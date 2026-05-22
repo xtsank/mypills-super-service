@@ -30,6 +30,14 @@ type Config struct {
 
 	ServerAddress string
 
+	SMTPHost     string
+	SMTPPort     string
+	SMTPUser     string
+	SMTPPassword string
+	SMTPFrom     string
+
+	NotificationCheckInterval time.Duration
+
 	LogFile  string
 	LogLevel slog.Level
 	logger   *slog.Logger
@@ -48,6 +56,8 @@ func NewConfig(i do.Injector) (*Config, error) {
 	maxIdle := parseIntEnv(logger, "DB_MAX_IDLE_CONNS", 10)
 	maxLifetime := parseDurationEnv(logger, "DB_CONN_MAX_LIFETIME", time.Hour)
 	maxIdleTime := parseDurationEnv(logger, "DB_CONN_MAX_IDLE_TIME", 5*time.Minute)
+
+	notificationInterval := parseDurationEnv(logger, "NOTIFICATION_CHECK_INTERVAL", time.Minute)
 
 	logLevel := parseLogLevelEnv(logger, "LOG_LEVEL", slog.LevelDebug)
 	logFile := os.Getenv("LOG_FILE")
@@ -70,6 +80,14 @@ func NewConfig(i do.Injector) (*Config, error) {
 		DBConnMaxIdleTime: maxIdleTime,
 
 		ServerAddress: os.Getenv("SERVER_PORT"),
+
+		SMTPHost: os.Getenv("SMTP_HOST"),
+		SMTPPort: os.Getenv("SMTP_PORT"),
+		//SMTPUser:     os.Getenv("SMTP_USER"),
+		//SMTPPassword: os.Getenv("SMTP_PASSWORD"),
+		SMTPFrom: os.Getenv("SMTP_FROM"),
+
+		NotificationCheckInterval: notificationInterval,
 
 		LogFile:  logFile,
 		LogLevel: logLevel,

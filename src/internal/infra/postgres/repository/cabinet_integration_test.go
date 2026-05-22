@@ -25,8 +25,8 @@ func TestPostgresCabinetRepository_SaveFindUpdateDelete(t *testing.T) {
 	form := uuid.New()
 	unit := uuid.New()
 
-	if _, err := db.Exec("insert into Users (id, login, password, is_admin, sex, weight, age, is_pregnant, is_driver) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
-		uid, "u1_"+uuid.NewString(), "p", false, false, 70, 30, false, false); err != nil {
+	if _, err := db.Exec("insert into Users (id, login, email, password, is_admin, sex, weight, age, is_pregnant, is_driver) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+		uid, "u1_"+uuid.NewString(), "u1@example.com", "p", false, false, 70, 30, false, false); err != nil {
 		t.Fatalf("insert user: %v", err)
 	}
 	if _, err := db.Exec("insert into Form (id, name) values ($1,$2)", form, "f"); err != nil {

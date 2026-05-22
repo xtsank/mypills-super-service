@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -117,9 +118,16 @@ func (r *PostgresUserRepository) FindByLogin(ctx context.Context, login string) 
 		return nil, err
 	}
 
+	notify := &user.NotifyInfo{
+		Enabled:         ent.NotifyEnabled,
+		IntervalMinutes: ent.NotifyIntervalMinutes,
+		LastNotifiedAt:  ent.LastNotifiedAt,
+	}
+
 	return user.NewUser(
 		ent.ID,
 		ent.Login,
+		ent.Email,
 		ent.Password,
 		ent.IsAdmin,
 		ent.Sex,
@@ -127,6 +135,7 @@ func (r *PostgresUserRepository) FindByLogin(ctx context.Context, login string) 
 		ent.Age,
 		ent.IsPregnant,
 		ent.IsDriver,
+		notify,
 		illnesses,
 		allergies,
 	)
@@ -151,9 +160,16 @@ func (r *PostgresUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*u
 		return nil, err
 	}
 
+	notify := &user.NotifyInfo{
+		Enabled:         ent.NotifyEnabled,
+		IntervalMinutes: ent.NotifyIntervalMinutes,
+		LastNotifiedAt:  ent.LastNotifiedAt,
+	}
+
 	return user.NewUser(
 		ent.ID,
 		ent.Login,
+		ent.Email,
 		ent.Password,
 		ent.IsAdmin,
 		ent.Sex,
@@ -161,6 +177,7 @@ func (r *PostgresUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*u
 		ent.Age,
 		ent.IsPregnant,
 		ent.IsDriver,
+		notify,
 		illnesses,
 		allergies,
 	)
@@ -170,6 +187,7 @@ func (r *PostgresUserRepository) insertBase(ctx context.Context, tx *sqlx.Tx, u 
 	ent := entity.UserEntity{
 		ID:         u.ID,
 		Login:      u.Login,
+		Email:      u.Email,
 		Password:   u.Password,
 		IsAdmin:    u.IsAdmin,
 		Sex:        u.Sex,
@@ -177,6 +195,9 @@ func (r *PostgresUserRepository) insertBase(ctx context.Context, tx *sqlx.Tx, u 
 		Age:        u.Age,
 		IsPregnant: u.IsPregnant,
 		IsDriver:   u.IsDriver,
+		NotifyEnabled:         u.Notify.Enabled,
+		NotifyIntervalMinutes: u.Notify.IntervalMinutes,
+		LastNotifiedAt:        u.Notify.LastNotifiedAt,
 	}
 
 	query := queries.User.InsertUser
@@ -278,6 +299,7 @@ func (r *PostgresUserRepository) updateBase(ctx context.Context, tx *sqlx.Tx, u 
 	ent := entity.UserEntity{
 		ID:         u.ID,
 		Login:      u.Login,
+		Email:      u.Email,
 		Password:   u.Password,
 		IsAdmin:    u.IsAdmin,
 		Sex:        u.Sex,
@@ -285,11 +307,71 @@ func (r *PostgresUserRepository) updateBase(ctx context.Context, tx *sqlx.Tx, u 
 		Age:        u.Age,
 		IsPregnant: u.IsPregnant,
 		IsDriver:   u.IsDriver,
+		NotifyEnabled:         u.Notify.Enabled,
+		NotifyIntervalMinutes: u.Notify.IntervalMinutes,
+		LastNotifiedAt:        u.Notify.LastNotifiedAt,
 	}
 
-		  query := queries.User.UpdateUser
+	query := queries.User.UpdateUser
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
+	if err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	return nil
+}
+
+func (r *PostgresUserRepository) FindNotifyEnabled(ctx context.Context) ([]*user.User, error) {
+	var ents []entity.UserEntity
+	query := queries.User.SelectNotifyEnabled
+
+	err := r.db.SelectContext(ctx, &ents, query)
+	if err != nil {
+		return nil, appErrors.ErrInternal.WithError(err)
+	}
+
+	users := make([]*user.User, 0, len(ents))
+	for _, ent := range ents {
+		notify := &user.NotifyInfo{
+			Enabled:         ent.NotifyEnabled,
+			IntervalMinutes: ent.NotifyIntervalMinutes,
+			LastNotifiedAt:  ent.LastNotifiedAt,
+		}
+		u, err := user.NewUser(
+			ent.ID,
+			ent.Login,
+			ent.Email,
+			ent.Password,
+			ent.IsAdmin,
+			ent.Sex,
+			ent.Weight,
+			ent.Age,
+			ent.IsPregnant,
+			ent.IsDriver,
+			notify,
+			nil,
+			nil,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
+func (r *PostgresUserRepository) UpdateNotify(ctx context.Context, id uuid.UUID, enabled bool, intervalMinutes int, lastNotifiedAt *time.Time) error {
+	ent := entity.UserEntity{
+		ID:                     id,
+		NotifyEnabled:         enabled,
+		NotifyIntervalMinutes: intervalMinutes,
+		LastNotifiedAt:        lastNotifiedAt,
+	}
+
+	query := queries.User.UpdateNotify
+
+	_, err := r.db.NamedExecContext(ctx, query, ent)
 	if err != nil {
 		return appErrors.ErrInternal.WithError(err)
 	}

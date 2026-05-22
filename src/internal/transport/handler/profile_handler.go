@@ -62,11 +62,14 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 
 	cmd := command.NewUpdateProfileCmd(
 		userID,
+		input.Email,
 		input.Sex,
 		input.Weight,
 		input.Age,
 		input.IsPregnant,
 		input.IsDriver,
+		input.NotifyEnabled,
+		input.NotifyIntervalMinutes,
 		input.Illnesses,
 		input.Allergies,
 	)

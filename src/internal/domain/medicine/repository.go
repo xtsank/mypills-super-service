@@ -4,11 +4,13 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
 )
 
 type IMedicineRepository interface {
 	FindByIllness(ctx context.Context, illnessID uuid.UUID) ([]*Medicine, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*Medicine, error)
+	ListDosageRules(ctx context.Context) ([]entity.DosageRuleWithMedicineEntity, error)
 
 	Create(ctx context.Context, medicine *Medicine) error
 	Update(ctx context.Context, medicine *Medicine) error

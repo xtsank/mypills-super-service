@@ -10,7 +10,7 @@ export function MedicineView() {
 
       <div className="inline">
         <SelectInput
-          label="ID болезни"
+          label="Болезнь"
           value={vm.illnessId}
           onChange={vm.setIllnessId}
           options={vm.illnessOptions}

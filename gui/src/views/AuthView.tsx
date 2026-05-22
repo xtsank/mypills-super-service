@@ -1,4 +1,4 @@
-import { Button, Checkbox, NumberInput, TagInput, TextInput } from "../components/Controls";
+import { Button, Checkbox, MultiSelectInput, NumberInput, TextInput } from "../components/Controls";
 import { useAuthViewModel } from "../viewmodels/useAuthViewModel";
 
 export function AuthView() {
@@ -22,6 +22,12 @@ export function AuthView() {
       <div className="section__title">Регистрация</div>
 
       <div className="inline">
+        <TextInput label="Логин" value={vm.registerLogin} onChange={vm.setRegisterLogin} />
+        <TextInput label="Почта" value={vm.emailValue} onChange={vm.setEmailValue} />
+        <TextInput label="Пароль" value={vm.registerPassword} onChange={vm.setRegisterPassword} type="password" />
+      </div>
+
+      <div className="inline">
         <NumberInput label="Возраст" value={vm.age} onChange={vm.setAge} />
         <NumberInput label="Вес" value={vm.weight} onChange={vm.setWeight} />
       </div>
@@ -43,8 +49,20 @@ export function AuthView() {
       </div>
 
       <div className="inline">
-        <TagInput label="Аллергии" value={vm.allergies} onChange={vm.setAllergies} placeholder="через запятую" />
-        <TagInput label="Болезни" value={vm.illnesses} onChange={vm.setIllnesses} placeholder="через запятую" />
+        <MultiSelectInput
+          label="Аллергии"
+          values={vm.allergies}
+          onChange={vm.setAllergies}
+          options={vm.allergyOptions}
+          placeholder="Пока нет данных"
+        />
+        <MultiSelectInput
+          label="Болезни"
+          values={vm.illnesses}
+          onChange={vm.setIllnesses}
+          options={vm.illnessOptions}
+          placeholder="Пока нет данных"
+        />
       </div>
 
       <div className="inline">

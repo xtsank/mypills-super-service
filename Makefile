@@ -3,7 +3,7 @@
 login=admin111
 
 build: swag
-	go build -o build/mypills-app ./src/cmd/app/main.go ./src/cmd/app/app.go
+	@export DB_HOST=localhost; go build -o build/mypills-app ./src/cmd/app/main.go ./src/cmd/app/app.go
 
 swag:
 	swag init -q -g src/cmd/app/main.go -o docs/swagger --parseDependency --parseInternal --useStructName
@@ -23,7 +23,10 @@ docker-db:
 	sudo docker exec -it mypills-db psql -U user -d mypills
 
 log:
-	@set -a; . ./.env; set +a; tail -n 200 -f "$${LOG_FILE:-logs/app.log}"
+	tail -n 200 -f "logs/app.log"
 
 make_admin:
 	./scripts/make_admin.sh $(login)
+
+test_notification:
+	sudo docker compose exec -T db bash -lc "/docker-entrypoint-initdb.d/seed_notification_demo.sh timofey1 etima16122005@gmail.com 12345678"

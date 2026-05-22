@@ -32,6 +32,7 @@ func TestPostgresUserRepository_CreateFindUpdate(t *testing.T) {
 	u, err := user.NewUser(
 		uuid.New(),
 		login,
+		"test@example.com",
 		"pwd",
 		false,
 		false,
@@ -39,6 +40,7 @@ func TestPostgresUserRepository_CreateFindUpdate(t *testing.T) {
 		30,
 		false,
 		false,
+		nil,
 		nil,
 		[]uuid.UUID{substanceID},
 	)

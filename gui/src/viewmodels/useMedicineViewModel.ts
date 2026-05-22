@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { normalizeError, selectMedicine } from "../api/client";
+import { useEffect, useState } from "react";
+import { listIllnesses, normalizeError, selectMedicine } from "../api/client";
 import { MedicineRecommendation } from "../api/types";
 import { useAuth } from "../store/authStore";
 import { useProcess } from "../store/processStore";
@@ -11,7 +11,7 @@ export function useMedicineViewModel() {
   const [illnessId, setIllnessId] = useState("");
   const [recommendations, setRecommendations] = useState<MedicineRecommendation[]>([]);
 
-  const illnessOptions: Array<{ value: string; label: string }> = [];
+  const [illnessOptions, setIllnessOptions] = useState<Array<{ value: string; label: string }>>([]);
 
   const handleSelect = async () => {
     if (!auth.token) {
@@ -33,6 +33,19 @@ export function useMedicineViewModel() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const illnesses = await listIllnesses();
+        setIllnessOptions(illnesses.map((item) => ({ value: item.id, label: item.name })));
+      } catch (error) {
+        const appError = normalizeError(error);
+        process.setStatus("error", `${appError.code}: ${appError.message}`);
+      }
+    };
+    load();
+  }, [process]);
 
   return {
     isLoading,

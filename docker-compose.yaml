@@ -18,12 +18,13 @@ services:
     restart: always
     depends_on:
       - db
+      - mailpit
     env_file:
       - .env
     ports:
       - "${SERVER_PORT}:8080"
     volumes:
-      - /home/:/root/logs
+      - ./logs:/root/logs
   gui:
     build: ./gui
     container_name: mypills-gui
@@ -34,6 +35,16 @@ services:
       - VITE_API_BASE_URL=http://localhost:${SERVER_PORT}
     ports:
       - "${GUI_PORT}:5173"
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mypills-mailpit
+    restart: always
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
 
 volumes:
   pgdata:

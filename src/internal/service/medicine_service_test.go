@@ -10,7 +10,9 @@ import (
 	"github.com/xtsank/mypills-super-service/src/internal/domain/cabinet_item"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/medicine"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
+	"github.com/xtsank/mypills-super-service/src/internal/dto"
 	svcErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
+	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 )
 
@@ -31,6 +33,10 @@ func (m *mockUserRepoForMed) FindByLogin(ctx context.Context, login string) (*us
 	panic("unused")
 }
 func (m *mockUserRepoForMed) Update(ctx context.Context, u *user.User) error { panic("unused") }
+func (m *mockUserRepoForMed) FindNotifyEnabled(ctx context.Context) ([]*user.User, error) { return nil, nil }
+func (m *mockUserRepoForMed) UpdateNotify(ctx context.Context, id uuid.UUID, enabled bool, intervalMinutes int, lastNotifiedAt *time.Time) error {
+	return nil
+}
 
 type mockMedRepo struct {
 	meds []*medicine.Medicine
@@ -60,6 +66,9 @@ func (m *mockMedRepo) AddDosageRule(ctx context.Context, medID uuid.UUID, rule *
 	panic("unused")
 }
 func (m *mockMedRepo) DeleteDosageRule(ctx context.Context, ruleID uuid.UUID) error { panic("unused") }
+func (m *mockMedRepo) ListDosageRules(ctx context.Context) ([]entity.DosageRuleWithMedicineEntity, error) {
+	return nil, nil
+}
 
 type mockCabinetRepoForMed struct {
 	items []*cabinet_item.CabinetItem
@@ -82,6 +91,12 @@ func (m *mockCabinetRepoForMed) Save(ctx context.Context, item *cabinet_item.Cab
 func (m *mockCabinetRepoForMed) Delete(ctx context.Context, id uuid.UUID) error { panic("unused") }
 func (m *mockCabinetRepoForMed) FindById(ctx context.Context, id uuid.UUID) (*cabinet_item.CabinetItem, error) {
 	panic("unused")
+}
+func (m *mockCabinetRepoForMed) FindExpiredByUserID(ctx context.Context, userID uuid.UUID) ([]*dto.ExpiredItemDto, error) {
+	return nil, nil
+}
+func (m *mockCabinetRepoForMed) FindDetailsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.CabinetItemWithMedicineEntity, error) {
+	return nil, nil
 }
 
 func TestMedicineService_Select_UserNotFound(t *testing.T) {

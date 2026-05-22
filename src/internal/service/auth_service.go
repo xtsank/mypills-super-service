@@ -52,6 +52,7 @@ func (s *AuthService) Register(ctx context.Context, cmd *command.CreateUserCmd) 
 	u, err := user.NewUser(
 		uuid.New(),
 		cmd.Login,
+		cmd.Email,
 		hashedPassword,
 		cmd.IsAdmin,
 		cmd.Sex,
@@ -59,6 +60,7 @@ func (s *AuthService) Register(ctx context.Context, cmd *command.CreateUserCmd) 
 		cmd.Age,
 		cmd.IsPregnant,
 		cmd.IsDriver,
+		nil,
 		cmd.Illnesses,
 		cmd.Allergies,
 	)

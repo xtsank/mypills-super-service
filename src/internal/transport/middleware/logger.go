@@ -25,7 +25,7 @@ func NewLogger(i do.Injector) (*slog.Logger, error) {
 		logPath = "logs/app.log"
 	}
 	_ = os.MkdirAll(filepath.Dir(logPath), 0755)
-	file, _ := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
 	logLevel, logLevelValid, rawLevel := parseLogLevelEnv("LOG_LEVEL", slog.LevelInfo)
 
@@ -34,10 +34,18 @@ func NewLogger(i do.Injector) (*slog.Logger, error) {
 		Level:     logLevel,
 	}
 
-	fileHandler := slog.NewJSONHandler(file, opts)
-	logger := slog.New(fileHandler)
+	var handler slog.Handler
+	if err != nil {
+		handler = slog.NewJSONHandler(os.Stdout, opts)
+	} else {
+		handler = slog.NewJSONHandler(file, opts)
+	}
+	logger := slog.New(handler)
 	if !logLevelValid && rawLevel != "" {
 		logger.Warn("Invalid log level, using default", slog.String("value", rawLevel), slog.String("default", logLevel.String()))
+	}
+	if err != nil {
+		logger.Warn("Failed to open log file, using stdout", slog.String("path", logPath), slog.Any("error", err))
 	}
 
 	slog.SetDefault(logger)
