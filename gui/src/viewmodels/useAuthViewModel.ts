@@ -44,9 +44,15 @@ export function useAuthViewModel() {
     setIsLoading(true);
     try {
       const response = await register({
+<<<<<<< HEAD
         login: registerLogin,
         email: emailValue,
         password: registerPassword,
+=======
+        login: loginValue,
+        email: emailValue,
+        password: passwordValue,
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
         age: Number(age),
         weight: Number(weight),
         sex,

@@ -81,11 +81,19 @@ func NewConfig(i do.Injector) (*Config, error) {
 
 		ServerAddress: os.Getenv("SERVER_PORT"),
 
+<<<<<<< HEAD
 		SMTPHost: os.Getenv("SMTP_HOST"),
 		SMTPPort: os.Getenv("SMTP_PORT"),
 		//SMTPUser:     os.Getenv("SMTP_USER"),
 		//SMTPPassword: os.Getenv("SMTP_PASSWORD"),
 		SMTPFrom: os.Getenv("SMTP_FROM"),
+=======
+		SMTPHost:     os.Getenv("SMTP_HOST"),
+		SMTPPort:     os.Getenv("SMTP_PORT"),
+		SMTPUser:     os.Getenv("SMTP_USER"),
+		SMTPPassword: os.Getenv("SMTP_PASSWORD"),
+		SMTPFrom:     os.Getenv("SMTP_FROM"),
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 
 		NotificationCheckInterval: notificationInterval,
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Button, Checkbox, MultiSelectInput, NumberInput, SelectInput, TextInput } from "../components/Controls";
+=======
+import { Button, Checkbox, NumberInput, SelectInput, TagInput, TextInput } from "../components/Controls";
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 import { useProfileViewModel } from "../viewmodels/useProfileViewModel";
 
 export function ProfileView() {
@@ -45,6 +49,16 @@ export function ProfileView() {
           onChange={vm.setIllnesses}
           options={vm.illnessOptions}
           placeholder="Пока нет данных"
+        />
+      </div>
+
+      <div className="inline">
+        <Checkbox label="Отправлять уведомления" checked={vm.notifyEnabled} onChange={vm.setNotifyEnabled} />
+        <SelectInput
+          label="Интервал"
+          value={vm.notifyIntervalMinutes}
+          options={vm.notifyIntervalOptions}
+          onChange={vm.setNotifyIntervalMinutes}
         />
       </div>
 

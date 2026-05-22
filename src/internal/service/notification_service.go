@@ -65,7 +65,10 @@ func (s *NotificationService) SendDueNotifications(ctx context.Context) {
 
 		subject := "Просроченные лекарства"
 		body := buildExpiredEmailBody(items)
+<<<<<<< HEAD
 		
+=======
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 		if err := s.emailSender.Send(ctx, u.Email, subject, body); err != nil {
 			s.logger.Error("notify_email_failed", slog.Any("error", err), slog.String("user_id", u.ID.String()))
 			continue
@@ -84,7 +87,11 @@ func isDue(last *time.Time, intervalMinutes int, now time.Time) bool {
 	if last == nil {
 		return true
 	}
+<<<<<<< HEAD
 	return last.Add(time.Duration(intervalMinutes)*time.Minute).Before(now) || last.Add(time.Duration(intervalMinutes)*time.Minute).Equal(now)
+=======
+	return last.Add(time.Duration(intervalMinutes) * time.Minute).Before(now) || last.Add(time.Duration(intervalMinutes)*time.Minute).Equal(now)
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 }
 
 func buildExpiredEmailBody(items []*dto.ExpiredItemDto) string {

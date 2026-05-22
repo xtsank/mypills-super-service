@@ -43,7 +43,10 @@ func (app *App) provideService() {
 	do.Provide(app.i, service.NewCabinetService)
 	do.Provide(app.i, service.NewMedicineService)
 	do.Provide(app.i, service.NewProfileService)
+<<<<<<< HEAD
 	do.Provide(app.i, service.NewDictionaryService)
+=======
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 	do.Provide(app.i, email.NewSMTPSender)
 	do.Provide(app.i, service.NewNotificationService)
 	do.Provide(app.i, service.NewBcryptHasher)
@@ -131,7 +134,11 @@ func (app *App) Run() error {
 	logger := do.MustInvoke[*slog.Logger](app.i)
 	notificationService := do.MustInvoke[service.INotificationService](app.i)
 
+<<<<<<< HEAD
 	startNotificationTicker(notificationService, cfg, logger)
+=======
+	startNotificationTicker(notificationService, cfg)
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 
 	addr := cfg.ServerAddress
 	if addr != "" && addr[0] != ':' {
@@ -143,6 +150,7 @@ func (app *App) Run() error {
 	return app.router.Run(addr)
 }
 
+<<<<<<< HEAD
 func startNotificationTicker(service service.INotificationService, cfg *config.Config, logger *slog.Logger) {
 	interval := cfg.NotificationCheckInterval
 	logger.Info("notification_ticker_start", slog.String("interval", interval.String()))
@@ -150,6 +158,12 @@ func startNotificationTicker(service service.INotificationService, cfg *config.C
 	go func() {
 		for range ticker.C {
 			logger.Debug("notification_ticker_tick")
+=======
+func startNotificationTicker(service service.INotificationService, cfg *config.Config) {
+	ticker := time.NewTicker(cfg.NotificationCheckInterval)
+	go func() {
+		for range ticker.C {
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 			service.SendDueNotifications(context.Background())
 		}
 	}()

@@ -19,9 +19,12 @@ export function useProfileViewModel() {
   const [allergies, setAllergies] = useState<string[]>([]);
   const [illnesses, setIllnesses] = useState<string[]>([]);
 
+<<<<<<< HEAD
   const [allergyOptions, setAllergyOptions] = useState<Array<{ value: string; label: string }>>([]);
   const [illnessOptions, setIllnessOptions] = useState<Array<{ value: string; label: string }>>([]);
 
+=======
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
   const notifyIntervalOptions = [
     { value: "1", label: "1 мин" },
     { value: "30", label: "30 мин" },
@@ -105,8 +108,11 @@ export function useProfileViewModel() {
     notifyIntervalOptions,
     allergies,
     illnesses,
+<<<<<<< HEAD
     allergyOptions,
     illnessOptions,
+=======
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
     setEmail,
     setAge,
     setWeight,

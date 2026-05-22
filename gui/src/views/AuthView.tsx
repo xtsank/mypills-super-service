@@ -22,9 +22,13 @@ export function AuthView() {
       <div className="section__title">Регистрация</div>
 
       <div className="inline">
+<<<<<<< HEAD
         <TextInput label="Логин" value={vm.registerLogin} onChange={vm.setRegisterLogin} />
         <TextInput label="Почта" value={vm.emailValue} onChange={vm.setEmailValue} />
         <TextInput label="Пароль" value={vm.registerPassword} onChange={vm.setRegisterPassword} type="password" />
+=======
+        <TextInput label="Почта" value={vm.emailValue} onChange={vm.setEmailValue} />
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
       </div>
 
       <div className="inline">

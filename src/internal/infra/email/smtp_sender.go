@@ -6,7 +6,10 @@ import (
 	"net/smtp"
 
 	"github.com/samber/do/v2"
+<<<<<<< HEAD
 	"github.com/xtsank/mypills-super-service/src/internal/errors"
+=======
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 	"github.com/xtsank/mypills-super-service/src/internal/service"
 )
@@ -34,6 +37,7 @@ func (s *SMTPSender) Send(ctx context.Context, to string, subject string, body s
 	_ = ctx
 
 	if s.host == "" || s.port == "" || s.from == "" {
+<<<<<<< HEAD
 		return errors.ErrSMTPConfigMissing.WithSource()
 	}
 
@@ -42,6 +46,13 @@ func (s *SMTPSender) Send(ctx context.Context, to string, subject string, body s
 	if s.user != "" && s.password != "" {
 		auth = smtp.PlainAuth("", s.user, s.password, s.host)
 	}
+=======
+		return fmt.Errorf("smtp config is incomplete")
+	}
+
+	addr := fmt.Sprintf("%s:%s", s.host, s.port)
+	auth := smtp.PlainAuth("", s.user, s.password, s.host)
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 
 	message := "Subject: " + subject + "\r\n" +
 		"MIME-Version: 1.0\r\n" +
