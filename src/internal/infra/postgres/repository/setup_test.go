@@ -8,10 +8,10 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	"github.com/samber/do/v2"
-	cfgpkg "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
+	cfgpkg "github.com/xtsank/mypills-super-service/src/internal/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 )
@@ -30,7 +30,7 @@ func setupTestDB(t *testing.T) *sqlx.DB {
 	var d *sqlx.DB
 	var err error
 	for attempt := 0; attempt < 10; attempt++ {
-		d, err = db.NewDB(i)
+		d, err = db.NewPostgesDB(i)
 		if err == nil {
 			break
 		}

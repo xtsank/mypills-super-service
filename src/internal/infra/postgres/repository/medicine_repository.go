@@ -215,6 +215,17 @@ func (r *PostgresMedicineRepository) FindByID(ctx context.Context, id uuid.UUID)
 	)
 }
 
+func (r *PostgresMedicineRepository) ListDosageRules(ctx context.Context) ([]entity.DosageRuleWithMedicineEntity, error) {
+	var ents []entity.DosageRuleWithMedicineEntity
+	query := queries.Medicine.SelectDosageRules
+
+	if err := r.db.SelectContext(ctx, &ents, query); err != nil {
+		return nil, appErrors.ErrInternal.WithError(err)
+	}
+
+	return ents, nil
+}
+
 func (r *PostgresMedicineRepository) insertBase(ctx context.Context, tx *sqlx.Tx, med *medicine.Medicine) error {
 	ent := entity.MedicineEntity{
 		ID:                  med.ID,

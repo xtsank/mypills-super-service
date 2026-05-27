@@ -27,6 +27,7 @@ func NewAdminHandler(i do.Injector) (*AdminHandler, error) {
 func (h *AdminHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	admin := rg.Group("/admin")
 	{
+		admin.GET("/dosage-rules", h.ListDosageRules)
 		admin.POST("/medicine", h.AddMedicine)
 		admin.PATCH("/medicine", h.UpdateMedicine)
 		admin.DELETE("/medicine", h.RemoveMedicine)
@@ -36,6 +37,30 @@ func (h *AdminHandler) RegisterRoutes(rg *gin.RouterGroup) {
 		admin.POST("/medicine/dosage", h.AddDosageRule)
 		admin.DELETE("/medicine/dosage", h.RemoveDosageRule)
 	}
+}
+
+// ListDosageRules godoc
+// @Summary      Список правил дозировки
+// @Description  Возвращает правила дозировок с названиями лекарств
+// @Tags         Admin
+// @Produce      json
+// @Security BearerAuth
+// @Success      200    {array}   res.DosageRuleItemDto  "Список правил"
+// @Failure      401    {object}  errors.AppError        "Недостаточно прав"
+// @Router       /admin/dosage-rules [get]
+func (h *AdminHandler) ListDosageRules(c *gin.Context) {
+	if !isAdmin(c) {
+		return
+	}
+
+	items, err := h.adminService.ListDosageRules(c.Request.Context())
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.Set(middleware.ResponsePayloadKey, items)
+	c.Set(middleware.ResponseStatusKey, http.StatusOK)
 }
 
 // AddMedicine godoc

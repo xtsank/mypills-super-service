@@ -1,4 +1,4 @@
-import { Button, Checkbox, MultiSelectInput, NumberInput, SelectInput, TagInput, TextInput } from "../components/Controls";
+import { Button, Checkbox, MultiSelectInput, NumberInput, SelectInput, TextInput } from "../components/Controls";
 import { useAdminViewModel } from "../viewmodels/useAdminViewModel";
 
 export function AdminView() {
@@ -13,14 +13,14 @@ export function AdminView() {
         <div className="inline">
           <TextInput label="Название" value={vm.name} onChange={vm.setName} />
           <SelectInput
-            label="ID формы"
+            label="Форма"
             value={vm.formId}
             onChange={vm.setFormId}
             options={vm.formOptions}
             placeholder="Пока нет данных"
           />
           <SelectInput
-            label="ID единицы"
+            label="Единица"
             value={vm.unitId}
             onChange={vm.setUnitId}
             options={vm.unitOptions}
@@ -37,8 +37,20 @@ export function AdminView() {
           <Checkbox label="Влияние на водителей" checked={vm.effectOnDriver} onChange={vm.setEffectOnDriver} />
         </div>
         <div className="inline">
-          <TagInput label="Противопоказания" value={vm.contraindications} onChange={vm.setContraindications} />
-          <TagInput label="Рекомендации" value={vm.recommendations} onChange={vm.setRecommendations} />
+          <MultiSelectInput
+            label="Противопоказания"
+            values={vm.contraindications}
+            onChange={vm.setContraindications}
+            options={vm.contraindicationOptions}
+            placeholder="Пока нет данных"
+          />
+          <MultiSelectInput
+            label="Показания"
+            values={vm.recommendations}
+            onChange={vm.setRecommendations}
+            options={vm.indicationOptions}
+            placeholder="Пока нет данных"
+          />
         </div>
 
         <div className="section">
@@ -46,7 +58,7 @@ export function AdminView() {
           {vm.substances.map((item, index) => (
             <div key={index} className="inline">
               <SelectInput
-                label={`ID вещества ${index + 1}`}
+                label={`Вещество ${index + 1}`}
                 value={item.id}
                 onChange={(value) => vm.updateSubstance(index, { id: value })}
                 options={vm.substanceOptions}
@@ -117,21 +129,21 @@ export function AdminView() {
         <div className="section__title">Обновить лекарство</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.updateId}
             onChange={vm.setUpdateId}
             options={vm.medicineOptions}
             placeholder="Пока нет данных"
           />
           <SelectInput
-            label="ID формы"
+            label="Форма"
             value={vm.updateFormId}
             onChange={vm.setUpdateFormId}
             options={vm.formOptions}
             placeholder="Пока нет данных"
           />
           <SelectInput
-            label="ID единицы"
+            label="Единица"
             value={vm.updateUnitId}
             onChange={vm.setUpdateUnitId}
             options={vm.unitOptions}
@@ -154,7 +166,7 @@ export function AdminView() {
         <div className="section__title">Удалить лекарство</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.deleteId}
             onChange={vm.setDeleteId}
             options={vm.medicineOptions}
@@ -170,7 +182,7 @@ export function AdminView() {
         <div className="section__title">Обновить состав</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.compositionMedicineId}
             onChange={vm.setCompositionMedicineId}
             options={vm.medicineOptions}
@@ -180,7 +192,7 @@ export function AdminView() {
         {vm.compositionSubstances.map((item, index) => (
           <div key={index} className="inline">
             <SelectInput
-              label={`ID вещества ${index + 1}`}
+              label={`Вещество ${index + 1}`}
               value={item.id}
               onChange={(value) => vm.updateCompositionSubstance(index, { id: value })}
               options={vm.substanceOptions}
@@ -208,14 +220,14 @@ export function AdminView() {
         <div className="section__title">Обновить противопоказания</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.contraMedicineId}
             onChange={vm.setContraMedicineId}
             options={vm.medicineOptions}
             placeholder="Пока нет данных"
           />
           <MultiSelectInput
-            label="ID противопоказаний"
+            label="Противопоказания"
             values={vm.contraIds}
             onChange={vm.setContraIds}
             options={vm.contraindicationOptions}
@@ -229,14 +241,14 @@ export function AdminView() {
         <div className="section__title">Обновить показания</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.indicationMedicineId}
             onChange={vm.setIndicationMedicineId}
             options={vm.medicineOptions}
             placeholder="Пока нет данных"
           />
           <MultiSelectInput
-            label="ID показаний"
+            label="Показания"
             values={vm.indicationIds}
             onChange={vm.setIndicationIds}
             options={vm.indicationOptions}
@@ -250,7 +262,7 @@ export function AdminView() {
         <div className="section__title">Правила дозировки</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.dosageMedicineId}
             onChange={vm.setDosageMedicineId}
             options={vm.medicineOptions}
@@ -291,7 +303,7 @@ export function AdminView() {
         </div>
         <div className="inline">
           <SelectInput
-            label="ID правила"
+            label="Правило"
             value={vm.removeRuleId}
             onChange={vm.setRemoveRuleId}
             options={vm.ruleOptions}

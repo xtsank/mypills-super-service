@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/dosage-rules": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает правила дозировок с названиями лекарств",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Список правил дозировки",
+                "responses": {
+                    "200": {
+                        "description": "Список правил",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/DosageRuleItemDto"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Недостаточно прав",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/medicine": {
             "post": {
                 "security": [
@@ -522,6 +556,38 @@ const docTemplate = `{
             }
         },
         "/cabinet/items": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает предметы кабинета с названиями лекарств и сроками годности",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cabinet"
+                ],
+                "summary": "Список предметов кабинета",
+                "responses": {
+                    "200": {
+                        "description": "Список предметов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CabinetItemDetailsResDto"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/AppError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -982,6 +1048,29 @@ const docTemplate = `{
                 }
             }
         },
+        "CabinetItemDetailsResDto": {
+            "type": "object",
+            "properties": {
+                "date_of_manufacture": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "medicine_id": {
+                    "type": "string"
+                },
+                "medicine_name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                }
+            }
+        },
         "CabinetResDto": {
             "type": "object",
             "properties": {
@@ -1000,6 +1089,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "age",
+                "email",
                 "login",
                 "password",
                 "weight"
@@ -1013,6 +1103,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "illnesses": {
                     "type": "array",
@@ -1060,6 +1153,17 @@ const docTemplate = `{
                 },
                 "valueTo": {
                     "type": "integer"
+                }
+            }
+        },
+        "DosageRuleItemDto": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
                 }
             }
         },
@@ -1172,6 +1276,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -1189,6 +1296,12 @@ const docTemplate = `{
                 },
                 "login": {
                     "type": "string"
+                },
+                "notify_enabled": {
+                    "type": "boolean"
+                },
+                "notify_interval_minutes": {
+                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"
@@ -1337,6 +1450,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "email": {
+                    "type": "string"
+                },
                 "illnesses": {
                     "type": "array",
                     "items": {
@@ -1348,6 +1464,12 @@ const docTemplate = `{
                 },
                 "is_pregnant": {
                     "type": "boolean"
+                },
+                "notify_enabled": {
+                    "type": "boolean"
+                },
+                "notify_interval_minutes": {
+                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"

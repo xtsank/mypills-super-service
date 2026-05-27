@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   adminAddDosageRule,
   adminAddMedicine,
+  adminListDosageRules,
   adminRemoveDosageRule,
   adminRemoveMedicine,
   adminUpdateComposition,
   adminUpdateContraindications,
   adminUpdateIndications,
   adminUpdateMedicine,
+  listForms,
+  listIllnesses,
+  listMedicines,
+  listSubstances,
+  listUnits,
   normalizeError
 } from "../api/client";
 import { ActiveSubstanceDto, DosageRuleDto, DosageType } from "../api/types";
@@ -65,6 +71,14 @@ export function useAdminViewModel() {
   const [dosageRule, setDosageRule] = useState<DosageRuleDto>(emptyDosage);
   const [removeRuleId, setRemoveRuleId] = useState("");
 
+  const [medicineOptions, setMedicineOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [formOptions, setFormOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [unitOptions, setUnitOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [substanceOptions, setSubstanceOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [ruleOptions, setRuleOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [contraindicationOptions, setContraindicationOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [indicationOptions, setIndicationOptions] = useState<Array<{ value: string; label: string }>>([]);
+
   const requireToken = () => {
     if (!auth.token) {
       process.setStatus("error", "Нужно войти");
@@ -72,6 +86,46 @@ export function useAdminViewModel() {
     }
     return auth.token;
   };
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [meds, forms, units, substances, illnesses] = await Promise.all([
+          listMedicines(),
+          listForms(),
+          listUnits(),
+          listSubstances(),
+          listIllnesses()
+        ]);
+        setMedicineOptions(meds.map((item) => ({ value: item.id, label: item.name })));
+        setFormOptions(forms.map((item) => ({ value: item.id, label: item.name })));
+        setUnitOptions(units.map((item) => ({ value: item.id, label: item.name })));
+        setSubstanceOptions(substances.map((item) => ({ value: item.id, label: item.name })));
+        setContraindicationOptions(illnesses.map((item) => ({ value: item.id, label: item.name })));
+        setIndicationOptions(illnesses.map((item) => ({ value: item.id, label: item.name })));
+      } catch (error) {
+        const appError = normalizeError(error);
+        process.setStatus("error", `${appError.code}: ${appError.message}`);
+      }
+    };
+    load();
+  }, [process]);
+
+  useEffect(() => {
+    const loadRules = async () => {
+      if (!auth.token) {
+        return;
+      }
+      try {
+        const rules = await adminListDosageRules(auth.token);
+        setRuleOptions(rules.map((rule) => ({ value: rule.id, label: rule.label })));
+      } catch (error) {
+        const appError = normalizeError(error);
+        process.setStatus("error", `${appError.code}: ${appError.message}`);
+      }
+    };
+    loadRules();
+  }, [auth.token, process]);
 
   const handleAddMedicine = async () => {
     const token = requireToken();
@@ -279,13 +333,6 @@ export function useAdminViewModel() {
 
   const setDosageType = (type: DosageType) => setDosageRule((prev) => ({ ...prev, type }));
 
-  const medicineOptions: Array<{ value: string; label: string }> = [];
-  const formOptions: Array<{ value: string; label: string }> = [];
-  const unitOptions: Array<{ value: string; label: string }> = [];
-  const substanceOptions: Array<{ value: string; label: string }> = [];
-  const ruleOptions: Array<{ value: string; label: string }> = [];
-  const contraindicationOptions: Array<{ value: string; label: string }> = [];
-  const indicationOptions: Array<{ value: string; label: string }> = [];
 
   return {
     isLoading,

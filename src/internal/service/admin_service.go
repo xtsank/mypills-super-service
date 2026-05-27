@@ -20,6 +20,7 @@ type IAdminService interface {
 	UpdateComposition(ctx context.Context, cmd command.UpdateCompositionCmd) error
 	AddDosageRule(ctx context.Context, cmd command.AddDosageRuleCmd) error
 	DeleteDosageRule(ctx context.Context, cmd command.RemoveDosageRuleCmd) error
+	ListDosageRules(ctx context.Context) ([]res.DosageRuleItemDto, error)
 }
 
 type AdminService struct {
@@ -150,3 +151,12 @@ func (s *AdminService) AddDosageRule(ctx context.Context, cmd command.AddDosageR
 func (s *AdminService) DeleteDosageRule(ctx context.Context, cmd command.RemoveDosageRuleCmd) error {
 	return s.medicineRepo.DeleteDosageRule(ctx, cmd.RuleID)
 }
+
+func (s *AdminService) ListDosageRules(ctx context.Context) ([]res.DosageRuleItemDto, error) {
+	items, err := s.medicineRepo.ListDosageRules(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return res.NewDosageRuleItems(items), nil
+}
+

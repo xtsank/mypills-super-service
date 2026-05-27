@@ -12,7 +12,7 @@ export function CabinetView() {
         <div className="section__title">Добавить предмет</div>
         <div className="inline">
           <SelectInput
-            label="ID лекарства"
+            label="Лекарство"
             value={vm.medicineId}
             onChange={vm.setMedicineId}
             options={vm.medicineOptions}
@@ -28,7 +28,7 @@ export function CabinetView() {
         <div className="section__title">Обновить количество</div>
         <div className="inline">
           <SelectInput
-            label="ID предмета"
+            label="Предмет"
             value={vm.itemId}
             onChange={vm.setItemId}
             options={vm.itemOptions}
@@ -43,7 +43,7 @@ export function CabinetView() {
         <div className="section__title">Удалить предмет</div>
         <div className="inline">
           <SelectInput
-            label="ID предмета"
+            label="Предмет"
             value={vm.itemId}
             onChange={vm.setItemId}
             options={vm.itemOptions}
@@ -61,7 +61,7 @@ export function CabinetView() {
           {vm.items.length === 0 && <div className="badge">Пусто</div>}
           {vm.items.map((item) => (
             <div key={item.id} className="badge">
-              {item.id} | лекарство: {item.medicine_id} | кол-во: {item.quantity}
+              {item.medicine_name} | кол-во: {item.quantity} | изготовлено: {item.date_of_manufacture} | годно до: {item.expires_at}
             </div>
           ))}
         </div>

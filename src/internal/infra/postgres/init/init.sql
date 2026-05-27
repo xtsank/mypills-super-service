@@ -4,13 +4,17 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS Users (
     id UUID PRIMARY KEY,
     login VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     is_admin BOOLEAN NOT NULL,
     sex BOOLEAN NOT NULL,
     weight INT NOT NULL,
     age INT NOT NULL,
     is_pregnant BOOLEAN NOT NULL,
-    is_driver BOOLEAN NOT NULL
+    is_driver BOOLEAN NOT NULL,
+    notify_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    notify_interval_minutes INT NOT NULL DEFAULT 1440,
+    last_notified_at TIMESTAMP NULL
 );
 
 -- Medicine

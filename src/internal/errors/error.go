@@ -76,10 +76,12 @@ func New(code, message string, status int) *AppError {
 }
 
 var (
-	ErrLoginTooShort    = New("SHORT_LOGIN", "login too short", http.StatusBadRequest)
-	ErrPasswordTooShort = New("SHORT_PASSWORD", "password too short", http.StatusBadRequest)
-	ErrWrongWeight      = New("WRONG_WEIGHT", "weight is wrong", http.StatusBadRequest)
-	ErrWrongAge         = New("WRONG_AGE", "age is wrong", http.StatusBadRequest)
+	ErrLoginTooShort         = New("SHORT_LOGIN", "login too short", http.StatusBadRequest)
+	ErrPasswordTooShort      = New("SHORT_PASSWORD", "password too short", http.StatusBadRequest)
+	ErrEmailRequired         = New("EMAIL_REQUIRED", "email is required", http.StatusBadRequest)
+	ErrInvalidNotifyInterval = New("INVALID_NOTIFY_INTERVAL", "invalid notify interval", http.StatusBadRequest)
+	ErrWrongWeight           = New("WRONG_WEIGHT", "weight is wrong", http.StatusBadRequest)
+	ErrWrongAge              = New("WRONG_AGE", "age is wrong", http.StatusBadRequest)
 
 	ErrQtyTooLow           = New("LOW_QTY", "quantity must be greater than zero", http.StatusBadRequest)
 	ErrDateTooLate         = New("LATE_DATE", "date of manufacture cannot be in the future", http.StatusBadRequest)
@@ -103,4 +105,5 @@ var (
 	ErrInvalidInput = New("INVALID_INPUT", "invalid input data provided", http.StatusBadRequest)
 
 	ErrUnauthorized = New("UNAUTHORIZED", "unauthorized access", http.StatusUnauthorized)
+	ErrSMTPConfigMissing = New("SMTP_CONFIG_MISSING", "smtp config is incomplete", http.StatusInternalServerError)
 )

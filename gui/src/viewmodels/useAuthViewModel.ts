@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { login, normalizeError, register } from "../api/client";
+import { useEffect, useState } from "react";
+import { listIllnesses, listSubstances, login, normalizeError, register } from "../api/client";
 import { useAuth } from "../store/authStore";
 import { useProcess } from "../store/processStore";
 
@@ -8,7 +8,11 @@ export function useAuthViewModel() {
   const process = useProcess();
   const [isLoading, setIsLoading] = useState(false);
   const [loginValue, setLoginValue] = useState("");
+  const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
+
+  const [registerLogin, setRegisterLogin] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
 
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
@@ -17,6 +21,9 @@ export function useAuthViewModel() {
   const [isDriver, setIsDriver] = useState(false);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [illnesses, setIllnesses] = useState<string[]>([]);
+
+  const [allergyOptions, setAllergyOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [illnessOptions, setIllnessOptions] = useState<Array<{ value: string; label: string }>>([]);
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -37,8 +44,15 @@ export function useAuthViewModel() {
     setIsLoading(true);
     try {
       const response = await register({
+<<<<<<< HEAD
+        login: registerLogin,
+        email: emailValue,
+        password: registerPassword,
+=======
         login: loginValue,
+        email: emailValue,
         password: passwordValue,
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
         age: Number(age),
         weight: Number(weight),
         sex,
@@ -58,10 +72,27 @@ export function useAuthViewModel() {
     }
   };
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [illnessList, substanceList] = await Promise.all([listIllnesses(), listSubstances()]);
+        setIllnessOptions(illnessList.map((item) => ({ value: item.id, label: item.name })));
+        setAllergyOptions(substanceList.map((item) => ({ value: item.id, label: item.name })));
+      } catch (error) {
+        const appError = normalizeError(error);
+        process.setStatus("error", `${appError.code}: ${appError.message}`);
+      }
+    };
+    load();
+  }, [process]);
+
   return {
     isLoading,
     loginValue,
+    emailValue,
     passwordValue,
+    registerLogin,
+    registerPassword,
     age,
     weight,
     sex,
@@ -69,8 +100,13 @@ export function useAuthViewModel() {
     isDriver,
     allergies,
     illnesses,
+    allergyOptions,
+    illnessOptions,
     setLoginValue,
+    setEmailValue,
     setPasswordValue,
+    setRegisterLogin,
+    setRegisterPassword,
     setAge,
     setWeight,
     setSex,

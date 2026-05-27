@@ -1,4 +1,8 @@
-import { Button, Checkbox, NumberInput, TagInput, TextInput } from "../components/Controls";
+<<<<<<< HEAD
+import { Button, Checkbox, MultiSelectInput, NumberInput, SelectInput, TextInput } from "../components/Controls";
+=======
+import { Button, Checkbox, NumberInput, SelectInput, TagInput, TextInput } from "../components/Controls";
+>>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 import { useProfileViewModel } from "../viewmodels/useProfileViewModel";
 
 export function ProfileView() {
@@ -8,6 +12,7 @@ export function ProfileView() {
     <div className="section">
       <div className="section__title">Профиль</div>
       <TextInput label="Логин" value={vm.login} onChange={() => undefined} readOnly />
+      <TextInput label="Почта" value={vm.email} onChange={vm.setEmail} />
 
       <div className="inline">
         <NumberInput label="Возраст" value={vm.age} onChange={vm.setAge} />
@@ -31,8 +36,40 @@ export function ProfileView() {
       </div>
 
       <div className="inline">
-        <TagInput label="Аллергии" value={vm.allergies} onChange={vm.setAllergies} placeholder="через запятую" />
-        <TagInput label="Болезни" value={vm.illnesses} onChange={vm.setIllnesses} placeholder="через запятую" />
+        <MultiSelectInput
+          label="Аллергии"
+          values={vm.allergies}
+          onChange={vm.setAllergies}
+          options={vm.allergyOptions}
+          placeholder="Пока нет данных"
+        />
+        <MultiSelectInput
+          label="Болезни"
+          values={vm.illnesses}
+          onChange={vm.setIllnesses}
+          options={vm.illnessOptions}
+          placeholder="Пока нет данных"
+        />
+      </div>
+
+      <div className="inline">
+        <Checkbox label="Отправлять уведомления" checked={vm.notifyEnabled} onChange={vm.setNotifyEnabled} />
+        <SelectInput
+          label="Интервал"
+          value={vm.notifyIntervalMinutes}
+          options={vm.notifyIntervalOptions}
+          onChange={vm.setNotifyIntervalMinutes}
+        />
+      </div>
+
+      <div className="inline">
+        <Checkbox label="Отправлять уведомления" checked={vm.notifyEnabled} onChange={vm.setNotifyEnabled} />
+        <SelectInput
+          label="Интервал"
+          value={vm.notifyIntervalMinutes}
+          options={vm.notifyIntervalOptions}
+          onChange={vm.setNotifyIntervalMinutes}
+        />
       </div>
 
       <div className="inline">

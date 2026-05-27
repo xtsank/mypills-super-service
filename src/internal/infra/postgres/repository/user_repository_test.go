@@ -27,6 +27,7 @@ func TestPostgresUserRepository_CreateAndFind(t *testing.T) {
 	u, err := user.NewUser(
 		userID,
 		"test_pilot_"+uuid.NewString(),
+		"test@example.com",
 		"hash_string",
 		false,
 		true,
@@ -34,6 +35,7 @@ func TestPostgresUserRepository_CreateAndFind(t *testing.T) {
 		25,
 		false,
 		true,
+		nil,
 		[]uuid.UUID{illnessID},
 		nil,
 	)

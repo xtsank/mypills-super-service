@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
@@ -28,6 +29,10 @@ func (m *mockUserRepoForProfile) ExistsByLogin(ctx context.Context, login string
 func (m *mockUserRepoForProfile) Create(ctx context.Context, u *user.User) error { panic("not used") }
 func (m *mockUserRepoForProfile) FindByLogin(ctx context.Context, login string) (*user.User, error) {
 	panic("not used")
+}
+func (m *mockUserRepoForProfile) FindNotifyEnabled(ctx context.Context) ([]*user.User, error) { return nil, nil }
+func (m *mockUserRepoForProfile) UpdateNotify(ctx context.Context, id uuid.UUID, enabled bool, intervalMinutes int, lastNotifiedAt *time.Time) error {
+	return nil
 }
 
 func TestProfileService_Update_Success(t *testing.T) {

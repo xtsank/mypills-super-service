@@ -4,6 +4,7 @@ import "github.com/google/uuid"
 
 type CreateUserDto struct {
 	Login      string      `json:"login" binding:"required,min=8"`
+	Email      string      `json:"email" binding:"required"`
 	Password   string      `json:"password" binding:"required,min=8"`
 	Sex        bool        `json:"sex"`
 	Weight     int         `json:"weight" binding:"required"`

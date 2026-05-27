@@ -1,6 +1,8 @@
 package user
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/errors"
 )
@@ -8,6 +10,7 @@ import (
 type User struct {
 	ID         uuid.UUID
 	Login      string
+	Email      string
 	Password   string
 	IsAdmin    bool
 	Sex        bool
@@ -17,11 +20,19 @@ type User struct {
 	IsDriver   bool
 	Illnesses  []uuid.UUID
 	Allergies  []uuid.UUID
+	Notify     *NotifyInfo
+}
+
+type NotifyInfo struct {
+	Enabled         bool
+	IntervalMinutes int
+	LastNotifiedAt  *time.Time
 }
 
 func NewUser(
 	id uuid.UUID,
 	login string,
+	email string,
 	password string,
 	isAdmin bool,
 	sex bool,
@@ -29,11 +40,16 @@ func NewUser(
 	age int,
 	isPregnant bool,
 	isDriver bool,
+	notify *NotifyInfo,
 	illnesses []uuid.UUID,
 	allergies []uuid.UUID,
 ) (*User, error) {
 	if len(login) == 0 {
 		return nil, errors.ErrLoginTooShort.WithSource()
+	}
+
+	if len(email) == 0 {
+		return nil, errors.ErrEmailRequired.WithSource()
 	}
 
 	if len(password) == 0 {
@@ -55,9 +71,14 @@ func NewUser(
 		allergies = []uuid.UUID{}
 	}
 
+	if notify == nil {
+		notify = &NotifyInfo{Enabled: false}
+	}
+
 	return &User{
 		ID:         id,
 		Login:      login,
+		Email:      email,
 		Password:   password,
 		IsAdmin:    isAdmin,
 		Sex:        sex,
@@ -65,6 +86,7 @@ func NewUser(
 		Age:        age,
 		IsPregnant: isPregnant,
 		IsDriver:   isDriver,
+		Notify:     notify,
 		Illnesses:  illnesses,
 		Allergies:  allergies,
 	}, nil

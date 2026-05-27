@@ -1,6 +1,13 @@
-import { useState } from "react";
-import { addCabinetItem, normalizeError, removeCabinetItem, updateCabinetQty } from "../api/client";
-import { CabinetResDto } from "../api/types";
+import { useEffect, useMemo, useState } from "react";
+import {
+  addCabinetItem,
+  listCabinetItems,
+  listMedicines,
+  normalizeError,
+  removeCabinetItem,
+  updateCabinetQty
+} from "../api/client";
+import { CabinetItemDetailsResDto } from "../api/types";
 import { useAuth } from "../store/authStore";
 import { useProcess } from "../store/processStore";
 
@@ -8,10 +15,13 @@ export function useCabinetViewModel() {
   const auth = useAuth();
   const process = useProcess();
   const [isLoading, setIsLoading] = useState(false);
-  const [items, setItems] = useState<CabinetResDto[]>([]);
+  const [items, setItems] = useState<CabinetItemDetailsResDto[]>([]);
+  const [medicineOptions, setMedicineOptions] = useState<Array<{ value: string; label: string }>>([]);
 
-  const medicineOptions: Array<{ value: string; label: string }> = [];
-  const itemOptions: Array<{ value: string; label: string }> = [];
+  const itemOptions = useMemo(
+    () => items.map((item) => ({ value: item.id, label: `${item.medicine_name} (${item.quantity})` })),
+    [items]
+  );
 
   const [medicineId, setMedicineId] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -28,13 +38,14 @@ export function useCabinetViewModel() {
 
     setIsLoading(true);
     try {
-      const response = await addCabinetItem(auth.token, {
+      await addCabinetItem(auth.token, {
         medicine_id: medicineId,
         quantity: Number(quantity),
         date_of_manufacture: manufactureDate
       });
-      setItems((prev) => [...prev, response]);
-      process.setCabinetItemsCount(items.length + 1);
+      const updated = await listCabinetItems(auth.token);
+      setItems(updated);
+      process.setCabinetItemsCount(updated.length);
       process.setStatus("success", "Предмет добавлен");
       process.setLastAction("добавление предмета");
     } catch (error) {
@@ -53,11 +64,12 @@ export function useCabinetViewModel() {
 
     setIsLoading(true);
     try {
-      const response = await updateCabinetQty(auth.token, {
+      await updateCabinetQty(auth.token, {
         id: itemId,
         qty: Number(newQty)
       });
-      setItems((prev) => prev.map((item) => (item.id === response.id ? response : item)));
+      const updated = await listCabinetItems(auth.token);
+      setItems(updated);
       process.setStatus("success", "Количество обновлено");
       process.setLastAction("обновление количества");
     } catch (error) {
@@ -77,7 +89,7 @@ export function useCabinetViewModel() {
     setIsLoading(true);
     try {
       await removeCabinetItem(auth.token, { id: itemId });
-      const updated = items.filter((item) => item.id !== itemId);
+      const updated = await listCabinetItems(auth.token);
       setItems(updated);
       process.setCabinetItemsCount(updated.length);
       process.setStatus("success", "Предмет удален");
@@ -89,6 +101,36 @@ export function useCabinetViewModel() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const meds = await listMedicines();
+        setMedicineOptions(meds.map((item) => ({ value: item.id, label: item.name })));
+      } catch (error) {
+        const appError = normalizeError(error);
+        process.setStatus("error", `${appError.code}: ${appError.message}`);
+      }
+    };
+    load();
+  }, [process]);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!auth.token) {
+        return;
+      }
+      try {
+        const itemsResponse = await listCabinetItems(auth.token);
+        setItems(itemsResponse);
+        process.setCabinetItemsCount(itemsResponse.length);
+      } catch (error) {
+        const appError = normalizeError(error);
+        process.setStatus("error", `${appError.code}: ${appError.message}`);
+      }
+    };
+    load();
+  }, [auth.token, process]);
 
   return {
     isLoading,

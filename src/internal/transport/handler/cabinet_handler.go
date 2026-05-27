@@ -28,10 +28,38 @@ func NewCabinetHandler(i do.Injector) (*CabinetHandler, error) {
 func (h *CabinetHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	cabinet := rg.Group("/cabinet")
 	{
+		cabinet.GET("/items", h.ListItems)
 		cabinet.POST("/items", h.AddItem)
 		cabinet.DELETE("/items/", h.RemoveItem)
 		cabinet.PATCH("/items/", h.UpdateQty)
 	}
+}
+
+// ListItems godoc
+// @Summary      Список предметов кабинета
+// @Description  Возвращает предметы кабинета с названиями лекарств и сроками годности
+// @Tags         Cabinet
+// @Produce      json
+// @Security BearerAuth
+// @Success      200    {array}   res.CabinetItemDetailsResDto   "Список предметов"
+// @Failure      401    {object}  errors.AppError               "Пользователь не авторизован"
+// @Router       /cabinet/items [get]
+func (h *CabinetHandler) ListItems(c *gin.Context) {
+	userIDValue, exists := c.Get(middleware.UserIDKey)
+	if !exists {
+		_ = c.Error(errors.ErrUnauthorized.WithSource())
+		return
+	}
+	userID := userIDValue.(uuid.UUID)
+
+	items, err := h.cabinetService.ListItems(c.Request.Context(), userID)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.Set(middleware.ResponsePayloadKey, items)
+	c.Set(middleware.ResponseStatusKey, http.StatusOK)
 }
 
 // AddItem godoc

@@ -5,8 +5,11 @@ import {
   AddMedicineDto,
   AppError,
   AuthResDto,
+  CabinetItemDetailsResDto,
   CabinetResDto,
   CreateUserDto,
+  DictionaryItem,
+  DosageRuleItem,
   LoginUserDto,
   MedicineResDto,
   RemoveDosageRuleDto,
@@ -52,6 +55,13 @@ export async function addCabinetItem(token: string, payload: AddItemDto): Promis
   });
 }
 
+export async function listCabinetItems(token: string): Promise<CabinetItemDetailsResDto[]> {
+  return request<CabinetItemDetailsResDto[]>("/cabinet/items", {
+    method: "GET",
+    token
+  });
+}
+
 export async function updateCabinetQty(token: string, payload: UpdateQtyDto): Promise<CabinetResDto> {
   return request<CabinetResDto>("/cabinet/items", {
     method: "PATCH",
@@ -74,6 +84,26 @@ export async function selectMedicine(token: string, payload: SelectMedicineDto):
     token,
     body: JSON.stringify(payload)
   });
+}
+
+export async function listIllnesses(): Promise<DictionaryItem[]> {
+  return request<DictionaryItem[]>("/dictionary/illnesses", { method: "GET" });
+}
+
+export async function listSubstances(): Promise<DictionaryItem[]> {
+  return request<DictionaryItem[]>("/dictionary/substances", { method: "GET" });
+}
+
+export async function listForms(): Promise<DictionaryItem[]> {
+  return request<DictionaryItem[]>("/dictionary/forms", { method: "GET" });
+}
+
+export async function listUnits(): Promise<DictionaryItem[]> {
+  return request<DictionaryItem[]>("/dictionary/units", { method: "GET" });
+}
+
+export async function listMedicines(): Promise<DictionaryItem[]> {
+  return request<DictionaryItem[]>("/dictionary/medicines", { method: "GET" });
 }
 
 export async function adminAddMedicine(token: string, payload: AddMedicineDto) {
@@ -137,6 +167,13 @@ export async function adminRemoveDosageRule(token: string, payload: RemoveDosage
     method: "DELETE",
     token,
     body: JSON.stringify(payload)
+  });
+}
+
+export async function adminListDosageRules(token: string): Promise<DosageRuleItem[]> {
+  return request<DosageRuleItem[]>("/admin/dosage-rules", {
+    method: "GET",
+    token
   });
 }
 

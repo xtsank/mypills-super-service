@@ -1,14 +1,14 @@
 package service
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/samber/do/v2"
+	"github.com/xtsank/mypills-super-service/src/internal/config"
 	apperrors "github.com/xtsank/mypills-super-service/src/internal/errors"
-	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 )
 
 type TokenManager interface {
@@ -61,7 +61,7 @@ func (m *JWTManager) GenerateToken(userID uuid.UUID, isAdmin bool) (string, erro
 func (m *JWTManager) VerifyToken(tokenStr string) (uuid.UUID, bool, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			return nil, errors.New("unexpected signing method")
 		}
 		return []byte(m.secretKey), nil
 	})

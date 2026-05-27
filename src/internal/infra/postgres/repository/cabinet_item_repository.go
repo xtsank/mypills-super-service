@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/samber/do/v2"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/cabinet_item"
+	"github.com/xtsank/mypills-super-service/src/internal/dto"
 	appErrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/queries"
@@ -41,6 +42,18 @@ func (r *PostgresCabinetItemRepository) FindByUserID(ctx context.Context, userID
 		}
 	}
 	return res, nil
+}
+
+func (r *PostgresCabinetItemRepository) FindDetailsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.CabinetItemWithMedicineEntity, error) {
+	var ents []entity.CabinetItemWithMedicineEntity
+	query := queries.CabinetItem.SelectByUserIDWithName
+
+	err := r.db.SelectContext(ctx, &ents, query, userID)
+	if err != nil {
+		return nil, appErrors.ErrInternal.WithError(err)
+	}
+
+	return ents, nil
 }
 
 func (r *PostgresCabinetItemRepository) FindExistingCabinetItem(ctx context.Context, userID uuid.UUID, medID uuid.UUID, date time.Time) (*cabinet_item.CabinetItem, error) {
@@ -113,4 +126,29 @@ func (r *PostgresCabinetItemRepository) Delete(ctx context.Context, id uuid.UUID
 		return appErrors.ErrInternal.WithError(err)
 	}
 	return nil
+}
+
+func (r *PostgresCabinetItemRepository) FindExpiredByUserID(ctx context.Context, userID uuid.UUID) ([]*dto.ExpiredItemDto, error) {
+	var ents []entity.ExpiredItemEntity
+	query := queries.CabinetItem.SelectExpiredByUserID
+
+	err := r.db.SelectContext(ctx, &ents, query, userID)
+	if err != nil {
+		return nil, appErrors.ErrInternal.WithError(err)
+	}
+
+	items := make([]*dto.ExpiredItemDto, len(ents))
+	for i, ent := range ents {
+		items[i] = &dto.ExpiredItemDto{
+			ID:                ent.ID,
+			UserID:            ent.UserID,
+			MedicineID:        ent.MedicineID,
+			MedicineName:      ent.MedicineName,
+			DateOfManufacture: ent.DateOfManufacture,
+			Quantity:          ent.Quantity,
+			ExpiresAt:         ent.ExpiresAt,
+		}
+	}
+
+	return items, nil
 }

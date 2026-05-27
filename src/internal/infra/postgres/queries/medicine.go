@@ -5,6 +5,7 @@ type MedicineQueries struct {
 	SelectByIllness         string
 	SelectSubstances        string
 	SelectDosages           string
+	SelectDosageRules       string
 	SelectContraindications string
 	SelectRecommendations   string
 	InsertMedicine          string
@@ -28,6 +29,11 @@ var Medicine = MedicineQueries{
        WHERE r.illness_id = $1`,
 	SelectSubstances:        `SELECT * FROM Medicine_Substance WHERE medicine_id = $1`,
 	SelectDosages:           `SELECT * FROM Dosage WHERE medicine_id = $1`,
+	SelectDosageRules: `SELECT d.id, d.medicine_id, m.name AS medicine_name, d.value_from, d.value_to,
+              d.dosage_type, d.dosage_value, d.number_of_doses_per_day
+              FROM Dosage d
+              JOIN Medicine m ON m.id = d.medicine_id
+              ORDER BY m.name, d.value_from, d.value_to`,
 	SelectContraindications: `SELECT illness_id FROM Contraindications WHERE medicine_id = $1`,
 	SelectRecommendations:   `SELECT illness_id FROM Recommendations WHERE medicine_id = $1`,
 	InsertMedicine: `INSERT INTO Medicine  (id, name, expire_time, is_prescription, 

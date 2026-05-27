@@ -15,6 +15,7 @@ type ICabinetService interface {
 	AddItem(ctx context.Context, cmd *command.AddItemCmd) (*res.CabinetResDto, error)
 	RemoveItem(ctx context.Context, cmd *command.RemoveItemCmd) error
 	UpdateQty(ctx context.Context, cmd *command.UpdateQtyCmd) (*res.CabinetResDto, error)
+	ListItems(ctx context.Context, userID uuid.UUID) ([]res.CabinetItemDetailsResDto, error)
 }
 
 type CabinetService struct {
@@ -82,3 +83,12 @@ func (s *CabinetService) UpdateQty(ctx context.Context, cmd *command.UpdateQtyCm
 
 	return res.NewCabinetResDto(existingItem), nil
 }
+
+func (s *CabinetService) ListItems(ctx context.Context, userID uuid.UUID) ([]res.CabinetItemDetailsResDto, error) {
+	items, err := s.cabinetRepo.FindDetailsByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return res.NewCabinetItemDetailsResDto(items), nil
+}
+

@@ -136,6 +136,21 @@ definitions:
       user:
         $ref: '#/definitions/ProfileResDto'
     type: object
+  CabinetItemDetailsResDto:
+    properties:
+      date_of_manufacture:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      medicine_id:
+        type: string
+      medicine_name:
+        type: string
+      quantity:
+        type: number
+    type: object
   CabinetResDto:
     properties:
       id:
@@ -153,6 +168,8 @@ definitions:
         items:
           type: string
         type: array
+      email:
+        type: string
       illnesses:
         items:
           type: string
@@ -173,6 +190,7 @@ definitions:
         type: integer
     required:
     - age
+    - email
     - login
     - password
     - weight
@@ -190,6 +208,13 @@ definitions:
         type: integer
       valueTo:
         type: integer
+    type: object
+  DosageRuleItemDto:
+    properties:
+      id:
+        type: string
+      label:
+        type: string
     type: object
   DosageRuleResDto:
     properties:
@@ -264,6 +289,8 @@ definitions:
         items:
           type: string
         type: array
+      email:
+        type: string
       id:
         type: string
       illnesses:
@@ -276,6 +303,10 @@ definitions:
         type: boolean
       login:
         type: string
+      notify_enabled:
+        type: boolean
+      notify_interval_minutes:
+        type: integer
       sex:
         type: boolean
       weight:
@@ -374,6 +405,8 @@ definitions:
         items:
           type: string
         type: array
+      email:
+        type: string
       illnesses:
         items:
           type: string
@@ -382,6 +415,10 @@ definitions:
         type: boolean
       is_pregnant:
         type: boolean
+      notify_enabled:
+        type: boolean
+      notify_interval_minutes:
+        type: integer
       sex:
         type: boolean
       weight:
@@ -400,6 +437,27 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/dosage-rules:
+    get:
+      description: Возвращает правила дозировок с названиями лекарств
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список правил
+          schema:
+            items:
+              $ref: '#/definitions/DosageRuleItemDto'
+            type: array
+        "401":
+          description: Недостаточно прав
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - BearerAuth: []
+      summary: Список правил дозировки
+      tags:
+      - Admin
   /admin/medicine:
     delete:
       consumes:
@@ -751,6 +809,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Удаление предмета из кабинета
+      tags:
+      - Cabinet
+    get:
+      description: Возвращает предметы кабинета с названиями лекарств и сроками годности
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список предметов
+          schema:
+            items:
+              $ref: '#/definitions/CabinetItemDetailsResDto'
+            type: array
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/AppError'
+      security:
+      - BearerAuth: []
+      summary: Список предметов кабинета
       tags:
       - Cabinet
     patch:
