@@ -6,10 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/xtsank/mypills-super-service/src/internal/dto"
-<<<<<<< HEAD
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
-=======
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 )
 
 type ICabinetItemRepository interface {

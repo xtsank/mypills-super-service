@@ -7,8 +7,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/samber/do/v2"
+	"github.com/xtsank/mypills-super-service/src/internal/config"
 	apperrors "github.com/xtsank/mypills-super-service/src/internal/errors"
-	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 )
 
 type TokenManager interface {

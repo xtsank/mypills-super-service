@@ -95,12 +95,9 @@ func (m *mockCabinetRepoForMed) FindById(ctx context.Context, id uuid.UUID) (*ca
 func (m *mockCabinetRepoForMed) FindExpiredByUserID(ctx context.Context, userID uuid.UUID) ([]*dto.ExpiredItemDto, error) {
 	return nil, nil
 }
-<<<<<<< HEAD
 func (m *mockCabinetRepoForMed) FindDetailsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.CabinetItemWithMedicineEntity, error) {
 	return nil, nil
 }
-=======
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 
 func TestMedicineService_Select_UserNotFound(t *testing.T) {
 	s := &MedicineService{userRepo: &mockUserRepoForMed{u: nil}}

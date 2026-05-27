@@ -42,12 +42,9 @@ func (m *mockCabinetRepo) FindById(ctx context.Context, id uuid.UUID) (*cabinet_
 func (m *mockCabinetRepo) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*cabinet_item.CabinetItem, error) {
 	return nil, nil
 }
-<<<<<<< HEAD
 func (m *mockCabinetRepo) FindDetailsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.CabinetItemWithMedicineEntity, error) {
 	return nil, nil
 }
-=======
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 func (m *mockCabinetRepo) FindExpiredByUserID(ctx context.Context, userID uuid.UUID) ([]*dto.ExpiredItemDto, error) {
 	return nil, nil
 }

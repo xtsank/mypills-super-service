@@ -10,8 +10,8 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/xtsank/mypills-super-service/docs/swagger"
+	"github.com/xtsank/mypills-super-service/src/internal/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/email"
-	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
 	"github.com/xtsank/mypills-super-service/src/internal/service"
@@ -27,7 +27,7 @@ type App struct {
 func (app *App) provideMiddleware() {
 	do.Provide(app.i, middleware.NewLogger)
 	do.Provide(app.i, config.NewConfig)
-	do.Provide(app.i, db.NewDB)
+	do.Provide(app.i, db.NewPostgresDB)
 }
 
 func (app *App) provideRepo() {
@@ -43,10 +43,7 @@ func (app *App) provideService() {
 	do.Provide(app.i, service.NewCabinetService)
 	do.Provide(app.i, service.NewMedicineService)
 	do.Provide(app.i, service.NewProfileService)
-<<<<<<< HEAD
 	do.Provide(app.i, service.NewDictionaryService)
-=======
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 	do.Provide(app.i, email.NewSMTPSender)
 	do.Provide(app.i, service.NewNotificationService)
 	do.Provide(app.i, service.NewBcryptHasher)
@@ -134,11 +131,7 @@ func (app *App) Run() error {
 	logger := do.MustInvoke[*slog.Logger](app.i)
 	notificationService := do.MustInvoke[service.INotificationService](app.i)
 
-<<<<<<< HEAD
 	startNotificationTicker(notificationService, cfg, logger)
-=======
-	startNotificationTicker(notificationService, cfg)
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 
 	addr := cfg.ServerAddress
 	if addr != "" && addr[0] != ':' {
@@ -150,20 +143,37 @@ func (app *App) Run() error {
 	return app.router.Run(addr)
 }
 
-<<<<<<< HEAD
 func startNotificationTicker(service service.INotificationService, cfg *config.Config, logger *slog.Logger) {
 	interval := cfg.NotificationCheckInterval
-	logger.Info("notification_ticker_start", slog.String("interval", interval.String()))
-	ticker := time.NewTicker(interval)
+	startDelay := time.Duration(0)
+	if cfg.NotificationStartTime > 0 {
+		now := time.Now()
+		midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		nextStart := midnight.Add(cfg.NotificationStartTime)
+		if !nextStart.After(now) {
+			nextStart = nextStart.Add(24 * time.Hour)
+		}
+		startDelay = time.Until(nextStart)
+	}
+
+	logger.Info(
+		"notification_ticker_start",
+		slog.String("interval", interval.String()),
+		slog.String("start_delay", startDelay.String()),
+	)
+
 	go func() {
+		if startDelay > 0 {
+			timer := time.NewTimer(startDelay)
+			<-timer.C
+		}
+
+		service.SendDueNotifications(context.Background())
+
+		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
 		for range ticker.C {
 			logger.Debug("notification_ticker_tick")
-=======
-func startNotificationTicker(service service.INotificationService, cfg *config.Config) {
-	ticker := time.NewTicker(cfg.NotificationCheckInterval)
-	go func() {
-		for range ticker.C {
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 			service.SendDueNotifications(context.Background())
 		}
 	}()

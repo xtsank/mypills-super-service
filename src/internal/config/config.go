@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -37,6 +36,7 @@ type Config struct {
 	SMTPFrom     string
 
 	NotificationCheckInterval time.Duration
+	NotificationStartTime     time.Duration
 
 	LogFile  string
 	LogLevel slog.Level
@@ -58,6 +58,7 @@ func NewConfig(i do.Injector) (*Config, error) {
 	maxIdleTime := parseDurationEnv(logger, "DB_CONN_MAX_IDLE_TIME", 5*time.Minute)
 
 	notificationInterval := parseDurationEnv(logger, "NOTIFICATION_CHECK_INTERVAL", time.Minute)
+	notificationStartTime := parseStartTimeEnv(logger, "NOTIFICATION_START_TIME", 0)
 
 	logLevel := parseLogLevelEnv(logger, "LOG_LEVEL", slog.LevelDebug)
 	logFile := os.Getenv("LOG_FILE")
@@ -81,31 +82,19 @@ func NewConfig(i do.Injector) (*Config, error) {
 
 		ServerAddress: os.Getenv("SERVER_PORT"),
 
-<<<<<<< HEAD
-		SMTPHost: os.Getenv("SMTP_HOST"),
-		SMTPPort: os.Getenv("SMTP_PORT"),
-		//SMTPUser:     os.Getenv("SMTP_USER"),
-		//SMTPPassword: os.Getenv("SMTP_PASSWORD"),
-		SMTPFrom: os.Getenv("SMTP_FROM"),
-=======
 		SMTPHost:     os.Getenv("SMTP_HOST"),
 		SMTPPort:     os.Getenv("SMTP_PORT"),
 		SMTPUser:     os.Getenv("SMTP_USER"),
 		SMTPPassword: os.Getenv("SMTP_PASSWORD"),
 		SMTPFrom:     os.Getenv("SMTP_FROM"),
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
 
 		NotificationCheckInterval: notificationInterval,
+		NotificationStartTime:     notificationStartTime,
 
 		LogFile:  logFile,
 		LogLevel: logLevel,
 		logger:   logger,
 	}, nil
-}
-
-func (c *Config) ConnectionString() string {
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		c.DBHost, c.DBPort, c.DBUser, c.DBPassword, c.DBName)
 }
 
 func (c *Config) GetJWTConfig() (string, time.Duration) {
@@ -141,6 +130,21 @@ func parseDurationEnv(logger *slog.Logger, key string, fallback time.Duration) t
 		return fallback
 	}
 	return parsed
+}
+
+func parseStartTimeEnv(logger *slog.Logger, key string, fallback time.Duration) time.Duration {
+	val := strings.TrimSpace(os.Getenv(key))
+	if val == "" {
+		return fallback
+	}
+
+	parsed, err := time.Parse("15:04", val)
+	if err != nil {
+		logger.Warn("Invalid env, using default", slog.String("key", key), slog.Any("error", err), slog.String("default", fallback.String()))
+		return fallback
+	}
+
+	return time.Duration(parsed.Hour())*time.Hour + time.Duration(parsed.Minute())*time.Minute
 }
 
 func parseLogLevelEnv(logger *slog.Logger, key string, fallback slog.Level) slog.Level {
