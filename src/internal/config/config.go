@@ -18,6 +18,7 @@ type Config struct {
 	DBName     string
 	DBPort     string
 	DBHost     string
+	DBProvider string
 
 	JWTSecret     string
 	TokenDuration time.Duration
@@ -66,12 +67,43 @@ func NewConfig(i do.Injector) (*Config, error) {
 		logFile = "logs/app.log"
 	}
 
+	dbProvider := strings.ToLower(os.Getenv("COMPOSE_PROFILES"))
+	for _, profile := range strings.Split(dbProvider, ",") {
+		profile = strings.TrimSpace(profile)
+		if profile != "" {
+			dbProvider = profile
+			break
+		}
+	}
+	if dbProvider == "" {
+		dbProvider = "postgres"
+	}
+
+	var dbHost, dbPort string
+	switch dbProvider {
+	case "mongo":
+		if host := os.Getenv("MONGO_HOST"); host != "" {
+			dbHost = host
+		}
+		if port := os.Getenv("MONGO_PORT"); port != "" {
+			dbPort = port
+		}
+	case "postgres":
+		if host := os.Getenv("POSTGRES_HOST"); host != "" {
+			dbHost = host
+		}
+		if port := os.Getenv("POSTGRES_PORT"); port != "" {
+			dbPort = port
+		}
+	}
+
 	return &Config{
 		DBUser:        os.Getenv("DB_USER"),
 		DBPassword:    os.Getenv("DB_PASSWORD"),
 		DBName:        os.Getenv("DB_NAME"),
-		DBPort:        os.Getenv("DB_PORT"),
-		DBHost:        os.Getenv("DB_HOST"),
+		DBPort:        dbPort,
+		DBHost:        dbHost,
+		DBProvider:    dbProvider,
 		JWTSecret:     os.Getenv("SECRET_KEY"),
 		TokenDuration: time.Duration(durationInt) * time.Second,
 
