@@ -3,34 +3,84 @@ services:
     image: postgres:16-alpine
     container_name: mypills-db
     restart: always
+    profiles:
+      - postgres
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
-      - "${DB_PORT}:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./src/internal/infra/postgres/init:/docker-entrypoint-initdb.d
-  app:
-    build: .
-    container_name: mypills-app
+      - ./backup:/seed/csv:ro
+  mongo:
+    image: mongo:7
+    container_name: mypills-mongo
     restart: always
+    profiles:
+      - mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_NAME}
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongodata:/data/db
+  app-postgres:
+    build: .
+    restart: always
+    profiles:
+      - postgres
     depends_on:
       - db
       - mailpit
     env_file:
       - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
     ports:
       - "${SERVER_PORT}:8080"
     volumes:
       - ./logs:/root/logs
-  gui:
-    build: ./gui
-    container_name: mypills-gui
+  app-mongo:
+    build: .
     restart: always
+    profiles:
+      - mongo
     depends_on:
-      - app
+      - mongo
+      - mailpit
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mongo
+      - DB_PORT=27017
+    ports:
+      - "${SERVER_PORT}:8080"
+    volumes:
+      - ./logs:/root/logs
+  gui-postgres:
+    build: ./gui
+    restart: always
+    profiles:
+      - postgres
+    depends_on:
+      - app-postgres
+    environment:
+      - VITE_API_BASE_URL=http://localhost:${SERVER_PORT}
+    ports:
+      - "${GUI_PORT}:5173"
+  gui-mongo:
+    build: ./gui
+    restart: always
+    profiles:
+      - mongo
+    depends_on:
+      - app-mongo
     environment:
       - VITE_API_BASE_URL=http://localhost:${SERVER_PORT}
     ports:
@@ -48,3 +98,4 @@ services:
 
 volumes:
   pgdata:
+  mongodata:

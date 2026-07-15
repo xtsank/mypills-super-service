@@ -3,17 +3,20 @@ package main
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do/v2"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 	_ "github.com/xtsank/mypills-super-service/docs/swagger"
 	"github.com/xtsank/mypills-super-service/src/internal/config"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/email"
-	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
-	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
+	mongoDB "github.com/xtsank/mypills-super-service/src/internal/infra/mongo/db"
+	mongoRepo "github.com/xtsank/mypills-super-service/src/internal/infra/mongo/repository"
+	pgDB "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
+	pgRepo "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
 	"github.com/xtsank/mypills-super-service/src/internal/service"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/handler"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
@@ -27,14 +30,29 @@ type App struct {
 func (app *App) provideMiddleware() {
 	do.Provide(app.i, middleware.NewLogger)
 	do.Provide(app.i, config.NewConfig)
-	do.Provide(app.i, db.NewPostgresDB)
+
+	do.Provide(app.i, pgDB.NewPostgresDB)
+	do.Provide(app.i, mongoDB.NewMongoDB)
 }
 
 func (app *App) provideRepo() {
-	do.Provide(app.i, repository.NewPostgresUserRepository)
-	do.Provide(app.i, repository.NewPostgresMedicineRepository)
-	do.Provide(app.i, repository.NewPostgresCabinetItemRepository)
-	do.Provide(app.i, repository.NewPostgresDictionaryRepository)
+	cfg := do.MustInvoke[*config.Config](app.i)
+	switch strings.ToLower(cfg.DBProvider) {
+	case "mongo":
+		do.Provide(app.i, mongoRepo.NewMongoUserRepository)
+		do.Provide(app.i, mongoRepo.NewMongoMedicineRepository)
+		do.Provide(app.i, mongoRepo.NewMongoCabinetItemRepository)
+		do.Provide(app.i, mongoRepo.NewMongoDictionaryRepository)
+	case "postgres", "":
+		do.Provide(app.i, pgRepo.NewPostgresUserRepository)
+		do.Provide(app.i, pgRepo.NewPostgresMedicineRepository)
+		do.Provide(app.i, pgRepo.NewPostgresCabinetItemRepository)
+		do.Provide(app.i, pgRepo.NewPostgresDictionaryRepository)
+	default:
+		logger := do.MustInvoke[*slog.Logger](app.i)
+		logger.Error("unknown_db_provider", slog.String("db_provider", cfg.DBProvider))
+		panic("unknown DB provider")
+	}
 }
 
 func (app *App) provideService() {
