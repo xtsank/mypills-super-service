@@ -13,6 +13,11 @@ bin/
 *.dylib
 *.test
 *.out
+coverage.html
+coverage.json
+allure-results/
+allure-report/
+.gocove/
 
 node_modules/
 dist/
@@ -21,4 +26,3 @@ dist/
 
 .env
 .env.*
-

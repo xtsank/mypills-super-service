@@ -3,6 +3,8 @@ module github.com/xtsank/mypills-super-service
 go 1.26.2
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/allure-framework/allure-go/commons v1.3.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
@@ -55,6 +57,7 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.0 // indirect
 	github.com/samber/go-type-to-string v1.8.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
