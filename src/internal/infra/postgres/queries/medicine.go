@@ -1,6 +1,8 @@
 package queries
 
 type MedicineQueries struct {
+	Count                   string
+	ListIDs                 string
 	SelectByID              string
 	SelectByIllness         string
 	SelectSubstances        string
@@ -23,12 +25,16 @@ type MedicineQueries struct {
 }
 
 var Medicine = MedicineQueries{
-	SelectByID:      `SELECT * FROM Medicine WHERE id = $1`,
+	Count: `SELECT count(*) FROM Medicine WHERE ($1::uuid IS NULL OR id=$1)
+		AND ($2='' OR name ILIKE '%' || $2 || '%' ESCAPE chr(92))`,
+	ListIDs: `SELECT id FROM Medicine WHERE ($1::uuid IS NULL OR id=$1)
+		AND ($2='' OR name ILIKE '%' || $2 || '%' ESCAPE chr(92)) ORDER BY name,id LIMIT $3 OFFSET $4`,
+	SelectByID: `SELECT * FROM Medicine WHERE id = $1`,
 	SelectByIllness: `SELECT m.* FROM Medicine m
        JOIN Recommendations r ON m.id = r.medicine_id
        WHERE r.illness_id = $1`,
-	SelectSubstances:        `SELECT * FROM Medicine_Substance WHERE medicine_id = $1`,
-	SelectDosages:           `SELECT * FROM Dosage WHERE medicine_id = $1`,
+	SelectSubstances: `SELECT * FROM Medicine_Substance WHERE medicine_id = $1`,
+	SelectDosages:    `SELECT * FROM Dosage WHERE medicine_id = $1`,
 	SelectDosageRules: `SELECT d.id, d.medicine_id, m.name AS medicine_name, d.value_from, d.value_to,
               d.dosage_type, d.dosage_value, d.number_of_doses_per_day
               FROM Dosage d
@@ -59,4 +65,3 @@ var Medicine = MedicineQueries{
 	DeleteMedicine:   `delete from Medicine where id = $1`,
 	DeleteDosageRule: `delete from Dosage where id = $1`,
 }
-

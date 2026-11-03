@@ -14,10 +14,15 @@ bin/
 *.test
 *.out
 coverage.html
-coverage.json
 allure-results/
 allure-report/
+allure-history.jsonl
+allure-history/
+allure-history-lab1/
+allure-history-v2/
 .gocove/
+.scannerwork/
+.tools/
 
 node_modules/
 dist/

@@ -11,11 +11,13 @@ CREATE TABLE IF NOT EXISTS Users (
     weight INT NOT NULL,
     age INT NOT NULL,
     is_pregnant BOOLEAN NOT NULL,
-    is_driver BOOLEAN NOT NULL,
-    notify_enabled BOOLEAN NOT NULL DEFAULT FALSE,
-    notify_interval_minutes INT NOT NULL DEFAULT 1440,
-    last_notified_at TIMESTAMP NULL
+    is_driver BOOLEAN NOT NULL
 );
+
+ALTER TABLE Users
+DROP COLUMN IF EXISTS notify_enabled,
+DROP COLUMN IF EXISTS notify_interval_minutes,
+DROP COLUMN IF EXISTS last_notified_at;
 
 -- Medicine
 CREATE TABLE IF NOT EXISTS Medicine (
@@ -167,3 +169,24 @@ FOREIGN KEY (user_id) REFERENCES Users(id);
 ALTER TABLE User_Medicine
 ADD CONSTRAINT fk_medicine_user_medicine
 FOREIGN KEY (medicine_id) REFERENCES Medicine(id);
+
+CREATE TABLE IF NOT EXISTS Cabinets (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    UNIQUE (user_id, name)
+);
+
+ALTER TABLE User_Medicine ADD COLUMN IF NOT EXISTS cabinet_id UUID REFERENCES Cabinets(id);
+ALTER TABLE User_Medicine ADD COLUMN IF NOT EXISTS minimum_quantity REAL NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_user_medicine_cabinet ON User_Medicine(cabinet_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_medicine_cabinet_stock
+ON User_Medicine(cabinet_id, medicine_id, date_of_manufacture) WHERE cabinet_id IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS Restock_Items (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+    medicine_id UUID NOT NULL REFERENCES Medicine(id),
+    desired_quantity REAL NOT NULL CHECK (desired_quantity > 0),
+    UNIQUE (user_id, medicine_id)
+);

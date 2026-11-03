@@ -18,7 +18,6 @@ type Config struct {
 	DBName     string
 	DBPort     string
 	DBHost     string
-	DBProvider string
 
 	JWTSecret     string
 	TokenDuration time.Duration
@@ -29,15 +28,6 @@ type Config struct {
 	DBConnMaxIdleTime time.Duration
 
 	ServerAddress string
-
-	SMTPHost     string
-	SMTPPort     string
-	SMTPUser     string
-	SMTPPassword string
-	SMTPFrom     string
-
-	NotificationCheckInterval time.Duration
-	NotificationStartTime     time.Duration
 
 	LogFile  string
 	LogLevel slog.Level
@@ -58,52 +48,18 @@ func NewConfig(i do.Injector) (*Config, error) {
 	maxLifetime := parseDurationEnv(logger, "DB_CONN_MAX_LIFETIME", time.Hour)
 	maxIdleTime := parseDurationEnv(logger, "DB_CONN_MAX_IDLE_TIME", 5*time.Minute)
 
-	notificationInterval := parseDurationEnv(logger, "NOTIFICATION_CHECK_INTERVAL", time.Minute)
-	notificationStartTime := parseStartTimeEnv(logger, "NOTIFICATION_START_TIME", 0)
-
 	logLevel := parseLogLevelEnv(logger, "LOG_LEVEL", slog.LevelDebug)
 	logFile := os.Getenv("LOG_FILE")
 	if logFile == "" {
 		logFile = "logs/app.log"
 	}
 
-	dbProvider := strings.ToLower(os.Getenv("COMPOSE_PROFILES"))
-	for _, profile := range strings.Split(dbProvider, ",") {
-		profile = strings.TrimSpace(profile)
-		if profile != "" {
-			dbProvider = profile
-			break
-		}
-	}
-	if dbProvider == "" {
-		dbProvider = "postgres"
-	}
-
-	var dbHost, dbPort string
-	switch dbProvider {
-	case "mongo":
-		if host := os.Getenv("MONGO_HOST"); host != "" {
-			dbHost = host
-		}
-		if port := os.Getenv("MONGO_PORT"); port != "" {
-			dbPort = port
-		}
-	case "postgres":
-		if host := os.Getenv("POSTGRES_HOST"); host != "" {
-			dbHost = host
-		}
-		if port := os.Getenv("POSTGRES_PORT"); port != "" {
-			dbPort = port
-		}
-	}
-
 	return &Config{
 		DBUser:        os.Getenv("DB_USER"),
 		DBPassword:    os.Getenv("DB_PASSWORD"),
 		DBName:        os.Getenv("DB_NAME"),
-		DBPort:        dbPort,
-		DBHost:        dbHost,
-		DBProvider:    dbProvider,
+		DBPort:        firstNonEmpty(os.Getenv("DB_PORT"), os.Getenv("POSTGRES_PORT")),
+		DBHost:        firstNonEmpty(os.Getenv("DB_HOST"), os.Getenv("POSTGRES_HOST")),
 		JWTSecret:     os.Getenv("SECRET_KEY"),
 		TokenDuration: time.Duration(durationInt) * time.Second,
 
@@ -113,15 +69,6 @@ func NewConfig(i do.Injector) (*Config, error) {
 		DBConnMaxIdleTime: maxIdleTime,
 
 		ServerAddress: os.Getenv("SERVER_PORT"),
-
-		SMTPHost:     os.Getenv("SMTP_HOST"),
-		SMTPPort:     os.Getenv("SMTP_PORT"),
-		SMTPUser:     os.Getenv("SMTP_USER"),
-		SMTPPassword: os.Getenv("SMTP_PASSWORD"),
-		SMTPFrom:     os.Getenv("SMTP_FROM"),
-
-		NotificationCheckInterval: notificationInterval,
-		NotificationStartTime:     notificationStartTime,
 
 		LogFile:  logFile,
 		LogLevel: logLevel,
@@ -164,19 +111,13 @@ func parseDurationEnv(logger *slog.Logger, key string, fallback time.Duration) t
 	return parsed
 }
 
-func parseStartTimeEnv(logger *slog.Logger, key string, fallback time.Duration) time.Duration {
-	val := strings.TrimSpace(os.Getenv(key))
-	if val == "" {
-		return fallback
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
 	}
-
-	parsed, err := time.Parse("15:04", val)
-	if err != nil {
-		logger.Warn("Invalid env, using default", slog.String("key", key), slog.Any("error", err), slog.String("default", fallback.String()))
-		return fallback
-	}
-
-	return time.Duration(parsed.Hour())*time.Hour + time.Duration(parsed.Minute())*time.Minute
+	return ""
 }
 
 func parseLogLevelEnv(logger *slog.Logger, key string, fallback slog.Level) slog.Level {

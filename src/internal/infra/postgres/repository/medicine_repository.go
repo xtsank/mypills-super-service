@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -239,7 +240,7 @@ func (r *PostgresMedicineRepository) insertBase(ctx context.Context, tx *sqlx.Tx
 		UnitId:              med.Unit,
 	}
 
-		  query := queries.Medicine.InsertMedicine
+	query := queries.Medicine.InsertMedicine
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -422,7 +423,7 @@ func (r *PostgresMedicineRepository) updateBase(ctx context.Context, tx *sqlx.Tx
 		UnitId:              med.Unit,
 	}
 
-		  query := queries.Medicine.UpdateMedicine
+	query := queries.Medicine.UpdateMedicine
 
 	_, err := tx.NamedExecContext(ctx, query, ent)
 	if err != nil {
@@ -480,6 +481,10 @@ func (r *PostgresMedicineRepository) deleteBase(ctx context.Context, tx *sqlx.Tx
 	query := queries.Medicine.DeleteMedicine
 	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+			return appErrors.ErrMedicineConflict.WithError(err)
+		}
 		return appErrors.ErrInternal.WithError(err)
 	}
 	return nil

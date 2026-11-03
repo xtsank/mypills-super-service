@@ -16,7 +16,7 @@ func AdminOnly() gin.HandlerFunc {
 
 		allowed, ok := isAdmin.(bool)
 		if !ok || !allowed {
-			_ = c.Error(errors.ErrUnauthorized.WithSource())
+			_ = c.Error(errors.ErrForbidden.WithSource())
 			c.Abort()
 			return
 		}
@@ -24,4 +24,3 @@ func AdminOnly() gin.HandlerFunc {
 		c.Next()
 	}
 }
-

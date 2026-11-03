@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/cabinet_item"
-	"github.com/xtsank/mypills-super-service/src/internal/dto"
 	"github.com/xtsank/mypills-super-service/src/internal/infra/postgres/entity"
 )
 
@@ -54,17 +53,6 @@ func (m *MockCabinetRepository) FindById(ctx context.Context, id uuid.UUID) (*ca
 	var result *cabinet_item.CabinetItem
 	if args.Get(0) != nil {
 		result = args.Get(0).(*cabinet_item.CabinetItem)
-	}
-
-	return result, args.Error(1)
-}
-
-func (m *MockCabinetRepository) FindExpiredByUserID(ctx context.Context, userID uuid.UUID) ([]*dto.ExpiredItemDto, error) {
-	args := m.Called(ctx, userID)
-
-	var result []*dto.ExpiredItemDto
-	if args.Get(0) != nil {
-		result = args.Get(0).([]*dto.ExpiredItemDto)
 	}
 
 	return result, args.Error(1)

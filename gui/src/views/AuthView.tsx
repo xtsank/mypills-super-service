@@ -1,79 +1,99 @@
-import { Button, Checkbox, MultiSelectInput, NumberInput, TextInput } from "../components/Controls";
+import { useState } from "react";
 import { useAuthViewModel } from "../viewmodels/useAuthViewModel";
 
 export function AuthView() {
   const vm = useAuthViewModel();
-
+  const [mode, setMode] = useState<"login" | "register">("login");
   return (
-    <div className="section">
-      <div className="section__title">Вход</div>
-
-      <div className="inline">
-        <TextInput label="Логин" value={vm.loginValue} onChange={vm.setLoginValue} />
-        <TextInput label="Пароль" value={vm.passwordValue} onChange={vm.setPasswordValue} type="password" />
+    <div className="auth-card">
+      <div className="eyebrow">MY PILLS · ЛИЧНЫЙ КАБИНЕТ</div>
+      <h1>{mode === "login" ? "С возвращением" : "Создать аккаунт"}</h1>
+      <p className="muted">
+        Ваши лекарства, рекомендации и список покупок в одном месте.
+      </p>
+      <div className="segmented">
+        <button
+          className={mode === "login" ? "active" : ""}
+          onClick={() => setMode("login")}
+        >
+          Вход
+        </button>
+        <button
+          className={mode === "register" ? "active" : ""}
+          onClick={() => setMode("register")}
+        >
+          Регистрация
+        </button>
       </div>
-
-      <div className="inline">
-        <Button onClick={vm.handleLogin}>
-          {vm.isLoading ? "Загрузка..." : "Войти"}
-        </Button>
-      </div>
-
-      <div className="section__title">Регистрация</div>
-
-      <div className="inline">
-<<<<<<< HEAD
-        <TextInput label="Логин" value={vm.registerLogin} onChange={vm.setRegisterLogin} />
-        <TextInput label="Почта" value={vm.emailValue} onChange={vm.setEmailValue} />
-        <TextInput label="Пароль" value={vm.registerPassword} onChange={vm.setRegisterPassword} type="password" />
-=======
-        <TextInput label="Почта" value={vm.emailValue} onChange={vm.setEmailValue} />
->>>>>>> 1f83dea7bd71d6b52bdd54933e14f6e23c6bc04a
-      </div>
-
-      <div className="inline">
-        <NumberInput label="Возраст" value={vm.age} onChange={vm.setAge} />
-        <NumberInput label="Вес" value={vm.weight} onChange={vm.setWeight} />
-      </div>
-
-      <div className="inline">
-        <label className="field">
-          <span className="field__label">Пол</span>
-          <select
-            className="select"
-            value={vm.sex ? "male" : "female"}
-            onChange={(event) => vm.setSex(event.target.value === "male")}
-          >
-            <option value="male">Мужской</option>
-            <option value="female">Женский</option>
-          </select>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void vm.submit(mode);
+        }}
+      >
+        <label>
+          Логин
+          <input
+            value={vm.loginValue}
+            onChange={(event) => vm.setLoginValue(event.target.value)}
+            required
+            minLength={mode === "register" ? 8 : 1}
+          />
         </label>
-        <Checkbox label="Беременность" checked={vm.isPregnant} onChange={vm.setIsPregnant} />
-        <Checkbox label="Водитель" checked={vm.isDriver} onChange={vm.setIsDriver} />
-      </div>
-
-      <div className="inline">
-        <MultiSelectInput
-          label="Аллергии"
-          values={vm.allergies}
-          onChange={vm.setAllergies}
-          options={vm.allergyOptions}
-          placeholder="Пока нет данных"
-        />
-        <MultiSelectInput
-          label="Болезни"
-          values={vm.illnesses}
-          onChange={vm.setIllnesses}
-          options={vm.illnessOptions}
-          placeholder="Пока нет данных"
-        />
-      </div>
-
-      <div className="inline">
-        <Button onClick={vm.handleRegister}>
-          {vm.isLoading ? "Загрузка..." : "Зарегистрироваться"}
-        </Button>
-      </div>
+        <label>
+          Пароль
+          <input
+            type="password"
+            value={vm.password}
+            onChange={(event) => vm.setPassword(event.target.value)}
+            required
+            minLength={mode === "register" ? 8 : 1}
+          />
+        </label>
+        {mode === "register" && (
+          <>
+            <label>
+              Электронная почта
+              <input
+                type="email"
+                value={vm.email}
+                onChange={(event) => vm.setEmail(event.target.value)}
+                required
+              />
+            </label>
+            <div className="field-row">
+              <label>
+                Возраст
+                <input
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={vm.age}
+                  onChange={(event) => vm.setAge(Number(event.target.value))}
+                />
+              </label>
+              <label>
+                Вес, кг
+                <input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={vm.weight}
+                  onChange={(event) => vm.setWeight(Number(event.target.value))}
+                />
+              </label>
+            </div>
+          </>
+        )}
+        {vm.message && <p className="error">{vm.message}</p>}
+        <button className="primary wide" disabled={vm.loading}>
+          {vm.loading
+            ? "Подождите…"
+            : mode === "login"
+              ? "Войти"
+              : "Зарегистрироваться"}
+        </button>
+      </form>
     </div>
   );
 }

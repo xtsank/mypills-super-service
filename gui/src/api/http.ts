@@ -3,6 +3,7 @@ import { AppError } from "./types";
 const DEFAULT_BASE_URL = "http://localhost:8080";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || DEFAULT_BASE_URL;
+export const SESSION_EXPIRED_EVENT = "mypills:session-expired";
 
 type RequestOptions = RequestInit & {
   token?: string | null;
@@ -28,6 +29,11 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   if (!response.ok) {
     const error = await parseError(response);
+    if (response.status === 401 && options.token) {
+      window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT, {
+        detail: options.token
+      }));
+    }
     throw error;
   }
 

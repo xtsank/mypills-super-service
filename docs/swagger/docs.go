@@ -850,8 +850,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "concentration": {
-                    "type": "number",
-                    "format": "float32"
+                    "type": "number"
                 },
                 "id": {
                     "type": "string"
@@ -1297,12 +1296,6 @@ const docTemplate = `{
                 "login": {
                     "type": "string"
                 },
-                "notify_enabled": {
-                    "type": "boolean"
-                },
-                "notify_interval_minutes": {
-                    "type": "integer"
-                },
                 "sex": {
                     "type": "boolean"
                 },
@@ -1464,12 +1457,6 @@ const docTemplate = `{
                 },
                 "is_pregnant": {
                     "type": "boolean"
-                },
-                "notify_enabled": {
-                    "type": "boolean"
-                },
-                "notify_interval_minutes": {
-                    "type": "integer"
                 },
                 "sex": {
                     "type": "boolean"

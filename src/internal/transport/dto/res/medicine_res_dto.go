@@ -12,6 +12,12 @@ type MedicineRecommendation struct {
 	QuantityInCabinet   float32   `json:"quantity_in_cabinet"`
 }
 
+func NewMedicineRecommendation(id uuid.UUID, name, methodOfApplication string,
+	dosage float32, frequency int, quantityInCabinet float32) *MedicineRecommendation {
+	return &MedicineRecommendation{ID: id, Name: name, MethodOfApplication: methodOfApplication,
+		Dosage: dosage, Frequency: frequency, QuantityInCabinet: quantityInCabinet}
+}
+
 type MedicineResDto struct {
 	Recommendations []*MedicineRecommendation `json:"recommendations"`
 }
