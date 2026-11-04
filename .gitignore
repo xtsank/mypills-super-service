@@ -12,6 +12,7 @@ bin/
 *.so
 *.dylib
 *.test
+!Dockerfile.test
 *.out
 coverage.html
 allure-results/

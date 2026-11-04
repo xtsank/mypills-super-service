@@ -1,0 +1,60 @@
+name: mypills-lab2-test
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      POSTGRES_USER: mypills_test
+      POSTGRES_PASSWORD: mypills_test
+      POSTGRES_DB: mypills_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - test_pgdata:/var/lib/postgresql/data
+      - ./src/internal/infra/postgres/init:/docker-entrypoint-initdb.d:ro
+
+  app:
+    build: .
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: mypills_test
+      DB_PASSWORD: mypills_test
+      DB_NAME: mypills_test
+      SECRET_KEY: lab2-test-only-secret-key
+      SERVER_PORT: "8080"
+      LOG_FILE: /tmp/mypills-test.log
+    ports:
+      - "127.0.0.1:${TEST_APP_PORT:-18080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/spec/v2.yaml"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
+
+  test-runner:
+    profiles: ["test"]
+    image: mypills-lab2-test-runner:local
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    working_dir: /workspace
+    user: "${TEST_UID:-1000}:${TEST_GID:-1000}"
+    environment:
+      ALLURE_CLI: /opt/allure/node_modules/.bin/allure
+      HOME: /tmp
+      GOCACHE: /tmp/go-build
+    volumes:
+      - .:/workspace
+
+volumes:
+  test_pgdata:
