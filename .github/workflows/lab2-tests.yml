@@ -12,13 +12,11 @@ permissions:
 
 env:
   TEST_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
-  TEST_UID: "0"
-  TEST_GID: "0"
 
 jobs:
   unit:
     name: Unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
@@ -29,7 +27,7 @@ jobs:
           ./scripts/test-ci-docker.sh make test-unit-go
       - name: Pass unit results to the report job
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: stage-results-unit
           path: allure-results/
@@ -38,7 +36,7 @@ jobs:
   integration:
     name: Integration tests
     needs: unit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
@@ -49,7 +47,7 @@ jobs:
           ./scripts/test-ci-docker.sh make test-integration-run
       - name: Pass integration results to the report job
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: stage-results-integration
           path: allure-results/
@@ -58,7 +56,7 @@ jobs:
   e2e:
     name: E2E test
     needs: integration
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
@@ -69,7 +67,7 @@ jobs:
           ./scripts/test-ci-docker.sh make test-e2e-run
       - name: Pass E2E results to the report job
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: stage-results-e2e
           path: allure-results/
@@ -79,12 +77,12 @@ jobs:
     name: Allure report
     needs: [unit, integration, e2e]
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - name: Collect test results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: stage-results-*
           path: allure-results
