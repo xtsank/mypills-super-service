@@ -1,10 +1,10 @@
-.PHONY: build run swag test-classic test-london test test-offline coverage-branch install-gocove install-allure allure-generate allure-report allure-open test-clean clean docker-db log make_admin psql-users
+.PHONY: build run swag test-classic test-london test test-integration test-integration-go test-offline coverage-branch install-gocove install-allure allure-generate allure-report allure-open test-clean clean docker-db log make_admin psql-users
 
 login=admin111
 
-DB_USER = user
-DB_PASSWORD = password
-DB_NAME = mypills
+DB_USER ?= user
+DB_PASSWORD ?= password
+DB_NAME ?= mypills
 
 TEST_PACKAGES = ./src/internal/service
 TEST_COVERPKG = ./src/internal/service,./src/internal/infra/postgres/repository
@@ -50,6 +50,13 @@ test: install-allure test-clean
 	@status=0; ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test $(TEST_FLAGS) -covermode=count -coverpkg=$(TEST_COVERPKG) -coverprofile="$(COVERAGE_PROFILE)" $(TEST_PACKAGES) || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
 	go tool cover -func="$(COVERAGE_PROFILE)"
 	go run ./scripts/line-coverage.go "$(COVERAGE_PROFILE)"
+
+test-integration:
+	@status=0; ./scripts/test-ci-docker.sh ./scripts/test-stand.sh run docker compose -p "mypills-lab2-$${TEST_RUN_ID:-test}" -f docker-compose.test.yaml run --rm --no-deps test-runner make test-integration-go || status=$$?; ./scripts/test-ci-docker.sh ./scripts/test-stand.sh down || status=1; exit $$status
+
+test-integration-go:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=integration -v -count=1 -shuffle=on -timeout=60s ./src/internal/integration
 
 test-offline: install-allure test-clean
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"
