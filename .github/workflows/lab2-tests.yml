@@ -10,42 +10,102 @@ on:
 permissions:
   contents: read
 
+env:
+  TEST_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+  TEST_UID: "0"
+  TEST_GID: "0"
+
 jobs:
-  tests:
+  unit:
+    name: Unit tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      TEST_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
-      TEST_UID: "0"
-      TEST_GID: "0"
+    timeout-minutes: 15
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Prepare test results
-        run: ./scripts/test-ci-docker.sh make test-clean
-
-      - name: Unit tests
-        id: unit
-        run: ./scripts/test-ci-docker.sh make test-unit-go
-
-      - name: Integration tests
-        id: integration
-        if: ${{ steps.unit.outcome == 'success' }}
-        run: ./scripts/test-ci-docker.sh make test-integration-run
-
-      - name: Mark integration tests as skipped
-        if: ${{ always() && steps.unit.outcome == 'failure' }}
-        run: ./scripts/test-ci-docker.sh make test-integration-skipped
-
-      - name: E2E test
-        if: ${{ steps.unit.outcome == 'success' && steps.integration.outcome == 'success' }}
-        run: ./scripts/test-ci-docker.sh make test-e2e-run
-
-      - name: Mark E2E test as skipped
-        if: ${{ always() && (steps.unit.outcome == 'failure' || steps.integration.outcome == 'failure') }}
-        run: ./scripts/test-ci-docker.sh make test-e2e-skipped
-
-      - name: Generate Allure report
+      - uses: actions/checkout@v6
+      - name: Run unit tests in the test container
+        run: |
+          mkdir -p allure-results
+          printf 'unit\n' > allure-results/stage-unit.txt
+          ./scripts/test-ci-docker.sh make test-unit-go
+      - name: Pass unit results to the report job
         if: ${{ always() }}
-        run: ./scripts/test-ci-docker.sh make allure-generate
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-results-unit
+          path: allure-results/
+          retention-days: 1
+
+  integration:
+    name: Integration tests
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run integration tests on the test stand
+        run: |
+          mkdir -p allure-results
+          printf 'integration\n' > allure-results/stage-integration.txt
+          ./scripts/test-ci-docker.sh make test-integration-run
+      - name: Pass integration results to the report job
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-results-integration
+          path: allure-results/
+          retention-days: 1
+
+  e2e:
+    name: E2E test
+    needs: integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run E2E test on the test stand
+        run: |
+          mkdir -p allure-results
+          printf 'e2e\n' > allure-results/stage-e2e.txt
+          ./scripts/test-ci-docker.sh make test-e2e-run
+      - name: Pass E2E results to the report job
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-results-e2e
+          path: allure-results/
+          retention-days: 1
+
+  report:
+    name: Allure report
+    needs: [unit, integration, e2e]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Collect test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: stage-results-*
+          path: allure-results
+          merge-multiple: true
+      - name: Generate Allure report
+        env:
+          UNIT_RESULT: ${{ needs.unit.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+        run: |
+          if [ "$UNIT_RESULT" != success ]; then
+            ./scripts/test-ci-docker.sh make test-integration-skipped
+            ./scripts/test-ci-docker.sh make test-e2e-skipped
+          elif [ "$INTEGRATION_RESULT" != success ]; then
+            ./scripts/test-ci-docker.sh make test-e2e-skipped
+          fi
+          ./scripts/test-ci-docker.sh make allure-generate
+          {
+            echo '### Test stages'
+            echo '| Stage | GitHub status |'
+            echo '| --- | --- |'
+            echo "| Unit | $UNIT_RESULT |"
+            echo "| Integration | $INTEGRATION_RESULT |"
+            echo "| E2E | ${{ needs.e2e.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
