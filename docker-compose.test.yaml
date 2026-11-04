@@ -16,7 +16,7 @@ services:
     volumes:
       - test_pgdata:/var/lib/postgresql/data
       - ./src/internal/infra/postgres/init/init.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./tests/fixtures/integration_seed.sql:/docker-entrypoint-initdb.d/02-integration-seed.sql:ro
+      - ./tests/fixtures/${TEST_SEED_FILE:-integration_seed.sql}:/docker-entrypoint-initdb.d/02-test-seed.sql:ro
 
   app:
     build: .

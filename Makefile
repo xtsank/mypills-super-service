@@ -1,4 +1,4 @@
-.PHONY: build run swag test-classic test-london test test-integration test-integration-go test-offline coverage-branch install-gocove install-allure allure-generate allure-report allure-open test-clean clean docker-db log make_admin psql-users
+.PHONY: build run swag test-classic test-london test test-integration test-integration-go test-e2e test-e2e-go test-offline coverage-branch install-gocove install-allure allure-generate allure-report allure-open test-clean clean docker-db log make_admin psql-users
 
 login=admin111
 
@@ -57,6 +57,13 @@ test-integration:
 test-integration-go:
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"
 	ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=integration -v -count=1 -shuffle=on -timeout=60s ./src/internal/integration
+
+test-e2e:
+	@status=0; TEST_SEED_FILE=e2e_seed.sql ./scripts/test-ci-docker.sh ./scripts/test-stand.sh run docker compose -p "mypills-lab2-$${TEST_RUN_ID:-test}" -f docker-compose.test.yaml run --rm --no-deps test-runner make test-e2e-go || status=$$?; TEST_SEED_FILE=e2e_seed.sql ./scripts/test-ci-docker.sh ./scripts/test-stand.sh down || status=1; exit $$status
+
+test-e2e-go:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=e2e -v -count=1 -timeout=60s ./src/internal/e2e
 
 test-offline: install-allure test-clean
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"

@@ -37,4 +37,5 @@ docker run --rm --init \
   -e TEST_RUN_ID \
   -e TEST_UID \
   -e TEST_GID \
+  -e TEST_SEED_FILE \
   mypills-lab2-test-runner:local "$@"
