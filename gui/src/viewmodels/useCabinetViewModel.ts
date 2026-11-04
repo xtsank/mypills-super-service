@@ -1,154 +1,132 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  addCabinetItem,
+  createCabinet,
+  createCabinetItem,
+  deleteCabinet,
+  deleteCabinetItem,
   listCabinetItems,
+  listCabinets,
   listMedicines,
   normalizeError,
-  removeCabinetItem,
-  updateCabinetQty
+  renameCabinet,
+  updateCabinetItem
 } from "../api/client";
-import { CabinetItemDetailsResDto } from "../api/types";
+import type { Cabinet, CabinetItem, Medicine } from "../api/types";
 import { useAuth } from "../store/authStore";
-import { useProcess } from "../store/processStore";
 
 export function useCabinetViewModel() {
-  const auth = useAuth();
-  const process = useProcess();
-  const [isLoading, setIsLoading] = useState(false);
-  const [items, setItems] = useState<CabinetItemDetailsResDto[]>([]);
-  const [medicineOptions, setMedicineOptions] = useState<Array<{ value: string; label: string }>>([]);
-
-  const itemOptions = useMemo(
-    () => items.map((item) => ({ value: item.id, label: `${item.medicine_name} (${item.quantity})` })),
-    [items]
-  );
-
-  const [medicineId, setMedicineId] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [manufactureDate, setManufactureDate] = useState("");
-
-  const [itemId, setItemId] = useState("");
-  const [newQty, setNewQty] = useState("");
-
-  const handleAdd = async () => {
-    if (!auth.token) {
-      process.setStatus("error", "Нужно войти");
-      return;
-    }
-
-    setIsLoading(true);
+  const { token } = useAuth();
+  const [cabinets, setCabinets] = useState<Cabinet[]>([]);
+  const [selectedId, setSelectedId] = useState("");
+  const [items, setItems] = useState<CabinetItem[]>([]);
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [lowStock, setLowStock] = useState(false);
+  const [expired, setExpired] = useState(false);
+  const refresh = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
     try {
-      await addCabinetItem(auth.token, {
-        medicine_id: medicineId,
-        quantity: Number(quantity),
-        date_of_manufacture: manufactureDate
-      });
-      const updated = await listCabinetItems(auth.token);
-      setItems(updated);
-      process.setCabinetItemsCount(updated.length);
-      process.setStatus("success", "Предмет добавлен");
-      process.setLastAction("добавление предмета");
+      const [groups, catalog] = await Promise.all([
+        listCabinets(token),
+        listMedicines(token)
+      ]);
+      setCabinets(groups.items);
+      setMedicines(catalog.items);
+      setSelectedId((current) =>
+        groups.items.some((item) => item.id === current)
+          ? current
+          : (groups.items[0]?.id ?? "")
+      );
     } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
+      setMessage(normalizeError(error).message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  const handleUpdateQty = async () => {
-    if (!auth.token) {
-      process.setStatus("error", "Нужно войти");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await updateCabinetQty(auth.token, {
-        id: itemId,
-        qty: Number(newQty)
-      });
-      const updated = await listCabinetItems(auth.token);
-      setItems(updated);
-      process.setStatus("success", "Количество обновлено");
-      process.setLastAction("обновление количества");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRemove = async () => {
-    if (!auth.token) {
-      process.setStatus("error", "Нужно войти");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await removeCabinetItem(auth.token, { id: itemId });
-      const updated = await listCabinetItems(auth.token);
-      setItems(updated);
-      process.setCabinetItemsCount(updated.length);
-      process.setStatus("success", "Предмет удален");
-      process.setLastAction("удаление предмета");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  }, [token]);
   useEffect(() => {
-    const load = async () => {
-      try {
-        const meds = await listMedicines();
-        setMedicineOptions(meds.map((item) => ({ value: item.id, label: item.name })));
-      } catch (error) {
-        const appError = normalizeError(error);
-        process.setStatus("error", `${appError.code}: ${appError.message}`);
-      }
-    };
-    load();
-  }, [process]);
-
+    void refresh();
+  }, [refresh]);
+  const refreshItems = useCallback(async () => {
+    if (!token || !selectedId) {
+      setItems([]);
+      return;
+    }
+    try {
+      setItems(
+        (
+          await listCabinetItems(token, selectedId, {
+            low_stock: lowStock,
+            expired
+          })
+        ).items
+      );
+    } catch (error) {
+      setMessage(normalizeError(error).message);
+    }
+  }, [token, selectedId, lowStock, expired]);
   useEffect(() => {
-    const load = async () => {
-      if (!auth.token) {
-        return;
-      }
-      try {
-        const itemsResponse = await listCabinetItems(auth.token);
-        setItems(itemsResponse);
-        process.setCabinetItemsCount(itemsResponse.length);
-      } catch (error) {
-        const appError = normalizeError(error);
-        process.setStatus("error", `${appError.code}: ${appError.message}`);
-      }
-    };
-    load();
-  }, [auth.token, process]);
-
+    void refreshItems();
+  }, [refreshItems]);
+  async function run(action: () => Promise<unknown>) {
+    setLoading(true);
+    setMessage("");
+    try {
+      await action();
+      await refresh();
+      await refreshItems();
+    } catch (error) {
+      setMessage(normalizeError(error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
   return {
-    isLoading,
+    cabinets,
+    selectedId,
+    setSelectedId,
     items,
-    medicineOptions,
-    itemOptions,
-    medicineId,
-    quantity,
-    manufactureDate,
-    itemId,
-    newQty,
-    setMedicineId,
-    setQuantity,
-    setManufactureDate,
-    setItemId,
-    setNewQty,
-    handleAdd,
-    handleUpdateQty,
-    handleRemove
+    medicines,
+    loading,
+    message,
+    lowStock,
+    setLowStock,
+    expired,
+    setExpired,
+    refreshItems,
+    addCabinet: (name: string) =>
+      token && run(() => createCabinet(token, name)),
+    renameCabinet: (name: string) =>
+      token && selectedId && run(() => renameCabinet(token, selectedId, name)),
+    removeCabinet: () =>
+      token && selectedId && run(() => deleteCabinet(token, selectedId)),
+    addItem: (
+      medicineId: string,
+      date: string,
+      quantity: number,
+      minimum: number
+    ) =>
+      token &&
+      selectedId &&
+      run(() =>
+        createCabinetItem(token, selectedId, {
+          medicine_id: medicineId,
+          date_of_manufacture: date,
+          quantity,
+          minimum_quantity: minimum
+        })
+      ),
+    editItem: (id: string, quantity: number, minimum: number) =>
+      token &&
+      selectedId &&
+      run(() =>
+        updateCabinetItem(token, selectedId, id, {
+          quantity,
+          minimum_quantity: minimum
+        })
+      ),
+    removeItem: (id: string) =>
+      token && selectedId && run(() => deleteCabinetItem(token, selectedId, id))
   };
 }

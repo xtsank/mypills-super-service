@@ -21,7 +21,6 @@ workspace {
                     medicineService = component "Сервис подбора лекарств"
                     cabinetService = component "Сервис управления аптечкой"
                     adminService = component "Сервис администратора"
-                    notifyService = component "Сервис уведомлений"
                 }
 
                 daLayer = group "Компонент доступа к данным" {
@@ -66,8 +65,6 @@ workspace {
         medicineService -> cabinetRepository "Использует"
         cabinetService -> cabinetRepository "Использует"
         adminService -> medicineRepository "Использует"
-        notifyService -> cabinetRepository "Использует"
-        notifyService -> userRepository "Использует"
         userRepository -> database "SQL"
         medicineRepository -> database "SQL"
         cabinetRepository -> database "SQL"

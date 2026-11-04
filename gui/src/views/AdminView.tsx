@@ -1,319 +1,223 @@
-import { Button, Checkbox, MultiSelectInput, NumberInput, SelectInput, TextInput } from "../components/Controls";
+import { useState } from "react";
+import type { MedicineWrite, ReferenceItem } from "../api/types";
 import { useAdminViewModel } from "../viewmodels/useAdminViewModel";
 
 export function AdminView() {
   const vm = useAdminViewModel();
-
+  const d = vm.draft;
+  const [jsonError, setJsonError] = useState("");
+  const change = <K extends keyof MedicineWrite>(
+    key: K,
+    value: MedicineWrite[K]
+  ) => vm.setDraft({ ...d, [key]: value });
+  function parseList<K extends "substances" | "dosages">(
+    key: K,
+    value: string
+  ) {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (!Array.isArray(parsed)) throw new Error("Нужен массив JSON");
+      change(key, parsed as MedicineWrite[K]);
+      setJsonError("");
+    } catch (error) {
+      setJsonError(error instanceof Error ? error.message : "Ошибка JSON");
+    }
+  }
   return (
-    <div className="section">
-      <div className="section__title">Администрирование</div>
-
-      <div className="section">
-        <div className="section__title">Добавить лекарство</div>
-        <div className="inline">
-          <TextInput label="Название" value={vm.name} onChange={vm.setName} />
-          <SelectInput
-            label="Форма"
-            value={vm.formId}
-            onChange={vm.setFormId}
-            options={vm.formOptions}
-            placeholder="Пока нет данных"
-          />
-          <SelectInput
-            label="Единица"
-            value={vm.unitId}
-            onChange={vm.setUnitId}
-            options={vm.unitOptions}
-            placeholder="Пока нет данных"
-          />
+    <section className="panel">
+      <div className="panel-head">
+        <div>
+          <div className="eyebrow">УПРАВЛЕНИЕ КАТАЛОГОМ</div>
+          <h2>Лекарства</h2>
         </div>
-        <div className="inline">
-          <TextInput label="Способ применения" value={vm.methodOfApplication} onChange={vm.setMethodOfApplication} />
-          <NumberInput label="Срок годности" value={vm.expireTime} onChange={vm.setExpireTime} />
-        </div>
-        <div className="inline">
-          <Checkbox label="По рецепту" checked={vm.isPrescription} onChange={vm.setIsPrescription} />
-          <Checkbox label="Влияние на беременных" checked={vm.effectOnPregnant} onChange={vm.setEffectOnPregnant} />
-          <Checkbox label="Влияние на водителей" checked={vm.effectOnDriver} onChange={vm.setEffectOnDriver} />
-        </div>
-        <div className="inline">
-          <MultiSelectInput
-            label="Противопоказания"
-            values={vm.contraindications}
-            onChange={vm.setContraindications}
-            options={vm.contraindicationOptions}
-            placeholder="Пока нет данных"
-          />
-          <MultiSelectInput
-            label="Показания"
-            values={vm.recommendations}
-            onChange={vm.setRecommendations}
-            options={vm.indicationOptions}
-            placeholder="Пока нет данных"
-          />
-        </div>
-
-        <div className="section">
-          <div className="section__title">Действующие вещества</div>
-          {vm.substances.map((item, index) => (
-            <div key={index} className="inline">
-              <SelectInput
-                label={`Вещество ${index + 1}`}
-                value={item.id}
-                onChange={(value) => vm.updateSubstance(index, { id: value })}
-                options={vm.substanceOptions}
-                placeholder="Пока нет данных"
-              />
-              <NumberInput
-                label="Концентрация"
-                value={String(item.concentration)}
-                onChange={(value) => vm.updateSubstance(index, { concentration: Number(value) })}
-              />
-              <Button variant="secondary" onClick={() => vm.removeSubstance(index)}>
-                Удалить
-              </Button>
-            </div>
+        <span className="badge">Администратор</span>
+      </div>
+      <div className="toolbar">
+        <select
+          value={vm.selectedId}
+          onChange={(e) => vm.select(e.target.value)}
+        >
+          <option value="">Новое лекарство</option>
+          {vm.medicines.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
           ))}
-          <Button variant="secondary" onClick={vm.addSubstance}>
-            Добавить вещество
-          </Button>
-        </div>
-
-        <div className="section">
-          <div className="section__title">Правила дозировки</div>
-          {vm.dosages.map((item, index) => (
-            <div key={index} className="inline">
-              <NumberInput
-                label="Дозировка"
-                value={String(item.dosageValue)}
-                onChange={(value) => vm.updateDosage(index, { dosageValue: Number(value) })}
-              />
-              <NumberInput
-                label="Приемов в день"
-                value={String(item.numberOfDosesPerDay)}
-                onChange={(value) => vm.updateDosage(index, { numberOfDosesPerDay: Number(value) })}
-              />
-              <SelectInput
-                label="Тип"
-                value={item.type}
-                options={[
-                  { value: "weight", label: "Вес" },
-                  { value: "age", label: "Возраст" }
-                ]}
-                onChange={(value) => vm.updateDosage(index, { type: value as "weight" | "age" })}
-              />
-              <NumberInput
-                label="От"
-                value={String(item.valueFrom)}
-                onChange={(value) => vm.updateDosage(index, { valueFrom: Number(value) })}
-              />
-              <NumberInput
-                label="До"
-                value={String(item.valueTo)}
-                onChange={(value) => vm.updateDosage(index, { valueTo: Number(value) })}
-              />
-              <Button variant="secondary" onClick={() => vm.removeDosage(index)}>
-                Удалить
-              </Button>
-            </div>
-          ))}
-          <Button variant="secondary" onClick={vm.addDosage}>
-            Добавить правило
-          </Button>
-        </div>
-
-        <Button onClick={vm.handleAddMedicine}>{vm.isLoading ? "Загрузка..." : "Добавить лекарство"}</Button>
+        </select>
+        <button onClick={() => vm.select("")}>Новая запись</button>
       </div>
-
-      <div className="section">
-        <div className="section__title">Обновить лекарство</div>
-        <div className="inline">
-          <SelectInput
-            label="Лекарство"
-            value={vm.updateId}
-            onChange={vm.setUpdateId}
-            options={vm.medicineOptions}
-            placeholder="Пока нет данных"
+      <div className="form-grid">
+        <label>
+          Название
+          <input
+            value={d.name}
+            onChange={(e) => change("name", e.target.value)}
           />
-          <SelectInput
-            label="Форма"
-            value={vm.updateFormId}
-            onChange={vm.setUpdateFormId}
-            options={vm.formOptions}
-            placeholder="Пока нет данных"
+        </label>
+        <label>
+          Срок хранения, мес
+          <input
+            type="number"
+            min="1"
+            value={d.expire_time}
+            onChange={(e) => change("expire_time", Number(e.target.value))}
           />
-          <SelectInput
-            label="Единица"
-            value={vm.updateUnitId}
-            onChange={vm.setUpdateUnitId}
-            options={vm.unitOptions}
-            placeholder="Пока нет данных"
+        </label>
+        <label>
+          Способ применения
+          <input
+            value={d.method_of_application}
+            onChange={(e) => change("method_of_application", e.target.value)}
           />
-        </div>
-        <div className="inline">
-          <TextInput label="Способ применения" value={vm.updateMethod} onChange={vm.setUpdateMethod} />
-          <NumberInput label="Срок годности" value={vm.updateExpireTime} onChange={vm.setUpdateExpireTime} />
-        </div>
-        <div className="inline">
-          <Checkbox label="По рецепту" checked={vm.updatePrescription} onChange={vm.setUpdatePrescription} />
-          <Checkbox label="Влияние на беременных" checked={vm.updatePregnant} onChange={vm.setUpdatePregnant} />
-          <Checkbox label="Влияние на водителей" checked={vm.updateDriver} onChange={vm.setUpdateDriver} />
-        </div>
-        <Button onClick={vm.handleUpdateMedicine}>{vm.isLoading ? "Загрузка..." : "Обновить"}</Button>
+        </label>
+        <label>
+          Форма
+          <select
+            value={d.form_id}
+            onChange={(e) => change("form_id", e.target.value)}
+          >
+            <option value="">Выберите</option>
+            {vm.forms.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Единица измерения
+          <select
+            value={d.unit_id}
+            onChange={(e) => change("unit_id", e.target.value)}
+          >
+            <option value="">Выберите</option>
+            {vm.units.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
-
-      <div className="section">
-        <div className="section__title">Удалить лекарство</div>
-        <div className="inline">
-          <SelectInput
-            label="Лекарство"
-            value={vm.deleteId}
-            onChange={vm.setDeleteId}
-            options={vm.medicineOptions}
-            placeholder="Пока нет данных"
-          />
-          <Button variant="secondary" onClick={vm.handleRemoveMedicine}>
-            {vm.isLoading ? "Загрузка..." : "Удалить"}
-          </Button>
-        </div>
+      <div className="checks">
+        <label>
+          <input
+            type="checkbox"
+            checked={d.is_prescription}
+            onChange={(e) => change("is_prescription", e.target.checked)}
+          />{" "}
+          По рецепту
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={d.effect_on_pregnant}
+            onChange={(e) => change("effect_on_pregnant", e.target.checked)}
+          />{" "}
+          Ограничение при беременности
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={d.effect_on_driver}
+            onChange={(e) => change("effect_on_driver", e.target.checked)}
+          />{" "}
+          Ограничение для водителей
+        </label>
       </div>
-
-      <div className="section">
-        <div className="section__title">Обновить состав</div>
-        <div className="inline">
-          <SelectInput
-            label="Лекарство"
-            value={vm.compositionMedicineId}
-            onChange={vm.setCompositionMedicineId}
-            options={vm.medicineOptions}
-            placeholder="Пока нет данных"
+      <div className="form-grid">
+        <ReferenceSelect
+          label="Показания"
+          options={vm.illnesses}
+          value={d.indications}
+          onChange={(value) => change("indications", value)}
+        />
+        <ReferenceSelect
+          label="Противопоказания"
+          options={vm.illnesses}
+          value={d.contraindications}
+          onChange={(value) => change("contraindications", value)}
+        />
+      </div>
+      <div className="form-grid">
+        <label>
+          Активные вещества (JSON)
+          <textarea
+            key={`${vm.selectedId}-substances`}
+            defaultValue={JSON.stringify(d.substances, null, 2)}
+            onBlur={(e) => parseList("substances", e.target.value)}
           />
-        </div>
-        {vm.compositionSubstances.map((item, index) => (
-          <div key={index} className="inline">
-            <SelectInput
-              label={`Вещество ${index + 1}`}
-              value={item.id}
-              onChange={(value) => vm.updateCompositionSubstance(index, { id: value })}
-              options={vm.substanceOptions}
-              placeholder="Пока нет данных"
-            />
-            <NumberInput
-              label="Концентрация"
-              value={String(item.concentration)}
-              onChange={(value) => vm.updateCompositionSubstance(index, { concentration: Number(value) })}
-            />
-            <Button variant="secondary" onClick={() => vm.removeCompositionSubstance(index)}>
-              Удалить
-            </Button>
-          </div>
+        </label>
+        <label>
+          Правила дозирования (JSON)
+          <textarea
+            key={`${vm.selectedId}-dosages`}
+            defaultValue={JSON.stringify(d.dosages, null, 2)}
+            onBlur={(e) => parseList("dosages", e.target.value)}
+          />
+        </label>
+      </div>
+      <p className="muted">
+        Вещества: id и concentration. Дозировки: type (age/weight), value_from,
+        value_to, dosage_value, number_of_doses_per_day.
+      </p>
+      <p className="muted">
+        Доступные вещества:{" "}
+        {vm.substances.map((item) => item.name).join(", ") || "нет данных"}
+      </p>
+      {(jsonError || vm.message) && (
+        <p className="notice">{jsonError || vm.message}</p>
+      )}
+      <div className="toolbar">
+        <button
+          className="primary"
+          disabled={
+            vm.loading || !!jsonError || !d.name || !d.form_id || !d.unit_id
+          }
+          onClick={() => void vm.save()}
+        >
+          Сохранить
+        </button>
+        <button
+          className="danger"
+          disabled={!vm.selectedId || vm.loading}
+          onClick={() => void vm.remove()}
+        >
+          Удалить лекарство
+        </button>
+      </div>
+    </section>
+  );
+}
+function ReferenceSelect({
+  label,
+  options,
+  value,
+  onChange
+}: {
+  label: string;
+  options: ReferenceItem[];
+  value: string[];
+  onChange: (value: string[]) => void;
+}) {
+  return (
+    <label>
+      {label}
+      <select
+        multiple
+        value={value}
+        onChange={(e) =>
+          onChange(
+            Array.from(e.target.selectedOptions, (option) => option.value)
+          )
+        }
+      >
+        {options.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
         ))}
-        <div className="inline">
-          <Button variant="secondary" onClick={vm.addCompositionSubstance}>
-            Добавить вещество
-          </Button>
-          <Button onClick={vm.handleUpdateComposition}>{vm.isLoading ? "Загрузка..." : "Обновить состав"}</Button>
-        </div>
-      </div>
-
-      <div className="section">
-        <div className="section__title">Обновить противопоказания</div>
-        <div className="inline">
-          <SelectInput
-            label="Лекарство"
-            value={vm.contraMedicineId}
-            onChange={vm.setContraMedicineId}
-            options={vm.medicineOptions}
-            placeholder="Пока нет данных"
-          />
-          <MultiSelectInput
-            label="Противопоказания"
-            values={vm.contraIds}
-            onChange={vm.setContraIds}
-            options={vm.contraindicationOptions}
-            placeholder="Пока нет данных"
-          />
-        </div>
-        <Button onClick={vm.handleUpdateContraindications}>{vm.isLoading ? "Загрузка..." : "Обновить"}</Button>
-      </div>
-
-      <div className="section">
-        <div className="section__title">Обновить показания</div>
-        <div className="inline">
-          <SelectInput
-            label="Лекарство"
-            value={vm.indicationMedicineId}
-            onChange={vm.setIndicationMedicineId}
-            options={vm.medicineOptions}
-            placeholder="Пока нет данных"
-          />
-          <MultiSelectInput
-            label="Показания"
-            values={vm.indicationIds}
-            onChange={vm.setIndicationIds}
-            options={vm.indicationOptions}
-            placeholder="Пока нет данных"
-          />
-        </div>
-        <Button onClick={vm.handleUpdateIndications}>{vm.isLoading ? "Загрузка..." : "Обновить"}</Button>
-      </div>
-
-      <div className="section">
-        <div className="section__title">Правила дозировки</div>
-        <div className="inline">
-          <SelectInput
-            label="Лекарство"
-            value={vm.dosageMedicineId}
-            onChange={vm.setDosageMedicineId}
-            options={vm.medicineOptions}
-            placeholder="Пока нет данных"
-          />
-          <NumberInput
-            label="Дозировка"
-            value={String(vm.dosageRule.dosageValue)}
-            onChange={(value) => vm.updateDosageRule({ dosageValue: Number(value) })}
-          />
-          <NumberInput
-            label="Приемов в день"
-            value={String(vm.dosageRule.numberOfDosesPerDay)}
-            onChange={(value) => vm.updateDosageRule({ numberOfDosesPerDay: Number(value) })}
-          />
-          <SelectInput
-            label="Тип"
-            value={vm.dosageRule.type}
-            options={[
-              { value: "weight", label: "Вес" },
-              { value: "age", label: "Возраст" }
-            ]}
-            onChange={(value) => vm.setDosageType(value as "weight" | "age")}
-          />
-          <NumberInput
-            label="От"
-            value={String(vm.dosageRule.valueFrom)}
-            onChange={(value) => vm.updateDosageRule({ valueFrom: Number(value) })}
-          />
-          <NumberInput
-            label="До"
-            value={String(vm.dosageRule.valueTo)}
-            onChange={(value) => vm.updateDosageRule({ valueTo: Number(value) })}
-          />
-        </div>
-        <div className="inline">
-          <Button onClick={vm.handleAddDosageRule}>{vm.isLoading ? "Загрузка..." : "Добавить правило"}</Button>
-        </div>
-        <div className="inline">
-          <SelectInput
-            label="Правило"
-            value={vm.removeRuleId}
-            onChange={vm.setRemoveRuleId}
-            options={vm.ruleOptions}
-            placeholder="Пока нет данных"
-          />
-          <Button variant="secondary" onClick={vm.handleRemoveDosageRule}>
-            {vm.isLoading ? "Загрузка..." : "Удалить правило"}
-          </Button>
-        </div>
-      </div>
-    </div>
+      </select>
+    </label>
   );
 }

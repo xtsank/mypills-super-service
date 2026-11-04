@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	stderrors "errors"
 
 	"github.com/google/uuid"
 	"github.com/samber/do/v2"
@@ -35,21 +36,15 @@ func NewAuthService(i do.Injector) (IAuthService, error) {
 }
 
 func (s *AuthService) Register(ctx context.Context, cmd *command.CreateUserCmd) (*res.AuthResDto, error) {
-	exists, err := s.userRepo.ExistsByLogin(ctx, cmd.Login)
-	if err != nil {
+	if err := user.ValidatePassword(cmd.Password); err != nil {
 		return nil, err
 	}
-
-	if exists {
-		return nil, errors.ErrUserExists.WithSource()
-	}
-
 	hashedPassword, err := s.hasher.Hash(cmd.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := user.NewUser(
+	u, err := user.NewRegisteredUser(
 		uuid.New(),
 		cmd.Login,
 		cmd.Email,
@@ -60,12 +55,18 @@ func (s *AuthService) Register(ctx context.Context, cmd *command.CreateUserCmd) 
 		cmd.Age,
 		cmd.IsPregnant,
 		cmd.IsDriver,
-		nil,
 		cmd.Illnesses,
 		cmd.Allergies,
 	)
 	if err != nil {
 		return nil, err
+	}
+	exists, err := s.userRepo.ExistsByLogin(ctx, cmd.Login)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errors.ErrUserExists.WithSource()
 	}
 
 	err = s.userRepo.Create(ctx, u)
@@ -82,13 +83,19 @@ func (s *AuthService) Register(ctx context.Context, cmd *command.CreateUserCmd) 
 }
 
 func (s *AuthService) Login(ctx context.Context, cmd *command.LoginUserCmd) (*res.AuthResDto, error) {
+	if err := user.ValidateLoginCredentials(cmd.Login, cmd.Password); err != nil {
+		return nil, err
+	}
 	u, err := s.userRepo.FindByLogin(ctx, cmd.Login)
+	if stderrors.Is(err, errors.ErrUserNotFound) {
+		return nil, errors.ErrInvalidCredentials.WithSource()
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	if u == nil {
-		return nil, errors.ErrUserNotFound.WithSource()
+		return nil, errors.ErrInvalidCredentials.WithSource()
 	}
 
 	err = s.hasher.Compare(u.Password, cmd.Password)

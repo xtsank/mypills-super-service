@@ -13,8 +13,6 @@ WORKDIR /root/
 
 COPY --from=builder /mypills-app .
 
-COPY .env .
-
 COPY docs/ ./docs/
 
 CMD ["./mypills-app"]

@@ -10,8 +10,6 @@ type UpdateProfileCmd struct {
 	Age        *int
 	IsPregnant *bool
 	IsDriver   *bool
-	NotifyEnabled         *bool
-	NotifyIntervalMinutes *int
 	Illnesses  []uuid.UUID
 	Allergies  []uuid.UUID
 }
@@ -23,8 +21,6 @@ func NewUpdateProfileCmd(id uuid.UUID,
 	age *int,
 	isPregnant *bool,
 	isDriver *bool,
-	notifyEnabled *bool,
-	notifyIntervalMinutes *int,
 	illnesses []uuid.UUID,
 	allergies []uuid.UUID,
 ) *UpdateProfileCmd {
@@ -36,8 +32,6 @@ func NewUpdateProfileCmd(id uuid.UUID,
 		Age:        age,
 		IsPregnant: isPregnant,
 		IsDriver:   isDriver,
-		NotifyEnabled:         notifyEnabled,
-		NotifyIntervalMinutes: notifyIntervalMinutes,
 		Illnesses:  illnesses,
 		Allergies:  allergies,
 	}

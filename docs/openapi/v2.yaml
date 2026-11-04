@@ -1,0 +1,1014 @@
+openapi: 3.1.0
+info:
+  title: MyPills Public API
+  version: 2.0.0
+  description: |
+    Целевой REST-контракт MyPills.
+    Во всех PATCH пропущенные поля сохраняются, переданный массив заменяет
+    прежний целиком, а null недопустим.
+tags:
+  - { name: Auth, description: Регистрация и получение токена. }
+  - { name: Profile, description: Личный профиль. }
+  - { name: Reference, description: Ссылки на публичные справочники. }
+  - { name: Illnesses, description: Справочник заболеваний. }
+  - { name: Substances, description: Справочник действующих веществ. }
+  - { name: Forms, description: Справочник лекарственных форм. }
+  - { name: Units, description: Справочник единиц измерения. }
+  - { name: Medicines, description: Каталог и клинические сведения. }
+  - { name: Cabinets, description: Личные аптечки и их позиции. }
+  - { name: Recommendations, description: Подбор препарата. }
+  - { name: Restock list, description: Список лекарств для пополнения запасов. }
+security:
+  - bearerAuth: []
+paths:
+  /api/v2/users:
+    post:
+      tags: [Auth]
+      operationId: registerUser
+      summary: Зарегистрировать пользователя
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterUser' }
+            example:
+              login: user0001
+              email: user@example.test
+              password: strongpass123
+              age: 30
+              weight: 70
+              is_pregnant: false
+              is_driver: true
+              allergies: []
+              illnesses: []
+      responses:
+        '201':
+          description: Пользователь создан; токен позволяет продолжить сценарий.
+          headers:
+            Location:
+              description: URI профиля нового пользователя.
+              schema: { type: string, example: /api/v2/users/me }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResult' }
+              example:
+                token: mock-token
+                user:
+                  id: 11111111-1111-4111-8111-111111111111
+                  login: user0001
+                  email: user@example.test
+                  age: 30
+                  weight: 70
+                  is_pregnant: false
+                  is_driver: true
+                  allergies: []
+                  illnesses: []
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/sessions:
+    post:
+      tags: [Auth]
+      operationId: issueToken
+      summary: Получить токен по логину и паролю
+      description: Токен выдаётся без сохранения адресуемой сессии на сервере.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Login' }
+            example: { login: user0001, password: strongpass123 }
+      responses:
+        '200':
+          description: Токен выдан.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResult' }
+              example:
+                token: mock-token
+                user:
+                  id: 11111111-1111-4111-8111-111111111111
+                  login: user0001
+                  email: user@example.test
+                  age: 30
+                  weight: 70
+                  is_pregnant: false
+                  is_driver: true
+                  allergies: []
+                  illnesses: []
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v2/users/me:
+    get:
+      tags: [Profile]
+      operationId: getProfile
+      summary: Получить профиль владельца токена
+      responses:
+        '200':
+          description: Профиль владельца токена.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profile' }
+              example: { id: 11111111-1111-4111-8111-111111111111, login: user0001, email: user@example.test, age: 30, weight: 70, is_pregnant: false, is_driver: true, allergies: [], illnesses: [] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      tags: [Profile]
+      operationId: updateProfile
+      summary: Частично обновить профиль владельца токена
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProfilePatch' }
+            example: { weight: 72, allergies: [33333333-3333-4333-8333-333333333333] }
+      responses:
+        '200':
+          description: Обновлённый профиль.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profile' }
+              example: { id: 11111111-1111-4111-8111-111111111111, login: user0001, email: user@example.test, age: 30, weight: 72, is_pregnant: false, is_driver: true, allergies: [33333333-3333-4333-8333-333333333333], illnesses: [] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/reference:
+    get:
+      tags: [Reference]
+      operationId: getReferenceLinks
+      summary: Получить ссылки на справочники
+      description: Точка входа в публичные справочники; ссылки являются путями API.
+      security: []
+      responses:
+        '200':
+          description: Ссылки на отдельные справочники.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferenceLinks' }
+              example:
+                illnesses: /api/v2/reference/illnesses
+                substances: /api/v2/reference/substances
+                forms: /api/v2/reference/forms
+                units: /api/v2/reference/units
+  /api/v2/reference/illnesses:
+    get:
+      tags: [Illnesses]
+      operationId: listIllnesses
+      summary: Получить заболевания
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница справочника заболеваний; порядок по имени и ID.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferencePage' }
+              example:
+                items:
+                  - { id: 66666666-6666-4666-8666-666666666666, name: Головная боль }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/v2/reference/substances:
+    get:
+      tags: [Substances]
+      operationId: listSubstances
+      summary: Получить действующие вещества
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница справочника действующих веществ; порядок по имени и ID.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferencePage' }
+              example:
+                items:
+                  - { id: 33333333-3333-4333-8333-333333333333, name: Парацетамол }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/v2/reference/forms:
+    get:
+      tags: [Forms]
+      operationId: listForms
+      summary: Получить лекарственные формы
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница справочника лекарственных форм; порядок по имени и ID.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferencePage' }
+              example:
+                items:
+                  - { id: 44444444-4444-4444-8444-444444444444, name: Таблетка }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/v2/reference/units:
+    get:
+      tags: [Units]
+      operationId: listUnits
+      summary: Получить единицы измерения
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница справочника единиц измерения; порядок по имени и ID.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReferencePage' }
+              example:
+                items:
+                  - { id: 55555555-5555-4555-8555-555555555555, name: таблетка }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/v2/medicines:
+    get:
+      tags: [Medicines]
+      operationId: listMedicines
+      summary: Получить каталог или найти лекарство по названию и ID
+      description: |
+        Один GET обслуживает список и поиск. id выбирает конкретное лекарство,
+        q фильтрует по подстроке торгового названия; при совместном указании
+        условия применяются одновременно. Без id и q возвращается весь каталог.
+        Ответ всегда имеет формат страницы: для неизвестного id items пуст,
+        total равен 0. Результат отсортирован по имени и затем по ID.
+      parameters:
+        - name: id
+          in: query
+          description: Необязательный UUID конкретного лекарства.
+          schema: { type: string, format: uuid }
+          example: 22222222-2222-4222-8222-222222222222
+        - name: q
+          in: query
+          description: Необязательная подстрока торгового названия.
+          schema: { type: string, minLength: 1, maxLength: 100 }
+          example: Парацетамол
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница каталога.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MedicinePage' }
+              example:
+                items:
+                  - { id: 22222222-2222-4222-8222-222222222222, name: Парацетамол 500 мг, expire_time: 24, is_prescription: false, method_of_application: Внутрь, effect_on_pregnant: false, effect_on_driver: false, form_id: 44444444-4444-4444-8444-444444444444, unit_id: 55555555-5555-4555-8555-555555555555, indications: [66666666-6666-4666-8666-666666666666], contraindications: [], substances: [{ id: 33333333-3333-4333-8333-333333333333, concentration: 500 }], dosages: [{ id: 77777777-7777-4777-8777-777777777777, type: age, value_from: 18, value_to: 120, dosage_value: 1, number_of_doses_per_day: 2 }] }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Medicines]
+      operationId: createMedicine
+      summary: Создать лекарство в каталоге
+      description: Только администратор.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MedicineWrite' }
+            example: { name: Парацетамол 500 мг, expire_time: 24, is_prescription: false, method_of_application: Внутрь, effect_on_pregnant: false, effect_on_driver: false, form_id: 44444444-4444-4444-8444-444444444444, unit_id: 55555555-5555-4555-8555-555555555555, indications: [66666666-6666-4666-8666-666666666666], contraindications: [], substances: [{ id: 33333333-3333-4333-8333-333333333333, concentration: 500 }], dosages: [{ type: age, value_from: 18, value_to: 120, dosage_value: 1, number_of_doses_per_day: 2 }] }
+      responses:
+        '201':
+          description: Лекарство создано.
+          headers:
+            Location:
+              description: URI поиска созданного лекарства по ID.
+              schema: { type: string, example: '/api/v2/medicines?id=22222222-2222-4222-8222-222222222222' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Medicine' }
+              example: { id: 22222222-2222-4222-8222-222222222222, name: Парацетамол 500 мг, expire_time: 24, is_prescription: false, method_of_application: Внутрь, effect_on_pregnant: false, effect_on_driver: false, form_id: 44444444-4444-4444-8444-444444444444, unit_id: 55555555-5555-4555-8555-555555555555, indications: [66666666-6666-4666-8666-666666666666], contraindications: [], substances: [{ id: 33333333-3333-4333-8333-333333333333, concentration: 500 }], dosages: [{ id: 77777777-7777-4777-8777-777777777777, type: age, value_from: 18, value_to: 120, dosage_value: 1, number_of_doses_per_day: 2 }] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/medicines/{id}:
+    parameters:
+      - { $ref: '#/components/parameters/MedicineId' }
+    patch:
+      tags: [Medicines]
+      operationId: updateMedicine
+      summary: Частично обновить лекарство
+      description: Только администратор; массивы клинических данных заменяются целиком.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MedicinePatch' }
+            example: { expire_time: 36, indications: [66666666-6666-4666-8666-666666666666] }
+      responses:
+        '200':
+          description: Обновлённое лекарство.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Medicine' }
+              example: { id: 22222222-2222-4222-8222-222222222222, name: Парацетамол 500 мг, expire_time: 36, is_prescription: false, method_of_application: Внутрь, effect_on_pregnant: false, effect_on_driver: false, form_id: 44444444-4444-4444-8444-444444444444, unit_id: 55555555-5555-4555-8555-555555555555, indications: [66666666-6666-4666-8666-666666666666], contraindications: [], substances: [{ id: 33333333-3333-4333-8333-333333333333, concentration: 500 }], dosages: [{ id: 77777777-7777-4777-8777-777777777777, type: age, value_from: 18, value_to: 120, dosage_value: 1, number_of_doses_per_day: 2 }] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Medicines]
+      operationId: deleteMedicine
+      summary: Удалить лекарство
+      description: Только администратор; связанное с аптечками лекарство удалить нельзя.
+      responses:
+        '204': { description: Лекарство удалено; тело отсутствует. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/cabinets:
+    get:
+      tags: [Cabinets]
+      operationId: listCabinets
+      summary: Получить свои аптечки
+      description: |
+        Один GET возвращает все аптечки владельца или выбирает одну по id.
+        Неизвестный или чужой id даёт пустой items и total=0. Ответ всегда
+        имеет формат страницы; результат отсортирован по имени и ID.
+      parameters:
+        - name: id
+          in: query
+          description: Необязательный UUID аптечки владельца.
+          schema: { type: string, format: uuid }
+          example: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница аптечек владельца.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CabinetsPage' }
+              example:
+                items:
+                  - { id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, name: Домашняя аптечка }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Cabinets]
+      operationId: createCabinet
+      summary: Создать аптечку
+      description: Название аптечки должно быть уникальным у владельца.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CabinetWrite' }
+            example: { name: Домашняя аптечка }
+      responses:
+        '201':
+          description: Аптечка создана.
+          headers:
+            Location:
+              description: URI поиска созданной аптечки по ID.
+              schema: { type: string, example: '/api/v2/cabinets?id=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cabinet' }
+              example: { id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, name: Домашняя аптечка }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/cabinets/{cabinetId}:
+    parameters:
+      - { $ref: '#/components/parameters/CabinetId' }
+    patch:
+      tags: [Cabinets]
+      operationId: updateCabinet
+      summary: Переименовать свою аптечку
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CabinetWrite' }
+            example: { name: Дорожная аптечка }
+      responses:
+        '200':
+          description: Обновлённая аптечка.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cabinet' }
+              example: { id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, name: Дорожная аптечка }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Cabinets]
+      operationId: deleteCabinet
+      summary: Удалить пустую аптечку
+      description: Если в аптечке есть позиции, возвращается 409.
+      responses:
+        '204': { description: Аптечка удалена; тело отсутствует. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/cabinets/{cabinetId}/items:
+    parameters:
+      - { $ref: '#/components/parameters/CabinetId' }
+    get:
+      tags: [Cabinets]
+      operationId: listCabinetItems
+      summary: Получить позиции одной своей аптечки
+      description: |
+        cabinetId выбирает аптечку владельца. Один GET возвращает её позиции
+        или фильтрует их по id конкретной позиции. id, low_stock и фильтр срока
+        применяются одновременно. Неизвестный id позиции даёт пустой items и
+        total=0; чужая или неизвестная аптечка даёт 404. Результат отсортирован
+        по expires_at и ID.
+        low_stock=true выбирает позиции с quantity <= minimum_quantity.
+        expires_within_days выбирает непросроченные позиции, срок которых
+        наступит в указанное число дней. expired=true выбирает только
+        просроченные позиции. Совместное применение двух фильтров срока даёт 400.
+      parameters:
+        - name: id
+          in: query
+          description: Необязательный UUID позиции выбранной аптечки.
+          schema: { type: string, format: uuid }
+          example: 88888888-8888-4888-8888-888888888888
+        - { name: low_stock, in: query, schema: { type: boolean, default: false }, example: true }
+        - { name: expires_within_days, in: query, schema: { type: integer, minimum: 0, maximum: 365 }, example: 30 }
+        - { name: expired, in: query, schema: { type: boolean, default: false }, example: false }
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница позиций владельца.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CabinetItemsPage' }
+              example:
+                items:
+                  - { id: 88888888-8888-4888-8888-888888888888, cabinet_id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, medicine_id: 22222222-2222-4222-8222-222222222222, medicine_name: Парацетамол 500 мг, date_of_manufacture: '2026-01-01', expires_at: '2028-01-01', quantity: 2, minimum_quantity: 3, low_stock: true }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Cabinets]
+      operationId: createCabinetItem
+      summary: Добавить позицию в выбранную аптечку
+      description: В пределах одной аптечки повторная пара лекарства и даты изготовления даёт 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CabinetItemCreate' }
+            example: { medicine_id: 22222222-2222-4222-8222-222222222222, date_of_manufacture: '2026-01-01', quantity: 2, minimum_quantity: 3 }
+      responses:
+        '201':
+          description: Позиция создана.
+          headers:
+            Location:
+              description: URI поиска созданной позиции по ID.
+              schema: { type: string, example: '/api/v2/cabinets/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/items?id=88888888-8888-4888-8888-888888888888' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CabinetItem' }
+              example: { id: 88888888-8888-4888-8888-888888888888, cabinet_id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, medicine_id: 22222222-2222-4222-8222-222222222222, medicine_name: Парацетамол 500 мг, date_of_manufacture: '2026-01-01', expires_at: '2028-01-01', quantity: 2, minimum_quantity: 3, low_stock: true }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/cabinets/{cabinetId}/items/{id}:
+    parameters:
+      - { $ref: '#/components/parameters/CabinetId' }
+      - { $ref: '#/components/parameters/CabinetItemId' }
+    patch:
+      tags: [Cabinets]
+      operationId: updateCabinetItem
+      summary: Частично обновить позицию выбранной аптечки
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CabinetItemPatch' }
+            example: { quantity: 5 }
+      responses:
+        '200':
+          description: Обновлённая позиция.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CabinetItem' }
+              example: { id: 88888888-8888-4888-8888-888888888888, cabinet_id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, medicine_id: 22222222-2222-4222-8222-222222222222, medicine_name: Парацетамол 500 мг, date_of_manufacture: '2026-01-01', expires_at: '2028-01-01', quantity: 5, minimum_quantity: 3, low_stock: false }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Cabinets]
+      operationId: deleteCabinetItem
+      summary: Удалить позицию выбранной аптечки
+      responses:
+        '204': { description: Позиция удалена; тело отсутствует. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/recommendations:
+    get:
+      tags: [Recommendations]
+      operationId: listRecommendations
+      summary: Получить безопасные рекомендации по заболеванию
+      description: |
+        Вычисляемое представление без создания ресурса. Учитываются аллергии,
+        болезни, беременность, вождение, остаток и срок годности. По умолчанию
+        поиск идёт по всем аптечкам владельца; cabinet_id ограничивает его одной.
+        При отсутствии подходящего препарата возвращается пустой items.
+      parameters:
+        - name: illness_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+          example: 66666666-6666-4666-8666-666666666666
+        - name: cabinet_id
+          in: query
+          description: Необязательный UUID одной аптечки владельца.
+          schema: { type: string, format: uuid }
+          example: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+      responses:
+        '200':
+          description: Безопасные варианты из аптечки владельца.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RecommendationResult' }
+              example:
+                items:
+                  - { medicine_id: 22222222-2222-4222-8222-222222222222, cabinet_id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa, cabinet_item_id: 88888888-8888-4888-8888-888888888888, name: Парацетамол 500 мг, method_of_application: Внутрь, dosage: 1, unit_name: таблетка, frequency_per_day: 2, quantity_in_cabinet: 5 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v2/restock-list:
+    get:
+      tags: [Restock list]
+      operationId: listRestockItems
+      summary: Получить список пополнения запасов
+      description: |
+        Один GET возвращает весь список или фильтрует его по id позиции.
+        Неизвестный или чужой id даёт пустой items и total=0. Ответ всегда
+        имеет формат страницы; результат отсортирован по ID.
+      parameters:
+        - name: id
+          in: query
+          description: Необязательный UUID конкретной позиции своего списка пополнения.
+          schema: { type: string, format: uuid }
+          example: 99999999-9999-4999-8999-999999999999
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Страница позиций списка владельца.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestockPage' }
+              example:
+                items:
+                  - { id: 99999999-9999-4999-8999-999999999999, medicine_id: 22222222-2222-4222-8222-222222222222, medicine_name: Парацетамол 500 мг, desired_quantity: 10 }
+                total: 1
+                limit: 20
+                offset: 0
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Restock list]
+      operationId: createRestockItem
+      summary: Добавить лекарство в список пополнения
+      description: Одна позиция на лекарство у каждого пользователя.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RestockItemCreate' }
+            example: { medicine_id: 22222222-2222-4222-8222-222222222222, desired_quantity: 10 }
+      responses:
+        '201':
+          description: Позиция создана.
+          headers:
+            Location:
+              description: URI поиска новой позиции по ID.
+              schema: { type: string, example: '/api/v2/restock-list?id=99999999-9999-4999-8999-999999999999' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestockItem' }
+              example: { id: 99999999-9999-4999-8999-999999999999, medicine_id: 22222222-2222-4222-8222-222222222222, medicine_name: Парацетамол 500 мг, desired_quantity: 10 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/v2/restock-list/{id}:
+    parameters:
+      - { $ref: '#/components/parameters/RestockItemId' }
+    patch:
+      tags: [Restock list]
+      operationId: updateRestockItem
+      summary: Изменить нужное количество
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RestockItemPatch' }
+            example: { desired_quantity: 12 }
+      responses:
+        '200':
+          description: Обновлённая позиция.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RestockItem' }
+              example: { id: 99999999-9999-4999-8999-999999999999, medicine_id: 22222222-2222-4222-8222-222222222222, medicine_name: Парацетамол 500 мг, desired_quantity: 12 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Restock list]
+      operationId: deleteRestockItem
+      summary: Удалить лекарство из списка пополнения
+      responses:
+        '204': { description: Позиция удалена; тело отсутствует. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Размер страницы.
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      example: 20
+    Offset:
+      name: offset
+      in: query
+      description: Смещение с начала отсортированной коллекции.
+      schema: { type: integer, minimum: 0, default: 0 }
+      example: 0
+    MedicineId:
+      name: id
+      in: path
+      required: true
+      description: ID лекарства.
+      schema: { type: string, format: uuid }
+      example: 22222222-2222-4222-8222-222222222222
+    CabinetId:
+      name: cabinetId
+      in: path
+      required: true
+      description: ID аптечки владельца.
+      schema: { type: string, format: uuid }
+      example: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+    CabinetItemId:
+      name: id
+      in: path
+      required: true
+      description: ID позиции аптечки.
+      schema: { type: string, format: uuid }
+      example: 88888888-8888-4888-8888-888888888888
+    RestockItemId:
+      name: id
+      in: path
+      required: true
+      description: ID позиции списка пополнения.
+      schema: { type: string, format: uuid }
+      example: 99999999-9999-4999-8999-999999999999
+  responses:
+    BadRequest:
+      description: Неверные параметры или тело запроса.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example: { code: INVALID_INPUT, message: Неверные данные запроса }
+    Unauthorized:
+      description: Токен отсутствует, неверен или срок его действия истёк.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example: { code: UNAUTHORIZED, message: Требуется авторизация }
+    Forbidden:
+      description: Для операции нужна роль администратора.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example: { code: FORBIDDEN, message: Недостаточно прав }
+    NotFound:
+      description: Ресурс не найден или не принадлежит владельцу токена.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example: { code: NOT_FOUND, message: Ресурс не найден }
+    Conflict:
+      description: Дублирование или конфликт с существующими данными.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example: { code: CONFLICT, message: Ресурс уже существует }
+  schemas:
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string, minLength: 1 }
+        message: { type: string, minLength: 1 }
+    RegisterUser:
+      type: object
+      additionalProperties: false
+      required: [login, email, password, age, weight]
+      properties:
+        login: { type: string, minLength: 8, maxLength: 64 }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8, maxLength: 128, writeOnly: true }
+        age: { type: integer, minimum: 1, maximum: 120 }
+        weight: { type: integer, minimum: 1, maximum: 500 }
+        sex: { type: boolean }
+        is_pregnant: { type: boolean, default: false }
+        is_driver: { type: boolean, default: false }
+        allergies: { type: array, items: { type: string, format: uuid }, uniqueItems: true, default: [] }
+        illnesses: { type: array, items: { type: string, format: uuid }, uniqueItems: true, default: [] }
+    Login:
+      type: object
+      additionalProperties: false
+      required: [login, password]
+      properties:
+        login: { type: string, minLength: 1 }
+        password: { type: string, minLength: 1, writeOnly: true }
+    AuthResult:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string, minLength: 1, description: Bearer-токен JWT. }
+        user: { $ref: '#/components/schemas/Profile' }
+    Profile:
+      type: object
+      required: [id, login, email, age, weight, is_pregnant, is_driver, allergies, illnesses]
+      properties:
+        id: { type: string, format: uuid }
+        login: { type: string, minLength: 8 }
+        email: { type: string, format: email }
+        age: { type: integer, minimum: 1, maximum: 120 }
+        weight: { type: integer, minimum: 1, maximum: 500 }
+        sex: { type: boolean }
+        is_pregnant: { type: boolean }
+        is_driver: { type: boolean }
+        allergies: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        illnesses: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+    ProfilePatch:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      description: Только переданные поля меняются; null недопустим.
+      properties:
+        email: { type: string, format: email }
+        age: { type: integer, minimum: 1, maximum: 120 }
+        weight: { type: integer, minimum: 1, maximum: 500 }
+        sex: { type: boolean }
+        is_pregnant: { type: boolean }
+        is_driver: { type: boolean }
+        allergies: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        illnesses: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+    ReferenceItem:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, minLength: 1 }
+    ReferencePage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ReferenceItem' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    ReferenceLinks:
+      type: object
+      additionalProperties: false
+      required: [illnesses, substances, forms, units]
+      properties:
+        illnesses: { type: string, format: uri-reference, example: /api/v2/reference/illnesses }
+        substances: { type: string, format: uri-reference, example: /api/v2/reference/substances }
+        forms: { type: string, format: uri-reference, example: /api/v2/reference/forms }
+        units: { type: string, format: uri-reference, example: /api/v2/reference/units }
+    ActiveSubstance:
+      type: object
+      additionalProperties: false
+      required: [id, concentration]
+      properties:
+        id: { type: string, format: uuid }
+        concentration: { type: number, exclusiveMinimum: 0 }
+    DosageRuleWrite:
+      type: object
+      additionalProperties: false
+      required: [type, value_from, value_to, dosage_value, number_of_doses_per_day]
+      properties:
+        type: { type: string, enum: [age, weight] }
+        value_from: { type: integer, minimum: 0 }
+        value_to: { type: integer, minimum: 0, description: Должно быть не меньше value_from. }
+        dosage_value: { type: number, exclusiveMinimum: 0 }
+        number_of_doses_per_day: { type: integer, minimum: 1 }
+    DosageRule:
+      type: object
+      additionalProperties: false
+      required: [id, type, value_from, value_to, dosage_value, number_of_doses_per_day]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [age, weight] }
+        value_from: { type: integer, minimum: 0 }
+        value_to: { type: integer, minimum: 0 }
+        dosage_value: { type: number, exclusiveMinimum: 0 }
+        number_of_doses_per_day: { type: integer, minimum: 1 }
+    MedicineWrite:
+      type: object
+      additionalProperties: false
+      required: [name, expire_time, is_prescription, method_of_application, effect_on_pregnant, effect_on_driver, form_id, unit_id, indications, contraindications, substances, dosages]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        expire_time: { type: integer, minimum: 1, description: Срок хранения в месяцах. }
+        is_prescription: { type: boolean }
+        method_of_application: { type: string, minLength: 1 }
+        effect_on_pregnant: { type: boolean }
+        effect_on_driver: { type: boolean }
+        form_id: { type: string, format: uuid }
+        unit_id: { type: string, format: uuid }
+        indications: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        contraindications: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        substances: { type: array, items: { $ref: '#/components/schemas/ActiveSubstance' }, minItems: 1 }
+        dosages: { type: array, items: { $ref: '#/components/schemas/DosageRuleWrite' }, minItems: 1 }
+    Medicine:
+      type: object
+      required: [id, name, expire_time, is_prescription, method_of_application, effect_on_pregnant, effect_on_driver, form_id, unit_id, indications, contraindications, substances, dosages]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        expire_time: { type: integer, minimum: 1 }
+        is_prescription: { type: boolean }
+        method_of_application: { type: string, minLength: 1 }
+        effect_on_pregnant: { type: boolean }
+        effect_on_driver: { type: boolean }
+        form_id: { type: string, format: uuid }
+        unit_id: { type: string, format: uuid }
+        indications: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        contraindications: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        substances: { type: array, items: { $ref: '#/components/schemas/ActiveSubstance' }, minItems: 1 }
+        dosages: { type: array, items: { $ref: '#/components/schemas/DosageRule' }, minItems: 1 }
+    MedicinePatch:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        expire_time: { type: integer, minimum: 1 }
+        is_prescription: { type: boolean }
+        method_of_application: { type: string, minLength: 1 }
+        effect_on_pregnant: { type: boolean }
+        effect_on_driver: { type: boolean }
+        form_id: { type: string, format: uuid }
+        unit_id: { type: string, format: uuid }
+        indications: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        contraindications: { type: array, items: { type: string, format: uuid }, uniqueItems: true }
+        substances: { type: array, items: { $ref: '#/components/schemas/ActiveSubstance' }, minItems: 1 }
+        dosages: { type: array, items: { $ref: '#/components/schemas/DosageRuleWrite' }, minItems: 1 }
+    MedicinePage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Medicine' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    CabinetWrite:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+    Cabinet:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 100 }
+    CabinetsPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Cabinet' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    CabinetItemCreate:
+      type: object
+      additionalProperties: false
+      required: [medicine_id, date_of_manufacture, quantity, minimum_quantity]
+      properties:
+        medicine_id: { type: string, format: uuid }
+        date_of_manufacture: { type: string, format: date, description: Не позже текущей даты. }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        minimum_quantity: { type: number, minimum: 0 }
+    CabinetItemPatch:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        quantity: { type: number, exclusiveMinimum: 0 }
+        minimum_quantity: { type: number, minimum: 0 }
+        date_of_manufacture: { type: string, format: date, description: Не позже текущей даты. }
+    CabinetItem:
+      type: object
+      required: [id, cabinet_id, medicine_id, medicine_name, date_of_manufacture, expires_at, quantity, minimum_quantity, low_stock]
+      properties:
+        id: { type: string, format: uuid }
+        cabinet_id: { type: string, format: uuid }
+        medicine_id: { type: string, format: uuid }
+        medicine_name: { type: string, minLength: 1 }
+        date_of_manufacture: { type: string, format: date }
+        expires_at: { type: string, format: date, description: Дата изготовления плюс expire_time лекарства. }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        minimum_quantity: { type: number, minimum: 0 }
+        low_stock: { type: boolean, description: 'Истина, если quantity <= minimum_quantity.' }
+    CabinetItemsPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/CabinetItem' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    Recommendation:
+      type: object
+      required: [medicine_id, cabinet_id, cabinet_item_id, name, method_of_application, dosage, unit_name, frequency_per_day, quantity_in_cabinet]
+      properties:
+        medicine_id: { type: string, format: uuid }
+        cabinet_id: { type: string, format: uuid }
+        cabinet_item_id: { type: string, format: uuid }
+        name: { type: string, minLength: 1 }
+        method_of_application: { type: string, minLength: 1 }
+        dosage: { type: number, exclusiveMinimum: 0 }
+        unit_name: { type: string, minLength: 1 }
+        frequency_per_day: { type: integer, minimum: 1 }
+        quantity_in_cabinet: { type: number, exclusiveMinimum: 0 }
+    RecommendationResult:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Recommendation' } }
+    RestockItemCreate:
+      type: object
+      additionalProperties: false
+      required: [medicine_id, desired_quantity]
+      properties:
+        medicine_id: { type: string, format: uuid }
+        desired_quantity: { type: number, exclusiveMinimum: 0 }
+    RestockItemPatch:
+      type: object
+      additionalProperties: false
+      required: [desired_quantity]
+      properties:
+        desired_quantity: { type: number, exclusiveMinimum: 0 }
+    RestockItem:
+      type: object
+      required: [id, medicine_id, medicine_name, desired_quantity]
+      properties:
+        id: { type: string, format: uuid }
+        medicine_id: { type: string, format: uuid }
+        medicine_name: { type: string, minLength: 1 }
+        desired_quantity: { type: number, exclusiveMinimum: 0 }
+    RestockPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/RestockItem' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }

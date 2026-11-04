@@ -79,13 +79,12 @@ var (
 	ErrLoginTooShort         = New("SHORT_LOGIN", "login too short", http.StatusBadRequest)
 	ErrPasswordTooShort      = New("SHORT_PASSWORD", "password too short", http.StatusBadRequest)
 	ErrEmailRequired         = New("EMAIL_REQUIRED", "email is required", http.StatusBadRequest)
-	ErrInvalidNotifyInterval = New("INVALID_NOTIFY_INTERVAL", "invalid notify interval", http.StatusBadRequest)
 	ErrWrongWeight           = New("WRONG_WEIGHT", "weight is wrong", http.StatusBadRequest)
 	ErrWrongAge              = New("WRONG_AGE", "age is wrong", http.StatusBadRequest)
 
 	ErrQtyTooLow           = New("LOW_QTY", "quantity must be greater than zero", http.StatusBadRequest)
 	ErrDateTooLate         = New("LATE_DATE", "date of manufacture cannot be in the future", http.StatusBadRequest)
-	ErrCabinetItemNotFound = New("CABINET_ITEM_NOT_FOUND", "item not found", http.StatusBadRequest)
+	ErrCabinetItemNotFound = New("CABINET_ITEM_NOT_FOUND", "item not found", http.StatusNotFound)
 
 	ErrEmptyName            = New("EMPTY_NAME", "name cannot be empty", http.StatusBadRequest)
 	ErrExpireTimeTooLow     = New("LOW_EXPIRE_TIME", "expire time must be greater than zero", http.StatusBadRequest)
@@ -95,6 +94,7 @@ var (
 	ErrInvalidNumDoses      = New("INVALID_NUM_DOSSES", "number of doses is invalid", http.StatusBadRequest)
 
 	ErrMedicineNotFound = New("MEDICINE_NOT_FOUND", "medicine not found", http.StatusNotFound)
+	ErrMedicineConflict = New("MEDICINE_CONFLICT", "medicine is referenced by other records", http.StatusConflict)
 
 	ErrInvalidCredentials = New("INVALID_CREDENTIALS", "invalid login or password", http.StatusUnauthorized)
 	ErrUserNotFound       = New("USER_NOT_FOUND", "user not found", http.StatusNotFound)
@@ -104,6 +104,12 @@ var (
 	ErrInternal     = New("INTERNAL_ERROR", "internal server error", http.StatusInternalServerError)
 	ErrInvalidInput = New("INVALID_INPUT", "invalid input data provided", http.StatusBadRequest)
 
-	ErrUnauthorized = New("UNAUTHORIZED", "unauthorized access", http.StatusUnauthorized)
-	ErrSMTPConfigMissing = New("SMTP_CONFIG_MISSING", "smtp config is incomplete", http.StatusInternalServerError)
+	ErrUnauthorized        = New("UNAUTHORIZED", "unauthorized access", http.StatusUnauthorized)
+	ErrForbidden           = New("FORBIDDEN", "forbidden", http.StatusForbidden)
+	ErrCabinetNotFound     = New("CABINET_NOT_FOUND", "cabinet not found", http.StatusNotFound)
+	ErrCabinetConflict     = New("CABINET_CONFLICT", "cabinet name already exists or cabinet is not empty", http.StatusConflict)
+	ErrCabinetItemConflict = New("CABINET_ITEM_CONFLICT", "medicine and manufacture date already exist in cabinet", http.StatusConflict)
+	ErrRestockItemNotFound = New("RESTOCK_ITEM_NOT_FOUND", "restock item not found", http.StatusNotFound)
+	ErrRestockItemConflict = New("RESTOCK_ITEM_CONFLICT", "medicine already exists in restock list", http.StatusConflict)
+	ErrReferenceNotFound = New("REFERENCE_NOT_FOUND", "reference not found", http.StatusNotFound)
 )

@@ -1,196 +1,266 @@
 import { request } from "./http";
-import {
-  AddDosageRuleDto,
-  AddItemDto,
-  AddMedicineDto,
+import type {
   AppError,
   AuthResDto,
-  CabinetItemDetailsResDto,
-  CabinetResDto,
-  CreateUserDto,
-  DictionaryItem,
-  DosageRuleItem,
-  LoginUserDto,
-  MedicineResDto,
-  RemoveDosageRuleDto,
-  RemoveItemDto,
-  RemoveMedicineDto,
-  SelectMedicineDto,
-  SuccessResDto,
-  UpdateCompositionDto,
-  UpdateLinksDto,
-  UpdateMedicineDto,
-  UpdateProfileDto,
-  UpdateQtyDto,
-  ProfileResDto
+  Cabinet,
+  CabinetItem,
+  Medicine,
+  MedicineWrite,
+  Page,
+  ProfilePatchDto,
+  ProfileResDto,
+  Recommendation,
+  ReferenceItem,
+  RegisterUserDto,
+  RestockItem
 } from "./types";
 
-export async function login(payload: LoginUserDto): Promise<AuthResDto> {
-  return request<AuthResDto>("/auth/login", {
+const API_PREFIX = "/api/v2";
+
+function query(values: Record<string, string | number | undefined>): string {
+  const params = new URLSearchParams();
+  Object.entries(values).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      params.set(key, String(value));
+    }
+  });
+  return params.size ? `?${params}` : "";
+}
+
+export async function login(payload: {
+  login: string;
+  password: string;
+}): Promise<AuthResDto> {
+  return request<AuthResDto>(`${API_PREFIX}/sessions`, {
     method: "POST",
     body: JSON.stringify(payload)
   });
 }
 
-export async function register(payload: CreateUserDto): Promise<AuthResDto> {
-  return request<AuthResDto>("/auth/register", {
+export async function register(payload: RegisterUserDto): Promise<AuthResDto> {
+  return request<AuthResDto>(`${API_PREFIX}/users`, {
     method: "POST",
     body: JSON.stringify(payload)
   });
 }
 
-export async function updateProfile(token: string, payload: UpdateProfileDto): Promise<ProfileResDto> {
-  return request<ProfileResDto>("/profile/me", {
+export async function getProfile(token: string): Promise<ProfileResDto> {
+  return request<ProfileResDto>(`${API_PREFIX}/users/me`, { token });
+}
+
+export async function updateProfile(
+  token: string,
+  payload: ProfilePatchDto
+): Promise<ProfileResDto> {
+  return request<ProfileResDto>(`${API_PREFIX}/users/me`, {
     method: "PATCH",
     token,
     body: JSON.stringify(payload)
   });
 }
 
-export async function addCabinetItem(token: string, payload: AddItemDto): Promise<CabinetResDto> {
-  return request<CabinetResDto>("/cabinet/items", {
+export async function listReference(
+  kind: "illnesses" | "substances" | "forms" | "units"
+): Promise<Page<ReferenceItem>> {
+  return request<Page<ReferenceItem>>(
+    `${API_PREFIX}/reference/${kind}?limit=100`
+  );
+}
+
+export async function listMedicines(
+  token: string,
+  q?: string
+): Promise<Page<Medicine>> {
+  return request<Page<Medicine>>(
+    `${API_PREFIX}/medicines${query({ q, limit: 100 })}`,
+    { token }
+  );
+}
+
+export async function createMedicine(
+  token: string,
+  payload: MedicineWrite
+): Promise<Medicine> {
+  return request<Medicine>(`${API_PREFIX}/medicines`, {
     method: "POST",
     token,
     body: JSON.stringify(payload)
   });
 }
 
-export async function listCabinetItems(token: string): Promise<CabinetItemDetailsResDto[]> {
-  return request<CabinetItemDetailsResDto[]>("/cabinet/items", {
-    method: "GET",
+export async function updateMedicine(
+  token: string,
+  id: string,
+  payload: Partial<MedicineWrite>
+): Promise<Medicine> {
+  return request<Medicine>(`${API_PREFIX}/medicines/${id}`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteMedicine(token: string, id: string): Promise<void> {
+  return request<void>(`${API_PREFIX}/medicines/${id}`, {
+    method: "DELETE",
     token
   });
 }
 
-export async function updateCabinetQty(token: string, payload: UpdateQtyDto): Promise<CabinetResDto> {
-  return request<CabinetResDto>("/cabinet/items", {
+export async function listCabinets(token: string): Promise<Page<Cabinet>> {
+  return request<Page<Cabinet>>(`${API_PREFIX}/cabinets?limit=100`, { token });
+}
+
+export async function createCabinet(
+  token: string,
+  name: string
+): Promise<Cabinet> {
+  return request<Cabinet>(`${API_PREFIX}/cabinets`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ name })
+  });
+}
+
+export async function renameCabinet(
+  token: string,
+  id: string,
+  name: string
+): Promise<Cabinet> {
+  return request<Cabinet>(`${API_PREFIX}/cabinets/${id}`, {
     method: "PATCH",
     token,
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ name })
   });
 }
 
-export async function removeCabinetItem(token: string, payload: RemoveItemDto): Promise<SuccessResDto> {
-  return request<SuccessResDto>("/cabinet/items", {
+export async function deleteCabinet(token: string, id: string): Promise<void> {
+  return request<void>(`${API_PREFIX}/cabinets/${id}`, {
     method: "DELETE",
-    token,
-    body: JSON.stringify(payload)
+    token
   });
 }
 
-export async function selectMedicine(token: string, payload: SelectMedicineDto): Promise<MedicineResDto> {
-  return request<MedicineResDto>("/medicine/select", {
+export async function listCabinetItems(
+  token: string,
+  cabinetId: string,
+  filters: { low_stock?: boolean; expired?: boolean } = {}
+): Promise<Page<CabinetItem>> {
+  const path = `${API_PREFIX}/cabinets/${cabinetId}/items`;
+  const params = query({
+    limit: 100,
+    low_stock: filters.low_stock ? "true" : undefined,
+    expired: filters.expired ? "true" : undefined
+  });
+  return request<Page<CabinetItem>>(`${path}${params}`, { token });
+}
+
+export async function createCabinetItem(
+  token: string,
+  cabinetId: string,
+  payload: Pick<
+    CabinetItem,
+    "medicine_id" | "date_of_manufacture" | "quantity" | "minimum_quantity"
+  >
+): Promise<CabinetItem> {
+  return request<CabinetItem>(`${API_PREFIX}/cabinets/${cabinetId}/items`, {
     method: "POST",
     token,
     body: JSON.stringify(payload)
   });
 }
 
-export async function listIllnesses(): Promise<DictionaryItem[]> {
-  return request<DictionaryItem[]>("/dictionary/illnesses", { method: "GET" });
+export async function updateCabinetItem(
+  token: string,
+  cabinetId: string,
+  id: string,
+  payload: Partial<
+    Pick<CabinetItem, "quantity" | "minimum_quantity" | "date_of_manufacture">
+  >
+): Promise<CabinetItem> {
+  return request<CabinetItem>(
+    `${API_PREFIX}/cabinets/${cabinetId}/items/${id}`,
+    {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(payload)
+    }
+  );
 }
 
-export async function listSubstances(): Promise<DictionaryItem[]> {
-  return request<DictionaryItem[]>("/dictionary/substances", { method: "GET" });
+export async function deleteCabinetItem(
+  token: string,
+  cabinetId: string,
+  id: string
+): Promise<void> {
+  return request<void>(`${API_PREFIX}/cabinets/${cabinetId}/items/${id}`, {
+    method: "DELETE",
+    token
+  });
 }
 
-export async function listForms(): Promise<DictionaryItem[]> {
-  return request<DictionaryItem[]>("/dictionary/forms", { method: "GET" });
+export async function listRecommendations(
+  token: string,
+  illnessId: string,
+  cabinetId?: string
+): Promise<{ items: Recommendation[] }> {
+  return request<{ items: Recommendation[] }>(
+    `${API_PREFIX}/recommendations${query({ illness_id: illnessId, cabinet_id: cabinetId })}`,
+    { token }
+  );
 }
 
-export async function listUnits(): Promise<DictionaryItem[]> {
-  return request<DictionaryItem[]>("/dictionary/units", { method: "GET" });
+export async function listRestock(token: string): Promise<Page<RestockItem>> {
+  return request<Page<RestockItem>>(`${API_PREFIX}/restock-list?limit=100`, {
+    token
+  });
 }
 
-export async function listMedicines(): Promise<DictionaryItem[]> {
-  return request<DictionaryItem[]>("/dictionary/medicines", { method: "GET" });
-}
-
-export async function adminAddMedicine(token: string, payload: AddMedicineDto) {
-  return request<unknown>("/admin/medicine", {
+export async function createRestock(
+  token: string,
+  medicineId: string,
+  desiredQuantity: number
+): Promise<RestockItem> {
+  return request<RestockItem>(`${API_PREFIX}/restock-list`, {
     method: "POST",
     token,
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      medicine_id: medicineId,
+      desired_quantity: desiredQuantity
+    })
   });
 }
 
-export async function adminUpdateMedicine(token: string, payload: UpdateMedicineDto) {
-  return request<unknown>("/admin/medicine", {
+export async function updateRestock(
+  token: string,
+  id: string,
+  desiredQuantity: number
+): Promise<RestockItem> {
+  return request<RestockItem>(`${API_PREFIX}/restock-list/${id}`, {
     method: "PATCH",
     token,
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ desired_quantity: desiredQuantity })
   });
 }
 
-export async function adminRemoveMedicine(token: string, payload: RemoveMedicineDto) {
-  return request<SuccessResDto>("/admin/medicine", {
+export async function deleteRestock(token: string, id: string): Promise<void> {
+  return request<void>(`${API_PREFIX}/restock-list/${id}`, {
     method: "DELETE",
-    token,
-    body: JSON.stringify(payload)
-  });
-}
-
-export async function adminUpdateComposition(token: string, payload: UpdateCompositionDto) {
-  return request<SuccessResDto>("/admin/medicine/composition", {
-    method: "PATCH",
-    token,
-    body: JSON.stringify(payload)
-  });
-}
-
-export async function adminUpdateContraindications(token: string, payload: UpdateLinksDto) {
-  return request<SuccessResDto>("/admin/medicine/contraindications", {
-    method: "PATCH",
-    token,
-    body: JSON.stringify(payload)
-  });
-}
-
-export async function adminUpdateIndications(token: string, payload: UpdateLinksDto) {
-  return request<SuccessResDto>("/admin/medicine/indications", {
-    method: "PATCH",
-    token,
-    body: JSON.stringify(payload)
-  });
-}
-
-export async function adminAddDosageRule(token: string, payload: AddDosageRuleDto) {
-  return request<SuccessResDto>("/admin/medicine/dosage", {
-    method: "POST",
-    token,
-    body: JSON.stringify(payload)
-  });
-}
-
-export async function adminRemoveDosageRule(token: string, payload: RemoveDosageRuleDto) {
-  return request<SuccessResDto>("/admin/medicine/dosage", {
-    method: "DELETE",
-    token,
-    body: JSON.stringify(payload)
-  });
-}
-
-export async function adminListDosageRules(token: string): Promise<DosageRuleItem[]> {
-  return request<DosageRuleItem[]>("/admin/dosage-rules", {
-    method: "GET",
     token
   });
 }
 
 export function normalizeError(error: unknown): AppError {
-  if (typeof error === "object" && error && "code" in error && "message" in error) {
+  if (
+    typeof error === "object" &&
+    error &&
+    "code" in error &&
+    "message" in error
+  ) {
     return error as AppError;
   }
-
-  if (error instanceof Error) {
-    return {
-      code: "UNKNOWN",
-      message: error.message
-    };
-  }
-
   return {
     code: "UNKNOWN",
-    message: "Неожиданная ошибка"
+    message: error instanceof Error ? error.message : "Неожиданная ошибка"
   };
 }

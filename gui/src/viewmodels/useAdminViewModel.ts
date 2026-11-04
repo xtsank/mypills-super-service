@@ -1,422 +1,119 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  adminAddDosageRule,
-  adminAddMedicine,
-  adminListDosageRules,
-  adminRemoveDosageRule,
-  adminRemoveMedicine,
-  adminUpdateComposition,
-  adminUpdateContraindications,
-  adminUpdateIndications,
-  adminUpdateMedicine,
-  listForms,
-  listIllnesses,
+  createMedicine,
+  deleteMedicine,
   listMedicines,
-  listSubstances,
-  listUnits,
-  normalizeError
+  listReference,
+  normalizeError,
+  updateMedicine
 } from "../api/client";
-import { ActiveSubstanceDto, DosageRuleDto, DosageType } from "../api/types";
+import type { Medicine, MedicineWrite, ReferenceItem } from "../api/types";
 import { useAuth } from "../store/authStore";
-import { useProcess } from "../store/processStore";
 
-const emptySubstance: ActiveSubstanceDto = { id: "", concentration: 0 };
-const emptyDosage: DosageRuleDto = {
-  dosageValue: 0,
-  numberOfDosesPerDay: 0,
-  type: "weight",
-  valueFrom: 0,
-  valueTo: 0
+const emptyDraft: MedicineWrite = {
+  name: "",
+  expire_time: 24,
+  is_prescription: false,
+  method_of_application: "Внутрь",
+  effect_on_pregnant: false,
+  effect_on_driver: false,
+  form_id: "",
+  unit_id: "",
+  indications: [],
+  contraindications: [],
+  substances: [],
+  dosages: []
 };
-
 export function useAdminViewModel() {
-  const auth = useAuth();
-  const process = useProcess();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [name, setName] = useState("");
-  const [formId, setFormId] = useState("");
-  const [unitId, setUnitId] = useState("");
-  const [methodOfApplication, setMethodOfApplication] = useState("");
-  const [expireTime, setExpireTime] = useState("");
-  const [isPrescription, setIsPrescription] = useState(false);
-  const [effectOnPregnant, setEffectOnPregnant] = useState(false);
-  const [effectOnDriver, setEffectOnDriver] = useState(false);
-  const [contraindications, setContraindications] = useState<string[]>([]);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
-  const [substances, setSubstances] = useState<ActiveSubstanceDto[]>([emptySubstance]);
-  const [dosages, setDosages] = useState<DosageRuleDto[]>([emptyDosage]);
-
-  const [updateId, setUpdateId] = useState("");
-  const [updateFormId, setUpdateFormId] = useState("");
-  const [updateUnitId, setUpdateUnitId] = useState("");
-  const [updateMethod, setUpdateMethod] = useState("");
-  const [updateExpireTime, setUpdateExpireTime] = useState("");
-  const [updatePrescription, setUpdatePrescription] = useState(false);
-  const [updatePregnant, setUpdatePregnant] = useState(false);
-  const [updateDriver, setUpdateDriver] = useState(false);
-
-  const [deleteId, setDeleteId] = useState("");
-
-  const [compositionMedicineId, setCompositionMedicineId] = useState("");
-  const [compositionSubstances, setCompositionSubstances] = useState<ActiveSubstanceDto[]>([emptySubstance]);
-
-  const [contraMedicineId, setContraMedicineId] = useState("");
-  const [contraIds, setContraIds] = useState<string[]>([]);
-
-  const [indicationMedicineId, setIndicationMedicineId] = useState("");
-  const [indicationIds, setIndicationIds] = useState<string[]>([]);
-
-  const [dosageMedicineId, setDosageMedicineId] = useState("");
-  const [dosageRule, setDosageRule] = useState<DosageRuleDto>(emptyDosage);
-  const [removeRuleId, setRemoveRuleId] = useState("");
-
-  const [medicineOptions, setMedicineOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [formOptions, setFormOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [unitOptions, setUnitOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [substanceOptions, setSubstanceOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [ruleOptions, setRuleOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [contraindicationOptions, setContraindicationOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [indicationOptions, setIndicationOptions] = useState<Array<{ value: string; label: string }>>([]);
-
-  const requireToken = () => {
-    if (!auth.token) {
-      process.setStatus("error", "Нужно войти");
-      return null;
-    }
-    return auth.token;
-  };
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [meds, forms, units, substances, illnesses] = await Promise.all([
-          listMedicines(),
-          listForms(),
-          listUnits(),
-          listSubstances(),
-          listIllnesses()
+  const { token } = useAuth();
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [selectedId, setSelectedId] = useState("");
+  const [draft, setDraft] = useState<MedicineWrite>(emptyDraft);
+  const [forms, setForms] = useState<ReferenceItem[]>([]);
+  const [units, setUnits] = useState<ReferenceItem[]>([]);
+  const [illnesses, setIllnesses] = useState<ReferenceItem[]>([]);
+  const [substances, setSubstances] = useState<ReferenceItem[]>([]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const refresh = useCallback(async () => {
+    if (!token) return;
+    try {
+      const [catalog, formPage, unitPage, illnessPage, substancePage] =
+        await Promise.all([
+          listMedicines(token),
+          listReference("forms"),
+          listReference("units"),
+          listReference("illnesses"),
+          listReference("substances")
         ]);
-        setMedicineOptions(meds.map((item) => ({ value: item.id, label: item.name })));
-        setFormOptions(forms.map((item) => ({ value: item.id, label: item.name })));
-        setUnitOptions(units.map((item) => ({ value: item.id, label: item.name })));
-        setSubstanceOptions(substances.map((item) => ({ value: item.id, label: item.name })));
-        setContraindicationOptions(illnesses.map((item) => ({ value: item.id, label: item.name })));
-        setIndicationOptions(illnesses.map((item) => ({ value: item.id, label: item.name })));
-      } catch (error) {
-        const appError = normalizeError(error);
-        process.setStatus("error", `${appError.code}: ${appError.message}`);
-      }
-    };
-    load();
-  }, [process]);
-
+      setMedicines(catalog.items);
+      setForms(formPage.items);
+      setUnits(unitPage.items);
+      setIllnesses(illnessPage.items);
+      setSubstances(substancePage.items);
+    } catch (error) {
+      setMessage(normalizeError(error).message);
+    }
+  }, [token]);
   useEffect(() => {
-    const loadRules = async () => {
-      if (!auth.token) {
-        return;
-      }
-      try {
-        const rules = await adminListDosageRules(auth.token);
-        setRuleOptions(rules.map((rule) => ({ value: rule.id, label: rule.label })));
-      } catch (error) {
-        const appError = normalizeError(error);
-        process.setStatus("error", `${appError.code}: ${appError.message}`);
-      }
-    };
-    loadRules();
-  }, [auth.token, process]);
-
-  const handleAddMedicine = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await adminAddMedicine(token, {
-        name,
-        form_id: formId,
-        unit_id: unitId,
-        method_of_application: methodOfApplication,
-        expire_time: Number(expireTime),
-        is_prescription: isPrescription,
-        effect_on_pregnant: effectOnPregnant,
-        effect_on_driver: effectOnDriver,
-        contraindications,
-        recommendations,
-        substances,
-        dosages
+    void refresh();
+  }, [refresh]);
+  function select(id: string) {
+    setSelectedId(id);
+    const medicine = medicines.find((item) => item.id === id);
+    if (medicine) {
+      const { id: _id, dosages, ...rest } = medicine;
+      setDraft({
+        ...rest,
+        dosages: dosages.map(({ id: _ruleId, ...rule }) => rule)
       });
-      process.setStatus("success", "Лекарство добавлено");
-      process.setLastAction("добавление лекарства (админ)");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdateMedicine = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
+    } else setDraft(emptyDraft);
+  }
+  async function save() {
+    if (!token) return;
+    setLoading(true);
+    setMessage("");
     try {
-      await adminUpdateMedicine(token, {
-        id: updateId,
-        form_id: updateFormId,
-        unit_id: updateUnitId,
-        method_of_application: updateMethod,
-        expire_time: Number(updateExpireTime),
-        is_prescription: updatePrescription,
-        effect_on_pregnant: updatePregnant,
-        effect_on_driver: updateDriver
-      });
-      process.setStatus("success", "Лекарство обновлено");
-      process.setLastAction("обновление лекарства (админ)");
+      const result = selectedId
+        ? await updateMedicine(token, selectedId, draft)
+        : await createMedicine(token, draft);
+      await refresh();
+      setSelectedId(result.id);
+      setMessage("Лекарство сохранено");
     } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
+      setMessage(normalizeError(error).message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  const handleRemoveMedicine = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
+  }
+  async function remove() {
+    if (!token || !selectedId) return;
+    setLoading(true);
+    setMessage("");
     try {
-      await adminRemoveMedicine(token, { id: deleteId });
-      process.setStatus("success", "Лекарство удалено");
-      process.setLastAction("удаление лекарства (админ)");
+      await deleteMedicine(token, selectedId);
+      select("");
+      await refresh();
+      setMessage("Лекарство удалено");
     } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
+      setMessage(normalizeError(error).message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  const handleUpdateComposition = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await adminUpdateComposition(token, {
-        medicine_id: compositionMedicineId,
-        substances: compositionSubstances
-      });
-      process.setStatus("success", "Состав обновлен");
-      process.setLastAction("обновление состава (админ)");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdateContraindications = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await adminUpdateContraindications(token, {
-        medicine_id: contraMedicineId,
-        ids: contraIds
-      });
-      process.setStatus("success", "Противопоказания обновлены");
-      process.setLastAction("обновление противопоказаний (админ)");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdateIndications = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await adminUpdateIndications(token, {
-        medicine_id: indicationMedicineId,
-        ids: indicationIds
-      });
-      process.setStatus("success", "Показания обновлены");
-      process.setLastAction("обновление показаний (админ)");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddDosageRule = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await adminAddDosageRule(token, {
-        medicine_id: dosageMedicineId,
-        dosage: dosageRule
-      });
-      process.setStatus("success", "Правило дозировки добавлено");
-      process.setLastAction("добавление дозировки (админ)");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRemoveDosageRule = async () => {
-    const token = requireToken();
-    if (!token) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await adminRemoveDosageRule(token, { rule_id: removeRuleId });
-      process.setStatus("success", "Правило дозировки удалено");
-      process.setLastAction("удаление дозировки (админ)");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateSubstance = (index: number, patch: Partial<ActiveSubstanceDto>) => {
-    setSubstances((prev) => prev.map((item, idx) => (idx === index ? { ...item, ...patch } : item)));
-  };
-
-  const addSubstance = () => setSubstances((prev) => [...prev, { ...emptySubstance }]);
-  const removeSubstance = (index: number) => setSubstances((prev) => prev.filter((_, idx) => idx !== index));
-
-  const updateDosage = (index: number, patch: Partial<DosageRuleDto>) => {
-    setDosages((prev) => prev.map((item, idx) => (idx === index ? { ...item, ...patch } : item)));
-  };
-
-  const addDosage = () => setDosages((prev) => [...prev, { ...emptyDosage }]);
-  const removeDosage = (index: number) => setDosages((prev) => prev.filter((_, idx) => idx !== index));
-
-  const updateCompositionSubstance = (index: number, patch: Partial<ActiveSubstanceDto>) => {
-    setCompositionSubstances((prev) => prev.map((item, idx) => (idx === index ? { ...item, ...patch } : item)));
-  };
-
-  const addCompositionSubstance = () => setCompositionSubstances((prev) => [...prev, { ...emptySubstance }]);
-  const removeCompositionSubstance = (index: number) =>
-    setCompositionSubstances((prev) => prev.filter((_, idx) => idx !== index));
-
-  const updateDosageRule = (patch: Partial<DosageRuleDto>) => {
-    setDosageRule((prev) => ({ ...prev, ...patch }));
-  };
-
-  const setDosageType = (type: DosageType) => setDosageRule((prev) => ({ ...prev, type }));
-
-
+  }
   return {
-    isLoading,
-    medicineOptions,
-    formOptions,
-    unitOptions,
-    substanceOptions,
-    ruleOptions,
-    contraindicationOptions,
-    indicationOptions,
-    name,
-    formId,
-    unitId,
-    methodOfApplication,
-    expireTime,
-    isPrescription,
-    effectOnPregnant,
-    effectOnDriver,
-    contraindications,
-    recommendations,
+    medicines,
+    selectedId,
+    draft,
+    setDraft,
+    forms,
+    units,
+    illnesses,
     substances,
-    dosages,
-    updateId,
-    updateFormId,
-    updateUnitId,
-    updateMethod,
-    updateExpireTime,
-    updatePrescription,
-    updatePregnant,
-    updateDriver,
-    deleteId,
-    compositionMedicineId,
-    compositionSubstances,
-    contraMedicineId,
-    contraIds,
-    indicationMedicineId,
-    indicationIds,
-    dosageMedicineId,
-    dosageRule,
-    removeRuleId,
-    setName,
-    setFormId,
-    setUnitId,
-    setMethodOfApplication,
-    setExpireTime,
-    setIsPrescription,
-    setEffectOnPregnant,
-    setEffectOnDriver,
-    setContraindications,
-    setRecommendations,
-    setUpdateId,
-    setUpdateFormId,
-    setUpdateUnitId,
-    setUpdateMethod,
-    setUpdateExpireTime,
-    setUpdatePrescription,
-    setUpdatePregnant,
-    setUpdateDriver,
-    setDeleteId,
-    setCompositionMedicineId,
-    setContraMedicineId,
-    setContraIds,
-    setIndicationMedicineId,
-    setIndicationIds,
-    setDosageMedicineId,
-    setRemoveRuleId,
-    updateSubstance,
-    addSubstance,
-    removeSubstance,
-    updateDosage,
-    addDosage,
-    removeDosage,
-    updateCompositionSubstance,
-    addCompositionSubstance,
-    removeCompositionSubstance,
-    updateDosageRule,
-    setDosageType,
-    handleAddMedicine,
-    handleUpdateMedicine,
-    handleRemoveMedicine,
-    handleUpdateComposition,
-    handleUpdateContraindications,
-    handleUpdateIndications,
-    handleAddDosageRule,
-    handleRemoveDosageRule
+    message,
+    loading,
+    select,
+    save,
+    remove
   };
 }

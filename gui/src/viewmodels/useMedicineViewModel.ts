@@ -1,58 +1,56 @@
 import { useEffect, useState } from "react";
-import { listIllnesses, normalizeError, selectMedicine } from "../api/client";
-import { MedicineRecommendation } from "../api/types";
+import {
+  listCabinets,
+  listRecommendations,
+  listReference,
+  normalizeError
+} from "../api/client";
+import type { Cabinet, Recommendation, ReferenceItem } from "../api/types";
 import { useAuth } from "../store/authStore";
-import { useProcess } from "../store/processStore";
 
 export function useMedicineViewModel() {
-  const auth = useAuth();
-  const process = useProcess();
-  const [isLoading, setIsLoading] = useState(false);
+  const { token } = useAuth();
+  const [illnesses, setIllnesses] = useState<ReferenceItem[]>([]);
+  const [cabinets, setCabinets] = useState<Cabinet[]>([]);
   const [illnessId, setIllnessId] = useState("");
-  const [recommendations, setRecommendations] = useState<MedicineRecommendation[]>([]);
-
-  const [illnessOptions, setIllnessOptions] = useState<Array<{ value: string; label: string }>>([]);
-
-  const handleSelect = async () => {
-    if (!auth.token) {
-      process.setStatus("error", "Нужно войти");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await selectMedicine(auth.token, { illness_id: illnessId });
-      setRecommendations(response.recommendations ?? []);
-      process.setRecommendationsCount(response.recommendations?.length ?? 0);
-      process.setStatus("success", "Рекомендации получены");
-      process.setLastAction("подбор лекарств");
-    } catch (error) {
-      const appError = normalizeError(error);
-      process.setStatus("error", `${appError.code}: ${appError.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const [cabinetId, setCabinetId] = useState("");
+  const [items, setItems] = useState<Recommendation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   useEffect(() => {
-    const load = async () => {
-      try {
-        const illnesses = await listIllnesses();
-        setIllnessOptions(illnesses.map((item) => ({ value: item.id, label: item.name })));
-      } catch (error) {
-        const appError = normalizeError(error);
-        process.setStatus("error", `${appError.code}: ${appError.message}`);
-      }
-    };
-    load();
-  }, [process]);
-
+    if (!token) return;
+    void Promise.all([listReference("illnesses"), listCabinets(token)])
+      .then(([illnessPage, cabinetPage]) => {
+        setIllnesses(illnessPage.items);
+        setCabinets(cabinetPage.items);
+      })
+      .catch((error) => setMessage(normalizeError(error).message));
+  }, [token]);
+  async function find() {
+    if (!token || !illnessId) return;
+    setLoading(true);
+    setMessage("");
+    try {
+      setItems(
+        (await listRecommendations(token, illnessId, cabinetId || undefined))
+          .items
+      );
+    } catch (error) {
+      setMessage(normalizeError(error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
   return {
-    isLoading,
+    illnesses,
+    cabinets,
     illnessId,
-    recommendations,
-    illnessOptions,
     setIllnessId,
-    handleSelect
+    cabinetId,
+    setCabinetId,
+    items,
+    loading,
+    message,
+    find
   };
 }

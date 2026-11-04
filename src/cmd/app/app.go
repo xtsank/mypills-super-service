@@ -1,20 +1,16 @@
 package main
 
 import (
-	"context"
 	"log/slog"
-	"strings"
-	"time"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do/v2"
 	"github.com/swaggo/files"
+	swaggerFilesV2 "github.com/swaggo/files/v2"
 	"github.com/swaggo/gin-swagger"
 	_ "github.com/xtsank/mypills-super-service/docs/swagger"
 	"github.com/xtsank/mypills-super-service/src/internal/config"
-	"github.com/xtsank/mypills-super-service/src/internal/infra/email"
-	mongoDB "github.com/xtsank/mypills-super-service/src/internal/infra/mongo/db"
-	mongoRepo "github.com/xtsank/mypills-super-service/src/internal/infra/mongo/repository"
 	pgDB "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
 	pgRepo "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
 	"github.com/xtsank/mypills-super-service/src/internal/service"
@@ -32,49 +28,50 @@ func (app *App) provideMiddleware() {
 	do.Provide(app.i, config.NewConfig)
 
 	do.Provide(app.i, pgDB.NewPostgresDB)
-	do.Provide(app.i, mongoDB.NewMongoDB)
 }
 
 func (app *App) provideRepo() {
-	cfg := do.MustInvoke[*config.Config](app.i)
-	switch strings.ToLower(cfg.DBProvider) {
-	case "mongo":
-		do.Provide(app.i, mongoRepo.NewMongoUserRepository)
-		do.Provide(app.i, mongoRepo.NewMongoMedicineRepository)
-		do.Provide(app.i, mongoRepo.NewMongoCabinetItemRepository)
-		do.Provide(app.i, mongoRepo.NewMongoDictionaryRepository)
-	case "postgres", "":
-		do.Provide(app.i, pgRepo.NewPostgresUserRepository)
-		do.Provide(app.i, pgRepo.NewPostgresMedicineRepository)
-		do.Provide(app.i, pgRepo.NewPostgresCabinetItemRepository)
-		do.Provide(app.i, pgRepo.NewPostgresDictionaryRepository)
-	default:
-		logger := do.MustInvoke[*slog.Logger](app.i)
-		logger.Error("unknown_db_provider", slog.String("db_provider", cfg.DBProvider))
-		panic("unknown DB provider")
-	}
+	do.Provide(app.i, pgRepo.NewPostgresUserRepository)
+	do.Provide(app.i, pgRepo.NewPostgresMedicineRepository)
+	do.Provide(app.i, pgRepo.NewPostgresMedicineCatalogRepository)
+	do.Provide(app.i, pgRepo.NewPostgresLegacyCabinetItemRepository)
+	do.Provide(app.i, pgRepo.NewPostgresCabinetRepository)
+	do.Provide(app.i, pgRepo.NewPostgresCabinetItemRepository)
+	do.Provide(app.i, pgRepo.NewPostgresRestockRepository)
+	do.Provide(app.i, pgRepo.NewPostgresDictionaryRepository)
 }
 
 func (app *App) provideService() {
 	do.Provide(app.i, service.NewAuthService)
 	do.Provide(app.i, service.NewAdminService)
+	do.Provide(app.i, service.NewLegacyCabinetService)
 	do.Provide(app.i, service.NewCabinetService)
-	do.Provide(app.i, service.NewMedicineService)
+	do.Provide(app.i, service.NewCabinetItemsService)
+	do.Provide(app.i, service.NewRestockService)
+	do.Provide(app.i, service.NewLegacyMedicineService)
+	do.Provide(app.i, service.NewMedicineCatalogService)
+	do.Provide(app.i, service.NewRecommendationService)
 	do.Provide(app.i, service.NewProfileService)
 	do.Provide(app.i, service.NewDictionaryService)
-	do.Provide(app.i, email.NewSMTPSender)
-	do.Provide(app.i, service.NewNotificationService)
 	do.Provide(app.i, service.NewBcryptHasher)
 	do.Provide(app.i, service.NewJWTManager)
 }
 
 func (app *App) provideHandler() {
-	do.Provide(app.i, handler.NewAuthHandler)
+	do.Provide(app.i, handler.NewLegacyAuthHandler)
+	do.Provide(app.i, handler.NewLegacyCabinetHandler)
 	do.Provide(app.i, handler.NewCabinetHandler)
+	do.Provide(app.i, handler.NewCabinetItemsHandler)
+	do.Provide(app.i, handler.NewAuthHandler)
 	do.Provide(app.i, handler.NewProfileHandler)
-	do.Provide(app.i, handler.NewMedicineHandler)
-	do.Provide(app.i, handler.NewAdminHandler)
-	do.Provide(app.i, handler.NewDictionaryHandler)
+	do.Provide(app.i, handler.NewReferenceHandler)
+	do.Provide(app.i, handler.NewRestockHandler)
+	do.Provide(app.i, handler.NewMedicineCatalogHandler)
+	do.Provide(app.i, handler.NewRecommendationHandler)
+	do.Provide(app.i, handler.NewLegacyProfileHandler)
+	do.Provide(app.i, handler.NewLegacyMedicineHandler)
+	do.Provide(app.i, handler.NewLegacyAdminHandler)
+	do.Provide(app.i, handler.NewLegacyDictionaryHandler)
 }
 
 func (app *App) provideAll() {
@@ -85,10 +82,56 @@ func (app *App) provideAll() {
 }
 
 func (app *App) initSwagger() {
+	app.router.GET("/api/spec/v2.yaml", func(c *gin.Context) {
+		c.File("docs/openapi/v2.yaml")
+	})
+	app.router.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/swagger/")
+	})
 	swagger := app.router.Group("/swagger")
-	swagger.Use(middleware.TokenVerifier(app.i))
-	swagger.Use(middleware.AdminOnly())
-	swagger.GET("/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	v2Files := http.StripPrefix("/swagger/", http.FileServer(http.FS(swaggerFilesV2.FS)))
+	swagger.GET("/*any", func(c *gin.Context) {
+		if c.Param("any") == "/swagger-initializer.js" {
+			c.Data(http.StatusOK, "application/javascript", []byte(`window.onload = function () {
+  const ui = SwaggerUIBundle({
+    url: "/api/spec/v2.yaml",
+    dom_id: "#swagger-ui",
+    deepLinking: true,
+    presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+    layout: "StandaloneLayout",
+    responseInterceptor: function (response) {
+      if (response.status === 200 && response.url &&
+          new URL(response.url, window.location.origin).pathname === "/api/v2/sessions") {
+        try {
+          const body = response.body || JSON.parse(response.text || "{}");
+          if (typeof body.token === "string") {
+            ui.preauthorizeApiKey("bearerAuth", body.token);
+          }
+        } catch (error) {
+          console.warn("Could not authorize Swagger UI with the issued token", error);
+        }
+      }
+      return response;
+    }
+  });
+};`))
+			return
+		}
+		v2Files.ServeHTTP(c.Writer, c.Request)
+	})
+	app.router.GET("/swagger-v1", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/swagger-v1/index.html")
+	})
+	legacySwagger := app.router.Group("/swagger-v1")
+	v1Files := *swaggerFiles.Handler
+	v1Swagger := ginSwagger.WrapHandler(&v1Files)
+	legacySwagger.GET("/*any", func(c *gin.Context) {
+		if c.Param("any") == "/" {
+			c.Redirect(http.StatusFound, "/swagger-v1/index.html")
+			return
+		}
+		v1Swagger(c)
+	})
 }
 
 func (app *App) initMiddlewares() {
@@ -99,29 +142,43 @@ func (app *App) initMiddlewares() {
 }
 
 func (app *App) initRoutes() {
-	api := app.router.Group("/")
+	authHandler := do.MustInvoke[*handler.LegacyAuthHandler](app.i)
+	dictionaryHandler := do.MustInvoke[*handler.LegacyDictionaryHandler](app.i)
+	cabinetHandler := do.MustInvoke[*handler.LegacyCabinetHandler](app.i)
+	profileHandler := do.MustInvoke[*handler.LegacyProfileHandler](app.i)
+	medicineHandler := do.MustInvoke[*handler.LegacyMedicineHandler](app.i)
+	adminHandler := do.MustInvoke[*handler.LegacyAdminHandler](app.i)
+	for _, prefix := range []string{"", "/api/v1"} {
+		legacy := app.router.Group(prefix)
+		authHandler.RegisterRoutes(legacy)
+		dictionaryHandler.RegisterRoutes(legacy)
 
-	protected := api.Group("/")
-	protected.Use(middleware.TokenVerifier(app.i))
-	protected.Use(middleware.AdminOnly())
+		protected := legacy.Group("")
+		protected.Use(middleware.TokenVerifier(app.i))
+		cabinetHandler.RegisterRoutes(protected)
+		profileHandler.RegisterRoutes(protected)
+		medicineHandler.RegisterRoutes(protected)
 
-	authHandler := do.MustInvoke[*handler.AuthHandler](app.i)
-	authHandler.RegisterRoutes(api)
+		admin := protected.Group("")
+		admin.Use(middleware.AdminOnly())
+		adminHandler.RegisterRoutes(admin)
+	}
 
-	dictionaryHandler := do.MustInvoke[*handler.DictionaryHandler](app.i)
-	dictionaryHandler.RegisterRoutes(api)
+	v2Public := app.router.Group("/api/v2")
+	do.MustInvoke[*handler.AuthHandler](app.i).RegisterRoutes(v2Public)
+	do.MustInvoke[*handler.ReferenceHandler](app.i).RegisterRoutes(v2Public)
 
-	cabinetHandler := do.MustInvoke[*handler.CabinetHandler](app.i)
-	cabinetHandler.RegisterRoutes(protected)
-
-	profileHandler := do.MustInvoke[*handler.ProfileHandler](app.i)
-	profileHandler.RegisterRoutes(protected)
-
-	medicineHandler := do.MustInvoke[*handler.MedicineHandler](app.i)
-	medicineHandler.RegisterRoutes(protected)
-
-	adminHandler := do.MustInvoke[*handler.AdminHandler](app.i)
-	adminHandler.RegisterRoutes(protected)
+	v2Protected := app.router.Group("/api/v2")
+	v2Protected.Use(middleware.TokenVerifier(app.i))
+	do.MustInvoke[*handler.ProfileHandler](app.i).RegisterRoutes(v2Protected)
+	do.MustInvoke[*handler.CabinetHandler](app.i).RegisterRoutes(v2Protected)
+	do.MustInvoke[*handler.CabinetItemsHandler](app.i).RegisterRoutes(v2Protected)
+	do.MustInvoke[*handler.RestockHandler](app.i).RegisterRoutes(v2Protected)
+	do.MustInvoke[*handler.MedicineCatalogHandler](app.i).RegisterRoutes(v2Protected)
+	do.MustInvoke[*handler.RecommendationHandler](app.i).RegisterRoutes(v2Protected)
+	v2Admin := v2Protected.Group("")
+	v2Admin.Use(middleware.AdminOnly())
+	do.MustInvoke[*handler.MedicineCatalogHandler](app.i).RegisterAdminRoutes(v2Admin)
 }
 
 func (app *App) initAll() {
@@ -147,10 +204,6 @@ func NewApp() *App {
 func (app *App) Run() error {
 	cfg := do.MustInvoke[*config.Config](app.i)
 	logger := do.MustInvoke[*slog.Logger](app.i)
-	notificationService := do.MustInvoke[service.INotificationService](app.i)
-
-	startNotificationTicker(notificationService, cfg, logger)
-
 	addr := cfg.ServerAddress
 	if addr != "" && addr[0] != ':' {
 		addr = ":" + addr
@@ -159,42 +212,6 @@ func (app *App) Run() error {
 	logger.Info("server_start", slog.String("address", addr))
 
 	return app.router.Run(addr)
-}
-
-func startNotificationTicker(service service.INotificationService, cfg *config.Config, logger *slog.Logger) {
-	interval := cfg.NotificationCheckInterval
-	startDelay := time.Duration(0)
-	if cfg.NotificationStartTime > 0 {
-		now := time.Now()
-		midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		nextStart := midnight.Add(cfg.NotificationStartTime)
-		if !nextStart.After(now) {
-			nextStart = nextStart.Add(24 * time.Hour)
-		}
-		startDelay = time.Until(nextStart)
-	}
-
-	logger.Info(
-		"notification_ticker_start",
-		slog.String("interval", interval.String()),
-		slog.String("start_delay", startDelay.String()),
-	)
-
-	go func() {
-		if startDelay > 0 {
-			timer := time.NewTimer(startDelay)
-			<-timer.C
-		}
-
-		service.SendDueNotifications(context.Background())
-
-		ticker := time.NewTicker(interval)
-		defer ticker.Stop()
-		for range ticker.C {
-			logger.Debug("notification_ticker_tick")
-			service.SendDueNotifications(context.Background())
-		}
-	}()
 }
 
 func (app *App) Logger() *slog.Logger {

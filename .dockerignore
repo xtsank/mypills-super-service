@@ -1,0 +1,10 @@
+.git
+.env*
+backup
+build
+gui/node_modules
+gui/dist
+logs
+allure-results
+allure-report
+coverage.out

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	stderrors "errors"
 
 	"github.com/samber/do/v2"
 	"github.com/xtsank/mypills-super-service/src/internal/domain/user"
@@ -11,6 +12,7 @@ import (
 )
 
 type IProfileService interface {
+	GetProfile(ctx context.Context, cmd *command.GetProfileCmd) (*res.ProfileResDto, error)
 	UpdateProfile(ctx context.Context, cmd *command.UpdateProfileCmd) (*res.ProfileResDto, error)
 }
 
@@ -24,61 +26,42 @@ func NewProfileService(i do.Injector) (IProfileService, error) {
 	return &ProfileService{userRepo: userRepo}, nil
 }
 
-func (s *ProfileService) UpdateProfile(ctx context.Context, cmd *command.UpdateProfileCmd) (*res.ProfileResDto, error) {
-	u, err := s.userRepo.FindByID(ctx, cmd.ID)
+func (s *ProfileService) GetProfile(ctx context.Context, cmd *command.GetProfileCmd) (*res.ProfileResDto, error) {
+	u, err := s.userRepo.FindByID(ctx, cmd.UserID)
+	if stderrors.Is(err, errors.ErrUserNotFound) {
+		return nil, errors.ErrUnauthorized.WithSource()
+	}
 	if err != nil {
 		return nil, err
 	}
 	if u == nil {
-		return nil, errors.ErrUserNotFound.WithSource()
+		return nil, errors.ErrUnauthorized.WithSource()
+	}
+	return res.NewProfileResDto(u), nil
+}
+
+func (s *ProfileService) UpdateProfile(ctx context.Context, cmd *command.UpdateProfileCmd) (*res.ProfileResDto, error) {
+	u, err := s.userRepo.FindByID(ctx, cmd.ID)
+	if stderrors.Is(err, errors.ErrUserNotFound) {
+		return nil, errors.ErrUnauthorized.WithSource()
+	}
+	if err != nil {
+		return nil, err
+	}
+	if u == nil {
+		return nil, errors.ErrUnauthorized.WithSource()
 	}
 
-	if u.Notify == nil {
-		u.Notify = &user.NotifyInfo{Enabled: false}
-	}
-
-	if cmd.Email != nil {
-		if *cmd.Email == "" {
-			return nil, errors.ErrEmailRequired.WithSource()
-		}
-		u.Email = *cmd.Email
-	}
-	if cmd.Sex != nil {
-		u.Sex = *cmd.Sex
-	}
-	if cmd.Weight != nil {
-		u.Weight = *cmd.Weight
-	}
-	if cmd.Age != nil {
-		u.Age = *cmd.Age
-	}
-	if cmd.IsPregnant != nil {
-		u.IsPregnant = *cmd.IsPregnant
-	}
-	if cmd.IsDriver != nil {
-		u.IsDriver = *cmd.IsDriver
-	}
-	if cmd.NotifyEnabled != nil {
-		u.Notify.Enabled = *cmd.NotifyEnabled
-	}
-	if cmd.NotifyIntervalMinutes != nil {
-		allowed := map[int]struct{}{1: {}, 30: {}, 60: {}, 720: {}, 1440: {}}
-		if _, ok := allowed[*cmd.NotifyIntervalMinutes]; !ok {
-			return nil, errors.ErrInvalidNotifyInterval.WithSource()
-		}
-		u.Notify.IntervalMinutes = *cmd.NotifyIntervalMinutes
-	}
-	if cmd.Illnesses != nil {
-		u.Illnesses = cmd.Illnesses
-	}
-	if cmd.Allergies != nil {
-		u.Allergies = cmd.Allergies
-	}
-
-	err = s.userRepo.Update(ctx, u)
+	updated, err := user.NewUpdatedUser(u, cmd.Email, cmd.Sex, cmd.Weight, cmd.Age,
+		cmd.IsPregnant, cmd.IsDriver, cmd.Illnesses, cmd.Allergies)
 	if err != nil {
 		return nil, err
 	}
 
-	return res.NewProfileResDto(u), nil
+	err = s.userRepo.Update(ctx, updated)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.NewProfileResDto(updated), nil
 }

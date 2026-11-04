@@ -2,7 +2,6 @@ definitions:
   ActiveSubstanceDto:
     properties:
       concentration:
-        format: float32
         type: number
       id:
         type: string
@@ -303,10 +302,6 @@ definitions:
         type: boolean
       login:
         type: string
-      notify_enabled:
-        type: boolean
-      notify_interval_minutes:
-        type: integer
       sex:
         type: boolean
       weight:
@@ -415,10 +410,6 @@ definitions:
         type: boolean
       is_pregnant:
         type: boolean
-      notify_enabled:
-        type: boolean
-      notify_interval_minutes:
-        type: integer
       sex:
         type: boolean
       weight:
