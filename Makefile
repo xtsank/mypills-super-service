@@ -1,4 +1,4 @@
-.PHONY: build run swag test-classic test-london test test-all test-unit test-unit-go test-integration test-integration-run test-integration-go test-integration-skipped test-e2e test-e2e-run test-e2e-go test-e2e-skipped test-offline coverage-branch install-gocove install-allure allure-generate allure-report allure-open test-clean clean docker-db log make_admin psql-users
+.PHONY: build run swag test-classic test-london test test-all test-unit test-unit-go test-integration test-integration-run test-integration-go test-integration-skipped test-e2e test-e2e-run test-e2e-go test-e2e-skipped test-offline coverage-branch install-gocove install-allure allure-generate allure-single-file allure-report allure-open test-clean clean docker-db log make_admin psql-users
 
 login=admin111
 
@@ -12,6 +12,8 @@ TEST_FLAGS = -v -count=1 -shuffle=on
 ALLURE_RESULTS_DIR = $(CURDIR)/allure-results
 ALLURE_REPORT_DIR = $(CURDIR)/allure-report
 ALLURE_HISTORY_DIR = $(CURDIR)/allure-history-v2
+ALLURE_SINGLE_FILE_DIR = $(CURDIR)/.allure-single-file
+ALLURE_SINGLE_FILE = $(CURDIR)/allure-report.html
 LEGACY_ALLURE_RESULTS_DIR = $(CURDIR)/src/internal/service/allure-results
 COVERAGE_PROFILE = $(CURDIR)/coverage.out
 GOCOVE_META_DIR = $(CURDIR)/.gocove
@@ -129,6 +131,11 @@ allure-generate:
 	@mkdir -p "$(ALLURE_HISTORY_DIR)"
 	@cp -a "$(ALLURE_REPORT_DIR)/history/." "$(ALLURE_HISTORY_DIR)/"
 
+allure-single-file:
+	@test -d "$(ALLURE_RESULTS_DIR)" || { echo "Результаты Allure не найдены: сначала выполните тесты"; exit 1; }
+	$(ALLURE_CLI) generate "$(ALLURE_RESULTS_DIR)" --clean --single-file --output "$(ALLURE_SINGLE_FILE_DIR)" --lang ru --name "MyPills tests"
+	@cp "$(ALLURE_SINGLE_FILE_DIR)/index.html" "$(ALLURE_SINGLE_FILE)"
+
 allure-report:
 	@test -f "$(ALLURE_REPORT_DIR)/index.html" || { echo "Отчёт Allure не найден: сначала выполните make test"; exit 1; }
 
@@ -136,7 +143,8 @@ allure-open: allure-report
 	$(ALLURE_CLI) open "$(ALLURE_REPORT_DIR)"
 
 test-clean:
-	@rm -rf -- "$(ALLURE_RESULTS_DIR)" "$(ALLURE_REPORT_DIR)" "$(GOCOVE_META_DIR)" "$(LEGACY_ALLURE_RESULTS_DIR)" "$(SCANNER_WORK_DIR)"
+	@rm -rf -- "$(ALLURE_RESULTS_DIR)" "$(ALLURE_REPORT_DIR)" "$(ALLURE_SINGLE_FILE_DIR)" "$(GOCOVE_META_DIR)" "$(LEGACY_ALLURE_RESULTS_DIR)" "$(SCANNER_WORK_DIR)"
+	@rm -f -- "$(ALLURE_SINGLE_FILE)"
 	@rm -f -- "$(COVERAGE_PROFILE)" "$(CURDIR)/coverage.html"
 
 clean: test-clean

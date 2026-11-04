@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 env:
   TEST_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
@@ -79,6 +80,9 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: actions/checkout@v6
       - name: Collect test results
@@ -87,6 +91,38 @@ jobs:
           pattern: stage-results-*
           path: allure-results
           merge-multiple: true
+      - name: Find history from the previous run on this branch
+        id: previous_history
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = context.payload.pull_request?.head.ref ?? context.ref.replace(/^refs\/heads\//, '');
+            const sourceRepo = context.payload.pull_request?.head.repo.full_name ?? `${owner}/${repo}`;
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: 'lab2-tests.yml', branch,
+              status: 'completed', per_page: 100
+            });
+            for (const run of data.workflow_runs) {
+              if (run.id === context.runId || run.head_repository?.full_name !== sourceRepo) continue;
+              const { data: result } = await github.rest.actions.listWorkflowRunArtifacts({
+                owner, repo, run_id: run.id, per_page: 100
+              });
+              if (result.artifacts.some(artifact => artifact.name === 'allure-history' && !artifact.expired)) {
+                core.setOutput('run_id', String(run.id));
+                core.info(`Using Allure history from run ${run.id}`);
+                break;
+              }
+            }
+      - name: Restore Allure history
+        if: ${{ steps.previous_history.outputs.run_id != '' }}
+        uses: actions/download-artifact@v7
+        with:
+          name: allure-history
+          path: allure-history-v2
+          run-id: ${{ steps.previous_history.outputs.run_id }}
+          github-token: ${{ github.token }}
       - name: Generate Allure report
         env:
           UNIT_RESULT: ${{ needs.unit.result }}
@@ -107,3 +143,38 @@ jobs:
             echo "| Integration | $INTEGRATION_RESULT |"
             echo "| E2E | ${{ needs.e2e.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Create downloadable HTML report
+        run: ./scripts/test-ci-docker.sh make allure-single-file
+      - name: Upload Allure report
+        id: upload_report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          path: allure-report.html
+          archive: false
+          if-no-files-found: warn
+      - name: Upload Allure history
+        id: upload_history
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: allure-history
+          path: allure-history-v2/
+          if-no-files-found: warn
+      - name: Add report link to the run summary
+        if: ${{ steps.upload_report.outputs.artifact-url != '' }}
+        run: echo "[Download Allure report](${{ steps.upload_report.outputs.artifact-url }})" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove temporary JSON artifacts
+        if: ${{ steps.upload_report.outputs.artifact-id != '' && steps.upload_history.outputs.artifact-id != '' }}
+        continue-on-error: true
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner, repo, run_id: context.runId, per_page: 100
+            });
+            for (const artifact of data.artifacts) {
+              if (!artifact.name.startsWith('stage-results-')) continue;
+              await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: artifact.id });
+            }
