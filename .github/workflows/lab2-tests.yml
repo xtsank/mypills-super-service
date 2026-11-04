@@ -1,0 +1,51 @@
+name: Lab 2 tests
+
+on:
+  push:
+    branches: [lab2-testing]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TEST_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+      TEST_UID: "0"
+      TEST_GID: "0"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Prepare test results
+        run: ./scripts/test-ci-docker.sh make test-clean
+
+      - name: Unit tests
+        id: unit
+        run: ./scripts/test-ci-docker.sh make test-unit-go
+
+      - name: Integration tests
+        id: integration
+        if: ${{ steps.unit.outcome == 'success' }}
+        run: ./scripts/test-ci-docker.sh make test-integration-run
+
+      - name: Mark integration tests as skipped
+        if: ${{ always() && steps.unit.outcome == 'failure' }}
+        run: ./scripts/test-ci-docker.sh make test-integration-skipped
+
+      - name: E2E test
+        if: ${{ steps.unit.outcome == 'success' && steps.integration.outcome == 'success' }}
+        run: ./scripts/test-ci-docker.sh make test-e2e-run
+
+      - name: Mark E2E test as skipped
+        if: ${{ always() && (steps.unit.outcome == 'failure' || steps.integration.outcome == 'failure') }}
+        run: ./scripts/test-ci-docker.sh make test-e2e-skipped
+
+      - name: Generate Allure report
+        if: ${{ always() }}
+        run: ./scripts/test-ci-docker.sh make allure-generate
