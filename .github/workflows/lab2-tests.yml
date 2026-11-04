@@ -123,6 +123,18 @@ jobs:
           path: allure-history-v2
           run-id: ${{ steps.previous_history.outputs.run_id }}
           github-token: ${{ github.token }}
+      - name: Import existing local Allure history once
+        run: |
+          previous_count=0
+          if [ -f allure-history-v2/history-trend.json ]; then
+            previous_count=$(jq 'length' allure-history-v2/history-trend.json)
+          fi
+          bootstrap_count=$(jq 'length' .github/allure-history-bootstrap/history-trend.json)
+          if [ "$previous_count" -lt "$bootstrap_count" ]; then
+            mkdir -p allure-history-v2
+            cp .github/allure-history-bootstrap/*.json allure-history-v2/
+            echo "Imported $bootstrap_count existing Allure runs"
+          fi
       - name: Generate Allure report
         env:
           UNIT_RESULT: ${{ needs.unit.result }}
