@@ -18,6 +18,7 @@ import (
 func TestIntegration_CabinetCreate_PersistsInPostgres(t *testing.T) {
 	allure.Wrap(t, func(a *allure.Context) {
 		a.DisplayName("Созданный шкаф сохраняется в PostgreSQL")
+		skipIfPreviousStageFailed(t)
 		var svc service.ICabinetService
 		var repo cabinet.ICabinetRepository
 		a.Step("Arrange", func(_ *allure.Context) {

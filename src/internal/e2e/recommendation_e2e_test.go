@@ -27,6 +27,9 @@ const (
 func TestE2E_DriverGetsSafeMedicineFromCabinet(t *testing.T) {
 	allure.Wrap(t, func(a *allure.Context) {
 		a.DisplayName("Водитель получает безопасное лекарство из своей аптечки")
+		if reason := os.Getenv("LAB2_SKIP_REASON"); reason != "" {
+			t.Skip(reason)
+		}
 		baseURL := os.Getenv("E2E_BASE_URL")
 		if baseURL == "" {
 			baseURL = "http://app:8080"

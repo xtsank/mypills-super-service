@@ -18,6 +18,7 @@ import (
 func TestIntegration_RestockCreate_UsesMedicineFromPostgres(t *testing.T) {
 	allure.Wrap(t, func(a *allure.Context) {
 		a.DisplayName("Позиция пополнения сохраняется для существующего препарата")
+		skipIfPreviousStageFailed(t)
 		var svc service.IRestockService
 		var repo restock.IRestockRepository
 		a.Step("Arrange", func(_ *allure.Context) {

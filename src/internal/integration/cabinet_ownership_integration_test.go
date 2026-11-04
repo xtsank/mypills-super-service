@@ -17,6 +17,7 @@ import (
 func TestIntegration_CabinetRename_RejectsOtherOwner(t *testing.T) {
 	allure.Wrap(t, func(a *allure.Context) {
 		a.DisplayName("Другой пользователь не может переименовать шкаф")
+		skipIfPreviousStageFailed(t)
 		var svc service.ICabinetService
 		var repo cabinet.ICabinetRepository
 		a.Step("Arrange", func(_ *allure.Context) {

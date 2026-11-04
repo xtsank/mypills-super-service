@@ -39,6 +39,13 @@ func integrationDB(t *testing.T) *sqlx.DB {
 	return db
 }
 
+func skipIfPreviousStageFailed(t *testing.T) {
+	t.Helper()
+	if reason := os.Getenv("LAB2_SKIP_REASON"); reason != "" {
+		t.Skip(reason)
+	}
+}
+
 func integrationCabinetService(t *testing.T, db *sqlx.DB) (service.ICabinetService, cabinet.ICabinetRepository) {
 	t.Helper()
 	injector := do.New()
