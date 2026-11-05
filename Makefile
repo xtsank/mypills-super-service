@@ -126,14 +126,16 @@ allure-generate:
 	@test -d "$(ALLURE_RESULTS_DIR)" || { echo "Результаты Allure не найдены: сначала выполните тесты"; exit 1; }
 	@printf 'Go=%s\nOS=%s\nArchitecture=%s\n' "$$(go env GOVERSION)" "$$(go env GOOS)" "$$(go env GOARCH)" > "$(ALLURE_RESULTS_DIR)/environment.properties"
 	@printf '%s\n' '{"name":"go test","buildName":"MyPills tests"}' > "$(ALLURE_RESULTS_DIR)/executor.json"
-	@if test -d "$(ALLURE_HISTORY_DIR)"; then cp -a "$(ALLURE_HISTORY_DIR)" "$(ALLURE_RESULTS_DIR)/history"; fi
+	@if test -d "$(ALLURE_HISTORY_DIR)"; then node scripts/fix-allure-duration-trend.mjs history "$(ALLURE_HISTORY_DIR)" && cp -a "$(ALLURE_HISTORY_DIR)" "$(ALLURE_RESULTS_DIR)/history"; fi
 	$(ALLURE_CLI) generate "$(ALLURE_RESULTS_DIR)" --clean --output "$(ALLURE_REPORT_DIR)" --lang ru --name "MyPills tests"
+	@node scripts/fix-allure-duration-trend.mjs report "$(ALLURE_REPORT_DIR)"
 	@mkdir -p "$(ALLURE_HISTORY_DIR)"
 	@cp -a "$(ALLURE_REPORT_DIR)/history/." "$(ALLURE_HISTORY_DIR)/"
 
 allure-single-file:
 	@test -d "$(ALLURE_RESULTS_DIR)" || { echo "Результаты Allure не найдены: сначала выполните тесты"; exit 1; }
 	$(ALLURE_CLI) generate "$(ALLURE_RESULTS_DIR)" --clean --single-file --output "$(ALLURE_SINGLE_FILE_DIR)" --lang ru --name "MyPills tests"
+	@node scripts/fix-allure-duration-trend.mjs single-file "$(ALLURE_SINGLE_FILE_DIR)/index.html"
 	@cp "$(ALLURE_SINGLE_FILE_DIR)/index.html" "$(ALLURE_SINGLE_FILE)"
 
 allure-report:
