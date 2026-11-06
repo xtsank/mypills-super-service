@@ -7,7 +7,6 @@ import (
 	apperrors "github.com/xtsank/mypills-super-service/src/internal/errors"
 )
 
-// Cabinet is an owner-scoped, named collection of medicine stock.
 type Cabinet struct {
 	ID     uuid.UUID
 	UserID uuid.UUID
