@@ -38,7 +38,6 @@ sleep 1
 kill -0 "$capture_pid" 2>/dev/null || { echo 'Wireshark capture did not start' >&2; exit 1; }
 
 ./scripts/replay-e2e-http.sh
-# Give libpcap time to flush the final HTTP responses before stopping capture.
 sleep 2
 kill -INT "$capture_pid"
 wait "$capture_pid"
