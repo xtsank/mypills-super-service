@@ -2,6 +2,8 @@
 
 login=admin111
 
+WEB4_BASE_URL ?= http://127.0.0.1:8088
+
 DB_USER ?= user
 DB_PASSWORD ?= password
 DB_NAME ?= mypills
@@ -38,6 +40,10 @@ swag:
 
 run: swag build
 	./build/mypills-app
+
+.PHONY: check-web4
+check-web4:
+	@python3 scripts/check_web4.py --base "$(WEB4_BASE_URL)"
 
 test-classic: install-allure test-clean
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"
@@ -154,7 +160,7 @@ clean: test-clean
 	@rm -f -- "$(FRONTEND_TSC_BUILD_INFO)" "$(FRONTEND_NODE_TSC_BUILD_INFO)"
 
 docker-db:
-	sudo docker exec -it mypills-db psql -U user -d mypills
+	docker compose exec db sh -c 'exec psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
 log:
 	tail -n 200 -f "logs/app.log"

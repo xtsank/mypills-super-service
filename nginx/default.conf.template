@@ -1,0 +1,151 @@
+upstream mypills_api {
+    server app:${APP_PORT};
+}
+
+map $uri $public_web_doc {
+    default                         0;
+    /docs/web/lab3-report.md         1;
+    /docs/openapi/v2.yaml            1;
+    /docs/swagger/swagger.yaml      1;
+    /docs/use-case/use-case.svg      1;
+    /docs/bpmn/bpmn.svg              1;
+    /docs/erd/erd.svg                1;
+    /docs/dm_schema/schema.svg       1;
+    /docs/c4/Context.svg             1;
+    /docs/c4/main.dsl                1;
+    /docs/web/images/img1.png        1;
+    /docs/web/images/img2.png        1;
+    /docs/web/images/img3.png        1;
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+    root /usr/share/nginx/html;
+
+    proxy_set_header Host $http_host;
+    proxy_set_header Authorization $http_authorization;
+
+    location /api/v1/ {
+        proxy_pass http://mypills_api;
+    }
+
+    location /api/v2/ {
+        proxy_pass http://mypills_api;
+    }
+
+    location = /api/v1/docs {
+        absolute_redirect off;
+        return 308 /api/v1/docs/$is_args$args;
+    }
+
+    location = /api/v1/docs/ {
+        proxy_pass http://mypills_api/swagger-v1/index.html;
+    }
+
+    location /api/v1/docs/ {
+        proxy_pass http://mypills_api/swagger-v1/;
+    }
+
+    location = /api/v2/docs {
+        absolute_redirect off;
+        return 308 /api/v2/docs/$is_args$args;
+    }
+
+    location /api/v2/docs/ {
+        proxy_pass http://mypills_api/swagger/;
+    }
+
+    location = /api/spec/v2.yaml {
+        proxy_pass http://mypills_api;
+    }
+
+    location ~ ^/(swagger|swagger-v1)(/|$) {
+        proxy_pass http://mypills_api;
+    }
+
+    location = /legacy {
+        absolute_redirect off;
+        return 308 /legacy/$is_args$args;
+    }
+
+    location /legacy/ {
+        proxy_pass http://gui:80;
+    }
+
+    location = /admin {
+        absolute_redirect off;
+        return 308 /admin/$is_args$args;
+    }
+
+    location /admin/ {
+        auth_basic "MyPills database";
+        auth_basic_user_file /run/admin.htpasswd;
+
+        proxy_set_header Host $http_host;
+        proxy_set_header Authorization "";
+        proxy_set_header X-Forwarded-Prefix /admin;
+        proxy_pass http://adminer:8080/;
+    }
+
+    location = / {
+        try_files /index.html =404;
+    }
+
+    location = /reserved/ {
+        try_files /index.html =404;
+    }
+
+    location /static/img/ {
+        alias /usr/share/nginx/lab1-images/;
+    }
+
+    location = /documentation {
+        alias /srv/web-documentation/index.html;
+        default_type text/html;
+        charset utf-8;
+    }
+
+    location = /status {
+        stub_status;
+    }
+
+    location = /health {
+        default_type text/plain;
+        add_header Cache-Control "no-store" always;
+        return 200 "ok\n";
+    }
+
+    location = /ready {
+        add_header Cache-Control "no-store" always;
+        proxy_connect_timeout 1s;
+        proxy_read_timeout 3s;
+        proxy_intercept_errors on;
+        error_page 502 504 = @not_ready;
+        proxy_pass http://mypills_api;
+    }
+
+    location @not_ready {
+        default_type text/plain;
+        add_header Cache-Control "no-store" always;
+        return 503 "not ready\n";
+    }
+
+    location = /management {
+        try_files /management.html =404;
+    }
+
+    location /docs/ {
+        if ($public_web_doc = 0) {
+            return 404;
+        }
+        root /srv;
+        default_type text/plain;
+        charset utf-8;
+        try_files $uri =404;
+    }
+
+    location / {
+        return 404;
+    }
+}

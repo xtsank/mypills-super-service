@@ -32,7 +32,7 @@
 ### Инфраструктура
 
 - Docker и Docker Compose.
-- Compose запускает PostgreSQL, backend и GUI без профилей.
+- Compose запускает Nginx, Go, GUI, PostgreSQL и Adminer. На хосте опубликован только Nginx на `127.0.0.1:${WEB_PORT}`.
 
 ## 2. Сборка, запуск и тесты
 
@@ -104,8 +104,9 @@ npm run preview
 
 ### Docker Compose и служебные команды
 
-- Весь стек запускается командой `docker compose up -d --build`.
-- `docker-compose.yaml` требует значения переменных из `.env`, включая параметры БД и порты. Пример `.env`: **не найден**.
+- Для запуска с нуля следуй [инструкции WebLab №4](README.md#запуск-стенда-weblab-4). Используй отдельный Compose-проект и том для проверок, которые останавливают Go или БД.
+- После изменения маршрутов выполни `docker compose config --quiet`, `docker compose exec -T nginx nginx -t` и `make check-web4`. Для тестового стенда передай `WEB4_BASE_URL`.
+- Внутренний порт Go по умолчанию — `8081`. Compose передаёт `APP_PORT` в `app` как `SERVER_PORT` и в шаблон Nginx как порт сервиса `app`.
 - Другие цели `Makefile`: `make docker-db`, `make log`, `make make_admin login=<login>`, `make psql-users`.
 
 ## 3. Структура директорий
@@ -116,7 +117,9 @@ npm run preview
 ├── README.md              # описание предметной области и диаграммы
 ├── Makefile               # backend, тесты и служебные цели
 ├── Dockerfile             # production-like backend image
-├── docker-compose.yaml    # PostgreSQL, backend, GUI
+├── docker-compose.yaml    # стенд WebLab №4
+├── nginx/                 # маршрутизация, HTML документации и вход в Adminer
+├── static/                # приветственная страница и /management
 ├── go.mod / go.sum        # Go-модуль и зависимости
 ├── docs/
 │   ├── swagger/           # сгенерированная OpenAPI-документация
@@ -171,12 +174,13 @@ npm run preview
 ## 5. Что НЕ трогать
 
 - Не редактировать вручную `docs/swagger/docs.go`, `swagger.json` и `swagger.yaml`: они создаются `swag init` через `make swag`; `docs.go` явно помечен `Code generated ... DO NOT EDIT`.
-- Не добавлять в Git `.env`/`.env.*`, логи, `node_modules/`, `dist/`, `.vite/` и `*.tsbuildinfo`: эти пути исключены в `.gitignore`. Исключение для примера окружения в `.gitignore` **не найдено**.
+- Не добавлять в Git локальные `.env`/`.env.*`, логи, `node_modules/`, `dist/`, `.vite/` и `*.tsbuildinfo`. В `.env.example` хранятся только имена переменных и общие значения без секретов.
 - Не перезаписывать несвязанные пользовательские изменения в рабочем дереве. На момент создания файла уже изменены `go.mod`, `go.sum` и добавлены тестовые файлы; они не изменялись при подготовке этого документа.
 - Дополнительный явно документированный список защищённых файлов или директорий: **не найдено**.
 
 ## 6. Контракт API
 
 - Основной контракт — `docs/openapi/v2.yaml`; GUI использует `/api/v2`.
-- `/api/v1` и прежние корневые маршруты поддерживаются обработчиками `legacy_*`.
+- Обработчики `legacy_*` поддерживают `/api/v1` и прежние корневые маршруты. Nginx публикует версионные маршруты и адреса Swagger, описанные в таблице WebLab №4.
 - PostgreSQL — единственное хранилище приложения.
+- WebLab №4: перед настройкой или проверкой Nginx, маршрутов и доступа к служебным страницам сверяйся с [таблицей маршрутов](docs/web/lab4-routing.md). По ней определяй ожидаемый результат HTTP-проверок.

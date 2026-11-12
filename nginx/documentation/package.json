@@ -1,0 +1,7 @@
+{
+  "name": "mypills-documentation",
+  "private": true,
+  "dependencies": {
+    "markdown-it": "15.0.3"
+  }
+}
