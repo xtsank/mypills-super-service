@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление стендом MyPills</title>
+    <style>
+      :root { font: 1rem/1.6 Inter, system-ui, sans-serif; color: #182b26; background: #f4f8f5; }
+      body { max-width: 44rem; margin: auto; padding: 2rem 1.25rem; }
+      a { color: #176047; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Управление стендом MyPills</h1>
+      <nav aria-label="Маршруты стенда">
+        <h2>Приложение</h2>
+        <ul>
+          <li><a href="/">Главная страница</a></li>
+          <li><a href="/reserved/">Резервная главная страница</a></li>
+          <li><a href="/legacy/">Интерфейс MyPills</a></li>
+          <li><a href="/documentation">Документация проекта</a></li>
+        </ul>
+        <h2>API</h2>
+        <ul>
+          <li><a href="/api/v2/docs/">Swagger UI v2</a></li>
+          <li><a href="/api/v1/docs/">Swagger UI v1</a></li>
+        </ul>
+        <h2>Служебные страницы</h2>
+        <ul>
+          <li><a href="/admin/">Админка PostgreSQL</a> · нужен пароль</li>
+          <li><a href="/status">Статистика Nginx</a></li>
+          <li><a href="/health">Работоспособность Nginx</a></li>
+          <li><a href="/ready">Готовность API и базы</a></li>
+        </ul>
+      </nav>
+    </main>
+  </body>
+</html>

@@ -1,7 +1,35 @@
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    depends_on:
+      app:
+        condition: service_started
+        restart: true
+      gui:
+        condition: service_started
+        restart: true
+      adminer:
+        condition: service_started
+        restart: true
+    environment:
+      APP_PORT: ${APP_PORT:-8081}
+      ADMIN_USER: ${ADMIN_USER:-webadmin}
+      NGINX_ENVSUBST_FILTER: "^APP_PORT$$"
+    secrets:
+      - source: admin_password
+        mode: 0400
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8088}:80"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./static:/usr/share/nginx/html:ro
+      - ./docs/web/images:/usr/share/nginx/lab1-images:ro
+      - ./docs:/srv/docs:ro
+
   db:
     image: postgres:16-alpine
-    container_name: mypills-db
     restart: "no"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
@@ -10,38 +38,49 @@ services:
       retries: 30
     environment:
       - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
       - POSTGRES_DB=${DB_NAME}
-    ports:
-      - "${POSTGRES_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./src/internal/infra/postgres/init:/docker-entrypoint-initdb.d
-      - ./backup:/seed/csv:ro
   app:
     build: .
     restart: "no"
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
     environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      - DB_NAME=${DB_NAME}
       - DB_HOST=db
       - DB_PORT=5432
-    ports:
-      - "${SERVER_PORT}:8080"
+      - SECRET_KEY=${SECRET_KEY:?Set SECRET_KEY in .env}
+      - TOKEN_DURATION=${TOKEN_DURATION:-}
+      - DB_MAX_OPEN_CONNS=${DB_MAX_OPEN_CONNS:-}
+      - DB_MAX_IDLE_CONNS=${DB_MAX_IDLE_CONNS:-}
+      - DB_CONN_MAX_LIFETIME=${DB_CONN_MAX_LIFETIME:-}
+      - DB_CONN_MAX_IDLE_TIME=${DB_CONN_MAX_IDLE_TIME:-}
+      - LOG_FILE=${LOG_FILE:-}
+      - LOG_LEVEL=${LOG_LEVEL:-}
+      - SERVER_PORT=${APP_PORT:-8081}
     volumes:
       - ./logs:/root/logs
   gui:
     build: ./gui
     restart: "no"
+
+  adminer:
+    image: adminer:6.3.0-standalone
     depends_on:
-      - app
+      db:
+        condition: service_healthy
     environment:
-      - VITE_API_BASE_URL=http://localhost:${SERVER_PORT}
-    ports:
-      - "${GUI_PORT}:5173"
+      ADMINER_DEFAULT_SERVER: db
 
 volumes:
   pgdata:
+
+secrets:
+  admin_password:
+    environment: ADMIN_PASSWORD

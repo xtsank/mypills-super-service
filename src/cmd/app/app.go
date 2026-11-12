@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/samber/do/v2"
 	"github.com/swaggo/files"
 	swaggerFilesV2 "github.com/swaggo/files/v2"
 	"github.com/swaggo/gin-swagger"
-	_ "github.com/xtsank/mypills-super-service/docs/swagger"
+	legacySwaggerDocs "github.com/xtsank/mypills-super-service/docs/swagger"
 	"github.com/xtsank/mypills-super-service/src/internal/config"
 	pgDB "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/db"
 	pgRepo "github.com/xtsank/mypills-super-service/src/internal/infra/postgres/repository"
@@ -122,6 +125,7 @@ func (app *App) initSwagger() {
 	app.router.GET("/swagger-v1", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/swagger-v1/index.html")
 	})
+	legacySwaggerDocs.SwaggerInfo.BasePath = "/api/v1"
 	legacySwagger := app.router.Group("/swagger-v1")
 	v1Files := *swaggerFiles.Handler
 	v1Swagger := ginSwagger.WrapHandler(&v1Files)
@@ -131,6 +135,20 @@ func (app *App) initSwagger() {
 			return
 		}
 		v1Swagger(c)
+	})
+}
+
+func (app *App) initReadiness() {
+	db := do.MustInvoke[*sqlx.DB](app.i)
+	app.router.GET("/ready", func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second)
+		defer cancel()
+
+		if err := db.PingContext(ctx); err != nil {
+			c.String(http.StatusServiceUnavailable, "not ready\n")
+			return
+		}
+		c.String(http.StatusOK, "ready\n")
 	})
 }
 
@@ -183,6 +201,7 @@ func (app *App) initRoutes() {
 
 func (app *App) initAll() {
 	app.initSwagger()
+	app.initReadiness()
 	app.initMiddlewares()
 	app.initRoutes()
 }

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MyPills — домашняя аптечка</title>
+    <style>
+      :root {
+        font: 1rem/1.5 Inter, system-ui, sans-serif;
+        color: #182b26;
+        background: #f4f8f5;
+      }
+
+      body { margin: 0; }
+      main { max-width: 72rem; margin: auto; padding: 3rem 1.25rem; }
+      header { margin-bottom: 2.5rem; }
+      h1 { margin: 0; font-size: clamp(2.75rem, 8vw, 4.5rem); line-height: 1.1; }
+      header p { max-width: 36rem; font-size: 1.125rem; }
+
+      .open-app {
+        display: inline-block;
+        padding: .65rem 1.1rem;
+        border-radius: .5rem;
+        background: #176047;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+        gap: 1rem;
+      }
+
+      figure {
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid #d8e4dc;
+        border-radius: .75rem;
+        background: white;
+      }
+
+      figure a { display: block; }
+      figure a:focus-visible { outline-offset: -3px; }
+      img { display: block; width: 100%; height: auto; }
+      figcaption { padding: .75rem 1rem; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>MyPills</h1>
+        <p>Управляйте домашними аптечками, следите за остатками и сроками годности лекарств и планируйте пополнение запасов.</p>
+        <a class="open-app" href="/legacy/">Открыть приложение</a>
+      </header>
+      <section aria-labelledby="sketches">
+        <h2 id="sketches">Эскизы интерфейса из лабораторной №1</h2>
+        <div class="gallery">
+          <figure>
+            <a href="/static/img/img1.png">
+              <img src="/static/img/img1.png" width="1920" height="1040" alt="Эскиз с формами входа и регистрации">
+            </a>
+            <figcaption>Вход и регистрация</figcaption>
+          </figure>
+          <figure>
+            <a href="/static/img/img2.png">
+              <img src="/static/img/img2.png" width="1920" height="1040" alt="Эскиз настроек профиля пользователя">
+            </a>
+            <figcaption>Профиль пользователя</figcaption>
+          </figure>
+          <figure>
+            <a href="/static/img/img3.png">
+              <img src="/static/img/img3.png" width="1920" height="1040" alt="Эскиз формы добавления лекарства в каталог">
+            </a>
+            <figcaption>Управление каталогом</figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

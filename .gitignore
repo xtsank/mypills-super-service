@@ -12,10 +12,13 @@ bin/
 *.so
 *.dylib
 *.test
+!Dockerfile.test
 *.out
 coverage.html
 allure-results/
 allure-report/
+allure-report.html
+.allure-single-file/
 allure-history.jsonl
 allure-history/
 allure-history-lab1/
@@ -31,3 +34,4 @@ dist/
 
 .env
 .env.*
+!.env.example

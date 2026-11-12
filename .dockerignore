@@ -1,5 +1,6 @@
 .git
 .env*
+nginx/auth
 backup
 build
 gui/node_modules

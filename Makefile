@@ -1,10 +1,12 @@
-.PHONY: build run swag test-classic test-london test test-offline coverage-branch install-gocove install-allure allure-generate allure-report allure-open test-clean clean docker-db log make_admin psql-users
+.PHONY: build run swag test-classic test-london test test-all test-unit test-unit-go test-integration test-integration-run test-integration-go test-integration-skipped test-e2e test-e2e-run test-e2e-go test-e2e-skipped test-offline coverage-branch install-gocove install-allure allure-generate allure-single-file allure-report allure-open test-clean clean docker-db log make_admin psql-users
 
 login=admin111
 
-DB_USER = user
-DB_PASSWORD = password
-DB_NAME = mypills
+WEB4_BASE_URL ?= http://127.0.0.1:8088
+
+DB_USER ?= user
+DB_PASSWORD ?= password
+DB_NAME ?= mypills
 
 TEST_PACKAGES = ./src/internal/service
 TEST_COVERPKG = ./src/internal/service,./src/internal/infra/postgres/repository
@@ -12,6 +14,8 @@ TEST_FLAGS = -v -count=1 -shuffle=on
 ALLURE_RESULTS_DIR = $(CURDIR)/allure-results
 ALLURE_REPORT_DIR = $(CURDIR)/allure-report
 ALLURE_HISTORY_DIR = $(CURDIR)/allure-history-v2
+ALLURE_SINGLE_FILE_DIR = $(CURDIR)/.allure-single-file
+ALLURE_SINGLE_FILE = $(CURDIR)/allure-report.html
 LEGACY_ALLURE_RESULTS_DIR = $(CURDIR)/src/internal/service/allure-results
 COVERAGE_PROFILE = $(CURDIR)/coverage.out
 GOCOVE_META_DIR = $(CURDIR)/.gocove
@@ -37,6 +41,10 @@ swag:
 run: swag build
 	./build/mypills-app
 
+.PHONY: check-web4
+check-web4:
+	@python3 scripts/check_web4.py --base "$(WEB4_BASE_URL)"
+
 test-classic: install-allure test-clean
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"
 	@status=0; ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test $(TEST_FLAGS) -run '^TestClassic_' ./src/internal/service || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
@@ -46,10 +54,60 @@ test-london: install-allure test-clean
 	@status=0; ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test $(TEST_FLAGS) -run '^TestLondon_' ./src/internal/service || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
 
 test: install-allure test-clean
-	@mkdir -p "$(ALLURE_RESULTS_DIR)"
-	@status=0; ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test $(TEST_FLAGS) -covermode=count -coverpkg=$(TEST_COVERPKG) -coverprofile="$(COVERAGE_PROFILE)" $(TEST_PACKAGES) || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
+	@status=0; \
+	if $(MAKE) test-unit-go; then \
+		if $(MAKE) test-integration-run; then \
+			$(MAKE) test-e2e-run || status=$$?; \
+		else \
+			status=$$?; \
+			$(MAKE) test-e2e-skipped || status=1; \
+		fi; \
+	else \
+		status=$$?; \
+		$(MAKE) test-integration-skipped || status=1; \
+		$(MAKE) test-e2e-skipped || status=1; \
+	fi; \
+	$(MAKE) allure-generate || exit $$?; \
+	exit $$status
+
+test-all: test
+
+test-unit: install-allure test-clean
+	@status=0; $(MAKE) test-unit-go || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
 	go tool cover -func="$(COVERAGE_PROFILE)"
 	go run ./scripts/line-coverage.go "$(COVERAGE_PROFILE)"
+
+test-unit-go:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test $(TEST_FLAGS) -covermode=count -coverpkg=$(TEST_COVERPKG) -coverprofile="$(COVERAGE_PROFILE)" $(TEST_PACKAGES)
+
+test-integration: install-allure test-clean
+	@status=0; $(MAKE) test-integration-run || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
+
+test-integration-run:
+	@status=0; ./scripts/test-ci-docker.sh ./scripts/test-stand.sh run docker compose -p "mypills-lab2-$${TEST_RUN_ID:-test}" -f docker-compose.test.yaml run --rm --no-deps test-runner make test-integration-go || status=$$?; ./scripts/test-ci-docker.sh ./scripts/test-stand.sh down || status=1; exit $$status
+
+test-integration-go:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=integration -v -count=1 -shuffle=on -timeout=60s ./src/internal/integration
+
+test-integration-skipped:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	LAB2_SKIP_REASON="Предыдущий этап тестирования завершился ошибкой" ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=integration -v -count=1 ./src/internal/integration
+
+test-e2e: install-allure test-clean
+	@status=0; $(MAKE) test-e2e-run || status=$$?; $(MAKE) allure-generate || exit $$?; exit $$status
+
+test-e2e-run:
+	@status=0; TEST_SEED_FILE=e2e_seed.sql ./scripts/test-ci-docker.sh ./scripts/test-stand.sh run docker compose -p "mypills-lab2-$${TEST_RUN_ID:-test}" -f docker-compose.test.yaml run --rm --no-deps test-runner make test-e2e-go || status=$$?; TEST_SEED_FILE=e2e_seed.sql ./scripts/test-ci-docker.sh ./scripts/test-stand.sh down || status=1; exit $$status
+
+test-e2e-go:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=e2e -v -count=1 -timeout=60s ./src/internal/e2e
+
+test-e2e-skipped:
+	@mkdir -p "$(ALLURE_RESULTS_DIR)"
+	LAB2_SKIP_REASON="Предыдущий этап тестирования завершился ошибкой" ALLURE_RESULTS_DIR="$(ALLURE_RESULTS_DIR)" go test -tags=e2e -v -count=1 ./src/internal/e2e
 
 test-offline: install-allure test-clean
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"
@@ -73,11 +131,18 @@ install-allure:
 allure-generate:
 	@test -d "$(ALLURE_RESULTS_DIR)" || { echo "Результаты Allure не найдены: сначала выполните тесты"; exit 1; }
 	@printf 'Go=%s\nOS=%s\nArchitecture=%s\n' "$$(go env GOVERSION)" "$$(go env GOOS)" "$$(go env GOARCH)" > "$(ALLURE_RESULTS_DIR)/environment.properties"
-	@printf '%s\n' '{"name":"go test","buildName":"MyPills unit tests"}' > "$(ALLURE_RESULTS_DIR)/executor.json"
-	@if test -d "$(ALLURE_HISTORY_DIR)"; then cp -a "$(ALLURE_HISTORY_DIR)" "$(ALLURE_RESULTS_DIR)/history"; fi
+	@printf '%s\n' '{"name":"go test","buildName":"MyPills tests"}' > "$(ALLURE_RESULTS_DIR)/executor.json"
+	@if test -d "$(ALLURE_HISTORY_DIR)"; then node scripts/fix-allure-duration-trend.mjs history "$(ALLURE_HISTORY_DIR)" && cp -a "$(ALLURE_HISTORY_DIR)" "$(ALLURE_RESULTS_DIR)/history"; fi
 	$(ALLURE_CLI) generate "$(ALLURE_RESULTS_DIR)" --clean --output "$(ALLURE_REPORT_DIR)" --lang ru --name "MyPills tests"
+	@node scripts/fix-allure-duration-trend.mjs report "$(ALLURE_REPORT_DIR)"
 	@mkdir -p "$(ALLURE_HISTORY_DIR)"
 	@cp -a "$(ALLURE_REPORT_DIR)/history/." "$(ALLURE_HISTORY_DIR)/"
+
+allure-single-file:
+	@test -d "$(ALLURE_RESULTS_DIR)" || { echo "Результаты Allure не найдены: сначала выполните тесты"; exit 1; }
+	$(ALLURE_CLI) generate "$(ALLURE_RESULTS_DIR)" --clean --single-file --output "$(ALLURE_SINGLE_FILE_DIR)" --lang ru --name "MyPills tests"
+	@node scripts/fix-allure-duration-trend.mjs single-file "$(ALLURE_SINGLE_FILE_DIR)/index.html"
+	@cp "$(ALLURE_SINGLE_FILE_DIR)/index.html" "$(ALLURE_SINGLE_FILE)"
 
 allure-report:
 	@test -f "$(ALLURE_REPORT_DIR)/index.html" || { echo "Отчёт Allure не найден: сначала выполните make test"; exit 1; }
@@ -86,7 +151,8 @@ allure-open: allure-report
 	$(ALLURE_CLI) open "$(ALLURE_REPORT_DIR)"
 
 test-clean:
-	@rm -rf -- "$(ALLURE_RESULTS_DIR)" "$(ALLURE_REPORT_DIR)" "$(GOCOVE_META_DIR)" "$(LEGACY_ALLURE_RESULTS_DIR)" "$(SCANNER_WORK_DIR)"
+	@rm -rf -- "$(ALLURE_RESULTS_DIR)" "$(ALLURE_REPORT_DIR)" "$(ALLURE_SINGLE_FILE_DIR)" "$(GOCOVE_META_DIR)" "$(LEGACY_ALLURE_RESULTS_DIR)" "$(SCANNER_WORK_DIR)"
+	@rm -f -- "$(ALLURE_SINGLE_FILE)"
 	@rm -f -- "$(COVERAGE_PROFILE)" "$(CURDIR)/coverage.html"
 
 clean: test-clean
@@ -94,7 +160,7 @@ clean: test-clean
 	@rm -f -- "$(FRONTEND_TSC_BUILD_INFO)" "$(FRONTEND_NODE_TSC_BUILD_INFO)"
 
 docker-db:
-	sudo docker exec -it mypills-db psql -U user -d mypills
+	docker compose exec db sh -c 'exec psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
 log:
 	tail -n 200 -f "logs/app.log"

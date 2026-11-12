@@ -1,0 +1,253 @@
+name: Lab 2 tests
+
+on:
+  push:
+    branches: [lab2-testing]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  TEST_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+
+concurrency:
+  group: allure-history-ci-${{ github.repository }}-${{ github.ref_name }}
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run unit tests in the test container
+        run: |
+          mkdir -p allure-results
+          printf 'unit\n' > allure-results/stage-unit.txt
+          ./scripts/test-ci-docker.sh make test-unit-go
+      - name: Pass unit results to the report job
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: stage-results-unit
+          path: allure-results/
+          retention-days: 1
+
+  integration:
+    name: Integration tests
+    needs: unit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run integration tests on the test stand
+        run: |
+          mkdir -p allure-results
+          printf 'integration\n' > allure-results/stage-integration.txt
+          ./scripts/test-ci-docker.sh make test-integration-run
+      - name: Pass integration results to the report job
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: stage-results-integration
+          path: allure-results/
+          retention-days: 1
+
+  e2e:
+    name: E2E test
+    needs: integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run E2E test on the test stand
+        run: |
+          mkdir -p allure-results
+          printf 'e2e\n' > allure-results/stage-e2e.txt
+          ./scripts/test-ci-docker.sh make test-e2e-run
+      - name: Pass E2E results to the report job
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: stage-results-e2e
+          path: allure-results/
+          retention-days: 1
+
+  report:
+    name: Allure report
+    needs: [unit, integration, e2e]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Collect test results
+        uses: actions/download-artifact@v7
+        with:
+          pattern: stage-results-*
+          path: allure-results
+          merge-multiple: true
+      - name: Find history from the previous run on this branch
+        id: previous_history
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = context.payload.pull_request?.head.ref ?? context.ref.replace(/^refs\/heads\//, '');
+            const sourceRepo = context.payload.pull_request?.head.repo.full_name ?? `${owner}/${repo}`;
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: 'lab2-tests.yml', branch,
+              status: 'completed', per_page: 100
+            });
+            for (const run of data.workflow_runs) {
+              if (run.id === context.runId || run.head_repository?.full_name !== sourceRepo) continue;
+              const { data: result } = await github.rest.actions.listWorkflowRunArtifacts({
+                owner, repo, run_id: run.id, per_page: 100
+              });
+              if (result.artifacts.some(artifact => artifact.name === 'allure-history-ci' && !artifact.expired)) {
+                core.setOutput('run_id', String(run.id));
+                core.info(`Using Allure history from run ${run.id}`);
+                break;
+              }
+            }
+      - name: Restore Allure history
+        if: ${{ steps.previous_history.outputs.run_id != '' }}
+        uses: actions/download-artifact@v7
+        with:
+          name: allure-history-ci
+          path: allure-history-v2
+          run-id: ${{ steps.previous_history.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Check whether older CI history needs restoration
+        id: legacy_check
+        run: |
+          if [ "$GITHUB_REF" = refs/heads/lab2-testing ] && [ ! -f allure-history-v2/ci-history-restored.txt ]; then
+            echo 'needed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'needed=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Find older CI reports
+        id: legacy_runs
+        if: ${{ steps.legacy_check.outputs.needed == 'true' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const expected = new Map([[4, 'ea2f327'], [5, '6249038'], [6, 'f3b6c1c']]);
+            const { owner, repo } = context.repo;
+            const branch = context.ref.replace(/^refs\/heads\//, '');
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: 'lab2-tests.yml', branch,
+              status: 'completed', per_page: 100
+            });
+            const restored = [];
+            for (const run of data.workflow_runs) {
+              const commit = expected.get(run.run_number);
+              if (!commit || !run.head_sha.startsWith(commit)) continue;
+              const { data: artifacts } = await github.rest.actions.listWorkflowRunArtifacts({
+                owner, repo, run_id: run.id, per_page: 100
+              });
+              if (!artifacts.artifacts.some(item => item.name === 'allure-history' && !item.expired)) {
+                throw new Error(`Allure history artifact is unavailable for CI run #${run.run_number}`);
+              }
+              core.setOutput(`run_${run.run_number}`, String(run.id));
+              restored.push({ number: run.run_number, start: run.created_at, end: run.updated_at });
+            }
+            if (restored.length !== expected.size) {
+              throw new Error(`Found ${restored.length} of ${expected.size} older CI history artifacts`);
+            }
+            core.setOutput('windows', JSON.stringify(restored));
+      - name: Download CI history from run 4
+        if: ${{ steps.legacy_check.outputs.needed == 'true' }}
+        uses: actions/download-artifact@v7
+        with:
+          name: allure-history
+          path: ${{ runner.temp }}/ci-legacy/4
+          run-id: ${{ steps.legacy_runs.outputs.run_4 }}
+          github-token: ${{ github.token }}
+      - name: Download CI history from run 5
+        if: ${{ steps.legacy_check.outputs.needed == 'true' }}
+        uses: actions/download-artifact@v7
+        with:
+          name: allure-history
+          path: ${{ runner.temp }}/ci-legacy/5
+          run-id: ${{ steps.legacy_runs.outputs.run_5 }}
+          github-token: ${{ github.token }}
+      - name: Download CI history from run 6
+        if: ${{ steps.legacy_check.outputs.needed == 'true' }}
+        uses: actions/download-artifact@v7
+        with:
+          name: allure-history
+          path: ${{ runner.temp }}/ci-legacy/6
+          run-id: ${{ steps.legacy_runs.outputs.run_6 }}
+          github-token: ${{ github.token }}
+      - name: Restore older CI runs without local results
+        if: ${{ steps.legacy_check.outputs.needed == 'true' }}
+        env:
+          LEGACY_ROOT: ${{ runner.temp }}/ci-legacy
+          LEGACY_RUNS: ${{ steps.legacy_runs.outputs.windows }}
+        run: python3 scripts/restore-ci-allure-history.py
+      - name: Generate Allure report
+        env:
+          UNIT_RESULT: ${{ needs.unit.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+        run: |
+          if [ "$UNIT_RESULT" != success ]; then
+            ./scripts/test-ci-docker.sh make test-integration-skipped
+            ./scripts/test-ci-docker.sh make test-e2e-skipped
+          elif [ "$INTEGRATION_RESULT" != success ]; then
+            ./scripts/test-ci-docker.sh make test-e2e-skipped
+          fi
+          ./scripts/test-ci-docker.sh make allure-generate
+          {
+            echo '### Test stages'
+            echo '| Stage | GitHub status |'
+            echo '| --- | --- |'
+            echo "| Unit | $UNIT_RESULT |"
+            echo "| Integration | $INTEGRATION_RESULT |"
+            echo "| E2E | ${{ needs.e2e.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Create downloadable HTML report
+        run: ./scripts/test-ci-docker.sh make allure-single-file
+      - name: Upload Allure report
+        id: upload_report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          path: allure-report.html
+          archive: false
+          if-no-files-found: warn
+      - name: Upload Allure history
+        id: upload_history
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: allure-history-ci
+          path: allure-history-v2/
+          if-no-files-found: warn
+      - name: Add report link to the run summary
+        if: ${{ steps.upload_report.outputs.artifact-url != '' }}
+        run: echo "[Download Allure report](${{ steps.upload_report.outputs.artifact-url }})" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove temporary JSON artifacts
+        if: ${{ steps.upload_report.outputs.artifact-id != '' && steps.upload_history.outputs.artifact-id != '' }}
+        continue-on-error: true
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner, repo, run_id: context.runId, per_page: 100
+            });
+            for (const artifact of data.artifacts) {
+              if (!artifact.name.startsWith('stage-results-')) continue;
+              await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: artifact.id });
+            }
