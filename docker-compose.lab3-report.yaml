@@ -1,0 +1,60 @@
+name: mypills-lab3-report
+
+services:
+  results-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lab3_results
+      POSTGRES_PASSWORD: lab3_results
+      POSTGRES_DB: lab3_results
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - lab3_results_data:/var/lib/postgresql/data
+      - ./grafana/lab3/schema.sql:/docker-entrypoint-initdb.d/01-lab3-report.sql:ro
+
+  importer:
+    image: postgres:16-alpine
+    profiles: ["import"]
+    environment:
+      LAB3_RUN_ID: ${LAB3_RUN_ID:-local}
+      PGHOST: results-db
+      PGDATABASE: lab3_results
+      PGUSER: lab3_results
+      PGPASSWORD: lab3_results
+    volumes:
+      - ./benchmark-results/${LAB3_RUN_ID:-local}:/input:ro
+      - ./grafana/lab3/import.sql:/import.sql:ro
+    command: ["psql", "-X", "-v", "ON_ERROR_STOP=1", "-f", "/import.sql"]
+
+  grafana:
+    image: grafana/grafana:12.3.3
+    depends_on:
+      results-db:
+        condition: service_healthy
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_BASIC_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/lab3.json
+    ports:
+      - "127.0.0.1:${LAB3_GRAFANA_PORT:-3003}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - ./grafana/lab3/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/lab3/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  lab3_results_data:

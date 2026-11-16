@@ -1,0 +1,45 @@
+name: mypills-lab3
+
+services:
+  db:
+    image: postgres:16-alpine
+    cpuset: "${LAB3_CPU:-0}"
+    restart: "no"
+    environment:
+      POSTGRES_USER: mypills_lab3
+      POSTGRES_PASSWORD: mypills_lab3
+      POSTGRES_DB: mypills_lab3
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - lab3_pgdata:/var/lib/postgresql/data
+      - ./src/internal/infra/postgres/init/init.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./tests/fixtures/lab3_seed.sql:/docker-entrypoint-initdb.d/02-lab3-seed.sql:ro
+
+  benchmark:
+    profiles: ["benchmark"]
+    image: mypills-lab3-benchmark:${LAB3_RUN_ID:-local}
+    build:
+      context: .
+      dockerfile: Dockerfile.lab3
+      args:
+        LAB3_RUN_ID: ${LAB3_RUN_ID:-local}
+    cpuset: "${LAB3_CPU:-0}"
+    user: "${LAB3_UID:-1000}:${LAB3_GID:-1000}"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOMAXPROCS: "1"
+      LAB3_DSN: postgres://mypills_lab3:mypills_lab3@db:5432/mypills_lab3?sslmode=disable
+      LAB3_RUN_ID: ${LAB3_RUN_ID:-local}
+      LAB3_CPU: ${LAB3_CPU:-0}
+      LAB3_PROFILE: ${LAB3_PROFILE:-full}
+    volumes:
+      - ./benchmark-results/${LAB3_RUN_ID:-local}:/results
+
+volumes:
+  lab3_pgdata:

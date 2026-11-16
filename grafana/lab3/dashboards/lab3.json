@@ -1,0 +1,770 @@
+{
+  "uid": "mypills-lab3",
+  "title": "MyPills · ЛР № 3 · SQL и GORM",
+  "description": "Микробенчмарк операций каталога MyPills в PostgreSQL.",
+  "tags": [
+    "MyPills",
+    "benchmark"
+  ],
+  "schemaVersion": 41,
+  "editable": false,
+  "timezone": "browser",
+  "refresh": "",
+  "timepicker": {
+    "hidden": true
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "run_id",
+        "label": "Прогон",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "lab3-postgres"
+        },
+        "query": "SELECT run_id AS __text, run_id AS __value FROM lab3_runs ORDER BY run_id DESC",
+        "definition": "SELECT run_id AS __text, run_id AS __value FROM lab3_runs ORDER BY run_id DESC",
+        "refresh": 1,
+        "sort": 0,
+        "current": {},
+        "options": [],
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "scenario",
+        "label": "Сценарий",
+        "type": "custom",
+        "query": "mixed,find,count,page,insert,rename,delete",
+        "current": {
+          "text": "mixed",
+          "value": "mixed"
+        },
+        "options": []
+      },
+      {
+        "name": "repeat",
+        "label": "Повтор",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "lab3-postgres"
+        },
+        "query": "SELECT DISTINCT repeat::text AS __text, repeat::text AS __value FROM lab3_samples WHERE run_id = ${run_id:sqlstring} ORDER BY 1",
+        "definition": "SELECT DISTINCT repeat::text AS __text, repeat::text AS __value FROM lab3_samples WHERE run_id = ${run_id:sqlstring} ORDER BY 1",
+        "refresh": 1,
+        "sort": 0,
+        "current": {},
+        "options": [],
+        "multi": false,
+        "includeAll": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Прогон",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "lab3-postgres"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "lab3-postgres"
+          },
+          "refId": "A",
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT (summary->>'duration_ns')::bigint / 1e9 AS \"Длительность\",\n       (summary->>'timer_overhead_median_ns')::bigint AS \"Пустой замер, медиана\",\n       (summary->>'empty_loop_ns_per_op')::bigint AS \"Пустой цикл на операцию\"\nFROM lab3_runs WHERE run_id = ${run_id:sqlstring}"
+        }
+      ],
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Длительность"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Пустой замер, медиана"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ns"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Пустой цикл на операцию"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ns"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Перцентили задержек",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 7
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "lab3-postgres"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "lab3-postgres"
+          },
+          "refId": "A",
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "WITH p AS (\n    SELECT variant, operation, count(*) AS samples,\n           percentile_disc(ARRAY[0.50, 0.75, 0.90, 0.95, 0.99])\n               WITHIN GROUP (ORDER BY duration_ns) AS quantiles\n    FROM lab3_samples WHERE run_id = ${run_id:sqlstring} AND scenario = ${scenario:sqlstring} AND repeat = ${repeat:sqlstring}::integer\n  AND phase = 'measure' AND status = 'ok'\n    GROUP BY variant, operation\n)\nSELECT upper(variant) AS \"Вариант\", operation AS \"Операция\", samples AS \"Замеры\",\n       quantiles[1] / 1e6 AS p50, quantiles[2] / 1e6 AS p75, quantiles[3] / 1e6 AS p90,\n       quantiles[4] / 1e6 AS p95, quantiles[5] / 1e6 AS p99\nFROM p ORDER BY operation, variant DESC"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Вариант"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Операция"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Замеры"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p50"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p75"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p90"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 112
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Перцентили ближайшего ранга по успешным операциям основной фазы."
+    },
+    {
+      "id": 3,
+      "type": "xychart",
+      "pluginVersion": "12.3.3",
+      "title": "Задержка во времени",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 10
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "lab3-postgres"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "lab3-postgres"
+          },
+          "refId": "A",
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "WITH samples AS (\n    SELECT *, offset_ns - min(offset_ns) OVER (PARTITION BY variant) AS elapsed_ns\n    FROM lab3_samples WHERE run_id = ${run_id:sqlstring} AND scenario = ${scenario:sqlstring} AND repeat = ${repeat:sqlstring}::integer\n      AND phase = 'measure' AND status = 'ok'\n)\nSELECT elapsed_ns / 1e9 AS \"Время\",\n       max(duration_ns) FILTER (WHERE variant = 'sql' AND (scenario <> 'mixed' OR operation = 'page')) / 1e6 AS \"SQL\",\n       max(duration_ns) FILTER (WHERE variant = 'gorm' AND (scenario <> 'mixed' OR operation = 'page')) / 1e6 AS \"GORM\",\n       max(duration_ns) FILTER (WHERE variant = 'sql' AND scenario = 'mixed' AND operation = 'rename') / 1e6 AS \"SQL · запись\",\n       max(duration_ns) FILTER (WHERE variant = 'gorm' AND scenario = 'mixed' AND operation = 'rename') / 1e6 AS \"GORM · запись\"\nFROM samples\nGROUP BY elapsed_ns\nORDER BY elapsed_ns"
+        }
+      ],
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "mapping": "auto",
+        "series": [
+          {
+            "x": {
+              "matcher": {
+                "id": "byName",
+                "options": "Время"
+              }
+            }
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "show": "points",
+            "axisLabel": "Задержка"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Время"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Время"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SQL"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GORM"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SQL · запись"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GORM · запись"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Ноль соответствует первой операции измеряемой фазы каждого варианта. В mixed серии SQL и GORM показывают чтение, серии «запись» — переименование."
+    },
+    {
+      "id": 4,
+      "type": "xychart",
+      "pluginVersion": "12.3.3",
+      "title": "Накопленное распределение",
+      "gridPos": {
+        "x": 12,
+        "y": 11,
+        "w": 12,
+        "h": 10
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "lab3-postgres"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "lab3-postgres"
+          },
+          "refId": "A",
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "WITH counts AS (\n    SELECT duration_ns,\n           count(*) FILTER (WHERE variant = 'sql' AND (scenario <> 'mixed' OR operation = 'page')) AS sql_main,\n           count(*) FILTER (WHERE variant = 'gorm' AND (scenario <> 'mixed' OR operation = 'page')) AS gorm_main,\n           count(*) FILTER (WHERE variant = 'sql' AND scenario = 'mixed' AND operation = 'rename') AS sql_write,\n           count(*) FILTER (WHERE variant = 'gorm' AND scenario = 'mixed' AND operation = 'rename') AS gorm_write\n    FROM lab3_samples WHERE run_id = ${run_id:sqlstring} AND scenario = ${scenario:sqlstring} AND repeat = ${repeat:sqlstring}::integer\n      AND phase = 'measure' AND status = 'ok'\n    GROUP BY duration_ns\n)\nSELECT duration_ns / 1e6 AS \"Задержка\",\n       100.0 * sum(sql_main) OVER sorted / nullif(sum(sql_main) OVER (), 0) AS \"SQL\",\n       100.0 * sum(gorm_main) OVER sorted / nullif(sum(gorm_main) OVER (), 0) AS \"GORM\",\n       100.0 * sum(sql_write) OVER sorted / nullif(sum(sql_write) OVER (), 0) AS \"SQL · запись\",\n       100.0 * sum(gorm_write) OVER sorted / nullif(sum(gorm_write) OVER (), 0) AS \"GORM · запись\"\nFROM counts\nWINDOW sorted AS (ORDER BY duration_ns)\nORDER BY duration_ns"
+        }
+      ],
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "mapping": "auto",
+        "series": [
+          {
+            "x": {
+              "matcher": {
+                "id": "byName",
+                "options": "Задержка"
+              }
+            }
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "show": "lines",
+            "lineWidth": 2,
+            "axisLabel": "Доля операций"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Задержка"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Задержка"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SQL"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GORM"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SQL · запись"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GORM · запись"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Для каждой задержки показывает процент операций, которые завершились за это время или быстрее."
+    },
+    {
+      "id": 5,
+      "type": "histogram",
+      "title": "Гистограмма задержек",
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "lab3-postgres"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "lab3-postgres"
+          },
+          "refId": "A",
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT duration_ns / 1e6 AS \"Задержка\",\n       upper(variant) || CASE WHEN scenario = 'mixed' AND operation = 'rename' THEN ' · запись' ELSE '' END AS series\nFROM lab3_samples WHERE run_id = ${run_id:sqlstring} AND scenario = ${scenario:sqlstring} AND repeat = ${repeat:sqlstring}::integer\n      AND phase = 'measure' AND status = 'ok'"
+        }
+      ],
+      "options": {
+        "bucketCount": 30,
+        "combine": false,
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "displayName": "${__field.labels.series}"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/SQL$/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/GORM$/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/SQL · запись$/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/GORM · запись$/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "partitionByValues",
+          "options": {
+            "fields": [
+              "series"
+            ],
+            "keepFields": false
+          }
+        }
+      ],
+      "description": "Распределение успешных операций основной фазы по интервалам задержки."
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "Время и число операций по фазам",
+      "gridPos": {
+        "x": 0,
+        "y": 31,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "lab3-postgres"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "lab3-postgres"
+          },
+          "refId": "A",
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "WITH phases AS (\n    SELECT item\n    FROM lab3_runs CROSS JOIN LATERAL jsonb_array_elements(summary->'series') AS item\n    WHERE run_id = ${run_id:sqlstring}\n      AND item->>'scenario' = ${scenario:sqlstring}\n      AND (item->>'repeat')::integer = ${repeat:sqlstring}::integer\n)\nSELECT upper(item->>'variant') AS \"Вариант\", label AS \"Фаза\",\n       (item->phase->>'operations')::bigint AS \"Операции\",\n       (item->phase->>'duration_ns')::bigint / 1e9 AS \"Длительность\"\nFROM phases CROSS JOIN (VALUES ('warmup', 'Прогрев', 1),\n    ('measure', 'Измерение', 2), ('teardown', 'Завершение', 3)) AS phase_names(phase, label, sort)\nORDER BY item->>'variant' DESC, sort"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Длительность"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "description": "В смешанном сценарии таблица показывает суммарное число чтений и записей. Время измеряется по каждой фазе целиком."
+    }
+  ]
+}
