@@ -41,6 +41,15 @@ swag:
 run: swag build
 	./build/mypills-app
 
+PROFILE ?= full
+
+.PHONY: bench-lab3 bench-lab3-report
+bench-lab3:
+	@sh scripts/bench-lab3.sh "$(PROFILE)"
+
+bench-lab3-report:
+	@sh scripts/bench-lab3-report.sh "$(RUN_ID)"
+
 .PHONY: check-web4
 check-web4:
 	@python3 scripts/check_web4.py --base "$(WEB4_BASE_URL)"

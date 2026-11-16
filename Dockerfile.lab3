@@ -1,0 +1,14 @@
+FROM golang:1.26.2-alpine AS build
+
+WORKDIR /workspace
+COPY go.mod go.sum ./
+COPY src/cmd/lab3 ./src/cmd/lab3
+COPY src/internal/benchmark/lab3 ./src/internal/benchmark/lab3
+COPY src/internal/infra/postgres/entity ./src/internal/infra/postgres/entity
+RUN CGO_ENABLED=0 go build -o /lab3 ./src/cmd/lab3
+
+FROM scratch
+ARG LAB3_RUN_ID
+LABEL org.mypills.lab3.run-id=$LAB3_RUN_ID
+COPY --from=build /lab3 /lab3
+ENTRYPOINT ["/lab3"]
