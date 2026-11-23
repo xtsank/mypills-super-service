@@ -47,9 +47,6 @@ func (s *RecommendationService) List(ctx context.Context, cmd *command.ListRecom
 	if profile == nil {
 		return nil, apperrors.ErrUserNotFound.WithSource()
 	}
-	if err := s.cabinets.EnsureLegacy(ctx, cmd.UserID); err != nil {
-		return nil, err
-	}
 	if cmd.CabinetID != nil {
 		owned, err := s.cabinets.Find(ctx, cmd.UserID, *cmd.CabinetID)
 		if err != nil {

@@ -101,18 +101,21 @@ func (r *PostgresLegacyCabinetItemRepository) Update(ctx context.Context, item *
 }
 
 func (r *PostgresLegacyCabinetItemRepository) Save(ctx context.Context, item *cabinet_item.CabinetItem) error {
-	ent := entity.CabinetItemEntity{
-		ID:                item.ID,
-		UserID:            item.UserID,
-		MedicineID:        item.MedicineID,
-		DateOfManufacture: item.DateOfManufacture,
-		Quantity:          item.Quantity,
-	}
-
-	query := queries.CabinetItem.InsertItem
-
-	_, err := r.db.NamedExecContext(ctx, query, ent)
+	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	defer tx.Rollback()
+
+	var cabinetID uuid.UUID
+	if err := tx.GetContext(ctx, &cabinetID, queries.Cabinet.EnsureHome, uuid.New(), item.UserID); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	if _, err := tx.ExecContext(ctx, queries.CabinetItem.InsertItem, item.ID, item.UserID, cabinetID,
+		item.MedicineID, item.DateOfManufacture, item.Quantity); err != nil {
+		return appErrors.ErrInternal.WithError(err)
+	}
+	if err := tx.Commit(); err != nil {
 		return appErrors.ErrInternal.WithError(err)
 	}
 	return nil

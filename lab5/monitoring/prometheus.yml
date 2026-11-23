@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 5s
+  scrape_timeout: 4s
+
+scrape_configs:
+  - job_name: mypills-api
+    static_configs:
+      - targets: ['app:@APP_PORT@']
+        labels: {backend: app, ingress: root, role: writer}
+      - targets: ['app-read-1:8082']
+        labels: {backend: app-read-1, ingress: root, role: reader}
+      - targets: ['app-read-2:8083']
+        labels: {backend: app-read-2, ingress: root, role: reader}
+      - targets: ['mirror-app:8084']
+        labels: {backend: mirror-app, ingress: mirror, role: writer}
+      - targets: ['mirror-read-1:8085']
+        labels: {backend: mirror-read-1, ingress: mirror, role: reader}
+      - targets: ['mirror-read-2:8086']
+        labels: {backend: mirror-read-2, ingress: mirror, role: reader}
+  - job_name: postgres
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels: {node: primary}
+      - targets: ['replica-exporter:9187']
+        labels: {node: replica}

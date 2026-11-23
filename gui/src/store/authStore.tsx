@@ -16,7 +16,9 @@ type AuthContextValue = AuthState & {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const STORAGE_KEY = "mypills-auth";
+const STORAGE_KEY = import.meta.env.BASE_URL === "/mirror/legacy/"
+  ? "mypills-auth-mirror"
+  : "mypills-auth";
 
 function tokenClaims(token: string | null): Record<string, unknown> | null {
   if (!token) {

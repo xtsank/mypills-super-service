@@ -1,0 +1,554 @@
+{
+  "uid": "mypills-lab5",
+  "title": "MyPills · WebLab 5",
+  "schemaVersion": 40,
+  "version": 3,
+  "tags": [
+    "mypills",
+    "weblab5"
+  ],
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Доступность API и PostgreSQL",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"mypills-api\"} or pg_up{job=\"postgres\"}",
+          "refId": "A",
+          "legendFormat": "{{backend}}{{node}}",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "Нет данных",
+          "max": 1,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Недоступен",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "Доступен",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "description": "Проверка каждые 5 секунд. API — доступность /metrics, PostgreSQL — успешное подключение экспортера.",
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name",
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Запросов в секунду по экземплярам",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum by (backend) (rate(mypills_http_request_duration_seconds_count{route=~\"/api/v[12]/.*\"}[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{backend}}",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0,
+          "noValue": "Нет запросов",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "description": "Средняя интенсивность API за короткое окно. Ноль без нагрузки ожидаем.",
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "p95 успешных GET",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (ingress, le) (rate(mypills_http_request_duration_seconds_bucket{method=\"GET\",route=~\"$read_route\",status=\"200\"}[$__rate_interval]))) and on (ingress) (sum by (ingress) (rate(mypills_http_request_duration_seconds_count{method=\"GET\",route=~\"$read_route\",status=\"200\"}[$__rate_interval])) > 0)",
+          "refId": "A",
+          "legendFormat": "{{ingress}}",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "noValue": "Нет запросов",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "spanNulls": false,
+            "showPoints": "always",
+            "pointSize": 4
+          }
+        },
+        "overrides": []
+      },
+      "description": "95% успешных GET укладываются в указанное время. Выберите вид чтений сверху. Без запросов p95 не определён.",
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Доля ответов 5xx",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "((sum by (ingress) (rate(mypills_http_request_duration_seconds_count{route=~\"/api/v[12]/.*\",status=~\"5..\"}[$__rate_interval]))) or (0 * (sum by (ingress) (rate(mypills_http_request_duration_seconds_count{route=~\"/api/v[12]/.*\"}[$__rate_interval]))))) / clamp_min((sum by (ingress) (rate(mypills_http_request_duration_seconds_count{route=~\"/api/v[12]/.*\"}[$__rate_interval]))), 1e-12)",
+          "refId": "A",
+          "legendFormat": "{{ingress}}",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "noValue": "Нет запросов",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "max": 1
+        },
+        "overrides": []
+      },
+      "description": "Доля HTTP 5xx среди всех API-запросов. Прямой POST на читатель в демо тоже считается 5xx. Без трафика отображается 0%.",
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Доли чтений за выбранный период",
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "sum by (ingress, backend) (increase(mypills_http_request_duration_seconds_count{method=\"GET\",route=~\"$read_route\",status=\"200\"}[$__range])) / on (ingress) group_left() (sum by (ingress) (increase(mypills_http_request_duration_seconds_count{method=\"GET\",route=~\"$read_route\",status=\"200\"}[$__range])) > 0)",
+          "refId": "A",
+          "legendFormat": "{{ingress}} / {{backend}}",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "noValue": "Нет запросов",
+          "max": 1
+        },
+        "overrides": []
+      },
+      "description": "Доли успешных GET за весь выбранный период. В каждой тройке ожидается 50% / 25% / 25%. Cookie зеркала и сторонние запросы меняют распределение.",
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      }
+    },
+    {
+      "id": 6,
+      "title": "Время ожидания соединений с БД",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "rate(go_sql_wait_duration_seconds_total{job=\"mypills-api\"}[$__rate_interval])",
+          "refId": "A",
+          "legendFormat": "{{backend}}",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "noValue": "Нет запросов",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "description": "Суммарное время ожидания свободного соединения за секунду. Ноль означает, что запросы не ждали соединений.",
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Ожиданий соединения с БД в секунду",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "expr": "rate(go_sql_wait_count_total{job=\"mypills-api\"}[$__rate_interval])",
+          "refId": "A",
+          "legendFormat": "{{backend}}",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "Нет запросов",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "description": "Количество ожиданий свободного соединения в секунду. При текущей небольшой нагрузке ноль ожидаем.",
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Лимиты соединений с БД",
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lab5-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "targets": [
+        {
+          "expr": "go_sql_max_open_connections{job=\"mypills-api\"}",
+          "refId": "A",
+          "legendFormat": "{{backend}}",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "Нет данных",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "description": "Настроенный максимум открытых соединений для каждого API. До эксперимента используется значение из .env.",
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      }
+    },
+    {
+      "id": 9,
+      "title": "Логи API",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "lab5-loki"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "expr": "{job=\"mypills-api\"} | json | path != \"/ready\"",
+          "refId": "A",
+          "queryType": "range"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "showTime": true,
+        "sortOrder": "Descending"
+      },
+      "description": "Журналы всех шести экземпляров, кроме периодических /ready."
+    },
+    {
+      "id": 10,
+      "title": "Маршрутизация Nginx",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "lab5-loki"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "targets": [
+        {
+          "expr": "{job=\"mypills-nginx\"} | json",
+          "refId": "A",
+          "queryType": "range"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "showTime": true,
+        "sortOrder": "Descending"
+      },
+      "description": "Выбор upstream для запросов через Nginx."
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "read_route",
+        "label": "Чтения",
+        "type": "custom",
+        "query": "Все API GET : /api/v[12]/.*,Содержимое аптечки : /api/v2/cabinets/[^/]+/items",
+        "current": {
+          "text": "Все API GET",
+          "value": "/api/v[12]/.*"
+        },
+        "options": [
+          {
+            "text": "Все API GET",
+            "value": "/api/v[12]/.*",
+            "selected": true
+          },
+          {
+            "text": "Содержимое аптечки",
+            "value": "/api/v2/cabinets/[^/]+/items",
+            "selected": false
+          }
+        ],
+        "includeAll": false,
+        "multi": false,
+        "hide": 0
+      }
+    ]
+  }
+}

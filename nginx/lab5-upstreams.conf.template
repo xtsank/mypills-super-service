@@ -1,0 +1,50 @@
+# Docker Compose service names can point to a new IP after recreation.
+resolver 127.0.0.11 valid=2s ipv6=off;
+resolver_timeout 2s;
+
+upstream mypills_read {
+    zone mypills_read 64k;
+    server app:${APP_PORT} resolve weight=2 max_fails=1 fail_timeout=5s;
+    server app-read-1:8082 resolve max_fails=1 fail_timeout=5s;
+    server app-read-2:8083 resolve max_fails=1 fail_timeout=5s;
+}
+
+upstream mypills_write {
+    zone mypills_write 64k;
+    server app:${APP_PORT} resolve;
+}
+
+upstream mirror_read {
+    zone mirror_read 64k;
+    server mirror-app:8084 resolve weight=2 max_fails=1 fail_timeout=5s;
+    server mirror-read-1:8085 resolve max_fails=1 fail_timeout=5s;
+    server mirror-read-2:8086 resolve max_fails=1 fail_timeout=5s;
+}
+
+upstream mirror_write {
+    zone mirror_write 64k;
+    server mirror-app:8084 resolve;
+}
+
+map $request_method $mypills_api_pool {
+    GET     mypills_read;
+    HEAD    mypills_read;
+    default mypills_write;
+}
+
+map "$request_method:$cookie_mypills_mirror_primary" $mirror_api_pool {
+    "GET:1"   mirror_write;
+    "HEAD:1"  mirror_write;
+    ~^GET:    mirror_read;
+    ~^HEAD:   mirror_read;
+    default   mirror_write;
+}
+
+map "$request_method:$status" $mirror_write_cookie {
+    ~^(POST|PUT|PATCH|DELETE):2[0-9][0-9]$ "mypills_mirror_primary=1; Path=/mirror/api/; Max-Age=30; HttpOnly; SameSite=Lax";
+    default "";
+}
+
+log_format lab5_api escape=json
+    '{"method":"$request_method","path":"$lab5_api_path","status":$status,'
+    '"pool":"$lab5_api_pool","upstream":"$upstream_addr","upstream_status":"$upstream_status"}';
