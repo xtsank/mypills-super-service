@@ -23,18 +23,6 @@ func NewPostgresCabinetRepository(i do.Injector) (cabinet.ICabinetRepository, er
 	return &PostgresCabinetRepository{db: do.MustInvoke[*sqlx.DB](i)}, nil
 }
 
-func (r *PostgresCabinetRepository) EnsureLegacy(ctx context.Context, userID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, queries.Cabinet.EnsureLegacy, userID)
-	if err != nil {
-		return apperrors.ErrInternal.WithError(err)
-	}
-	_, err = r.db.ExecContext(ctx, queries.Cabinet.AssignLegacyItems, userID)
-	if err != nil {
-		return apperrors.ErrInternal.WithError(err)
-	}
-	return nil
-}
-
 func (r *PostgresCabinetRepository) List(ctx context.Context, userID uuid.UUID, id *uuid.UUID, limit, offset int) (cabinet.Page, error) {
 	p := cabinet.Page{Items: []cabinet.Cabinet{}, Limit: limit, Offset: offset}
 	var idFilter any

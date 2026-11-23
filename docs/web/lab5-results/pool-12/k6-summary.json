@@ -1,0 +1,174 @@
+{
+  "metrics": {
+    "http_req_waiting": {
+      "avg": 2.048044943045424,
+      "med": 1.733294,
+      "p(95)": 3.7170289999999997,
+      "max": 52.441802
+    },
+    "web5_errors{phase:measure}": {
+      "passes": 0,
+      "fails": 3602,
+      "thresholds": {
+        "rate<0.01": false
+      },
+      "value": 0
+    },
+    "http_req_failed": {
+      "passes": 0,
+      "fails": 4249,
+      "value": 0
+    },
+    "http_req_receiving": {
+      "avg": 0.10885202918333742,
+      "med": 0.11023,
+      "p(95)": 0.17903099999999997,
+      "max": 2.93049
+    },
+    "web5_read_ms{phase:measure,ingress:root}": {
+      "avg": 1.8467149736294246,
+      "med": 1.758049,
+      "p(95)": 2.470751,
+      "max": 5.886038,
+      "thresholds": {
+        "p(95)<=1000": false
+      }
+    },
+    "http_req_connecting": {
+      "avg": 0.0009051334431630973,
+      "med": 0,
+      "p(95)": 0,
+      "max": 0.384745
+    },
+    "dropped_iterations": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count==0": false
+      }
+    },
+    "http_req_sending": {
+      "avg": 0.03125495622499409,
+      "med": 0.027523,
+      "p(95)": 0.0511234,
+      "max": 0.628157
+    },
+    "data_sent": {
+      "count": 1773503,
+      "rate": 8312.775831097255
+    },
+    "web5_read_ms{phase:measure,ingress:mirror}": {
+      "avg": 1.8909896597222235,
+      "med": 1.7909745,
+      "p(95)": 2.5979744,
+      "max": 4.06855,
+      "thresholds": {
+        "p(95)<=1000": false
+      }
+    },
+    "web5_requests": {
+      "count": 4203,
+      "rate": 19.700331388276066
+    },
+    "http_reqs": {
+      "count": 4249,
+      "rate": 19.91594291429574
+    },
+    "http_req_duration": {
+      "max": 52.611316,
+      "avg": 2.1881519284537516,
+      "med": 1.881235,
+      "p(95)": 3.7951782
+    },
+    "http_req_duration{expected_response:true}": {
+      "avg": 2.1881519284537516,
+      "med": 1.881235,
+      "p(95)": 3.7951782,
+      "max": 52.611316
+    },
+    "web5_read_ms": {
+      "avg": 1.87150765318263,
+      "med": 1.7714505,
+      "p(95)": 2.5454482,
+      "max": 6.664168
+    },
+    "iterations": {
+      "count": 4203,
+      "rate": 19.700331388276066
+    },
+    "http_req_tls_handshaking": {
+      "avg": 0,
+      "med": 0,
+      "p(95)": 0,
+      "max": 0
+    },
+    "data_received": {
+      "count": 22853050,
+      "rate": 107116.97792834697
+    },
+    "http_req_blocked": {
+      "avg": 0.009318177453518463,
+      "med": 0.007114,
+      "p(95)": 0.013393999999999993,
+      "max": 0.611697
+    },
+    "web5_read_backend": {
+      "count": 3362,
+      "rate": 15.758390227785897
+    },
+    "vus": {
+      "min": 0,
+      "max": 0,
+      "value": 0
+    },
+    "vus_max": {
+      "value": 18,
+      "min": 18,
+      "max": 18
+    },
+    "iteration_duration": {
+      "max": 15.428131,
+      "avg": 2.5843761879609852,
+      "med": 2.297909,
+      "p(95)": 4.1720768999999995
+    },
+    "web5_errors": {
+      "passes": 0,
+      "fails": 4203,
+      "value": 0
+    }
+  },
+  "setup_data": {
+    "writeCabinet": "e2b518b1-8c2f-4d5f-9b41-446728cc6ddb",
+    "writeItems": [
+      "3a516e76-e223-4f4c-a2c9-dd0161e359df",
+      "92860b1b-fb90-4be3-8ac3-4410468faa11",
+      "4d7d8793-2dc8-45e4-a2df-7568c521081c",
+      "da5989c2-33f7-424d-86be-52805075f5e3",
+      "65c65a90-2508-427b-bea8-2775339a6e13",
+      "3178ee6f-cc2f-4cb7-9108-f002bf92b14b",
+      "c67d76ba-1f96-40ec-8278-fc191cf27e26",
+      "8f018459-2fcf-4307-a1ce-1d126dba4ced",
+      "e6ce5f57-dd49-4c3e-90d5-20c3a9147d35",
+      "10c111ef-087c-46e7-a991-4d70616533a8",
+      "a00d51cd-cb88-4ff9-a7d6-d8dd86e3763c",
+      "8267cb60-d4b3-47d9-806a-c43070f3e544",
+      "2301ad7d-bf1d-4dd4-8d6f-9435fc627f7d",
+      "6503aea5-dad0-4d6a-9ff9-ec3e98b23ea3",
+      "29aa69f0-edaf-492b-b41f-c24867a9a277",
+      "9ebf1def-2882-45bd-8f29-46e4d89dcbd3",
+      "78c90af7-cc42-4e00-a3e1-4b25379d507e",
+      "ea99fac4-1054-48e6-a51c-8a8c799866a8",
+      "cdde7d6f-5d2e-439d-807a-7ba3c1f11a4c",
+      "03158797-5f03-4c21-80d4-5847d86cff31"
+    ],
+    "readPath": "/api/v2/cabinets/efb26d64-c51c-4511-aecd-65f0ed76f059/items?limit=20"
+  },
+  "root_group": {
+    "checks": {},
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": {}
+  }
+}

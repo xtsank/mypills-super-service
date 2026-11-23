@@ -5,15 +5,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do/v2"
+	"github.com/xtsank/mypills-super-service/src/internal/config"
 	"github.com/xtsank/mypills-super-service/src/internal/service"
 	"github.com/xtsank/mypills-super-service/src/internal/service/command"
 	"github.com/xtsank/mypills-super-service/src/internal/transport/middleware"
 )
 
-type ReferenceHandler struct{ dictionaries service.IDictionaryService }
+type ReferenceHandler struct {
+	dictionaries service.IDictionaryService
+	urlPrefix    string
+}
 
 func NewReferenceHandler(i do.Injector) (*ReferenceHandler, error) {
-	return &ReferenceHandler{dictionaries: do.MustInvoke[service.IDictionaryService](i)}, nil
+	return &ReferenceHandler{
+		dictionaries: do.MustInvoke[service.IDictionaryService](i),
+		urlPrefix:    do.MustInvoke[*config.Config](i).URLPrefix,
+	}, nil
 }
 
 func (h *ReferenceHandler) RegisterRoutes(rg *gin.RouterGroup) {
@@ -28,7 +35,12 @@ func (h *ReferenceHandler) Index(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	c.Set(middleware.ResponsePayloadKey, result)
+	links := *result
+	links.Illnesses = h.urlPrefix + links.Illnesses
+	links.Substances = h.urlPrefix + links.Substances
+	links.Forms = h.urlPrefix + links.Forms
+	links.Units = h.urlPrefix + links.Units
+	c.Set(middleware.ResponsePayloadKey, &links)
 	c.Set(middleware.ResponseStatusKey, http.StatusOK)
 }
 

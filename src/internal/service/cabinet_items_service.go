@@ -36,9 +36,6 @@ func NewCabinetItemsService(i do.Injector) (ICabinetItemsService, error) {
 }
 
 func (s *CabinetItemsService) ensureOwner(ctx context.Context, userID, cabinetID uuid.UUID) error {
-	if err := s.cabinets.EnsureLegacy(ctx, userID); err != nil {
-		return err
-	}
 	item, err := s.cabinets.Find(ctx, userID, cabinetID)
 	if err != nil {
 		return err

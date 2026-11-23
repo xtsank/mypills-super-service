@@ -3,6 +3,8 @@
 login=admin111
 
 WEB4_BASE_URL ?= http://127.0.0.1:8088
+WEB5_BASE_URL ?= http://127.0.0.1:8088
+WEB5_PROJECT ?=
 
 DB_USER ?= user
 DB_PASSWORD ?= password
@@ -53,6 +55,10 @@ bench-lab3-report:
 .PHONY: check-web4
 check-web4:
 	@python3 scripts/check_web4.py --base "$(WEB4_BASE_URL)"
+
+.PHONY: check-web5
+check-web5:
+	@python3 scripts/check_web5.py --base "$(WEB5_BASE_URL)" --project "$(WEB5_PROJECT)"
 
 test-classic: install-allure test-clean
 	@mkdir -p "$(ALLURE_RESULTS_DIR)"

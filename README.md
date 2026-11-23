@@ -6,6 +6,8 @@
 - [Контракт API v2 (OpenAPI 3.1)](docs/openapi/v2.yaml) — основной API приложения.
 - [Отчёт WebLab#3](docs/web/lab3-report.md) — реализация и проверки.
 - [WebLab №4: таблица маршрутов, доступ к Adminer и проверки](docs/web/lab4-routing.md).
+- [WebLab №5: primary/replica и экземпляры API](docs/web/lab5-infrastructure.md).
+- [WebLab №5: отчёт и результаты нагрузочного эксперимента](docs/web/lab5-report.md).
 - [Ревью и проверка работы с ИИ](AI_REVIEW.md).
 
 ## Запуск стенда WebLab №4

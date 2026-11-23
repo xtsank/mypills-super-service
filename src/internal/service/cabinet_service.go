@@ -25,9 +25,6 @@ func NewCabinetService(i do.Injector) (ICabinetService, error) {
 }
 
 func (s *CabinetService) List(ctx context.Context, cmd *command.ListCabinetsCmd) (*res.CabinetsPageDto, error) {
-	if err := s.repo.EnsureLegacy(ctx, cmd.UserID); err != nil {
-		return nil, err
-	}
 	page, err := s.repo.List(ctx, cmd.UserID, cmd.ID, cmd.Limit, cmd.Offset)
 	if err != nil {
 		return nil, err

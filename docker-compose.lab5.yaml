@@ -1,0 +1,319 @@
+services:
+  nginx:
+    build:
+      target: lab5
+    entrypoint: ["/bin/sh", "/etc/nginx/start-lab5.sh"]
+    environment:
+      HEALTH_CACHE_CONTROL: ""
+    depends_on:
+      grafana:
+        condition: service_started
+      mirror-gui:
+        condition: service_started
+        restart: true
+      app-read-1:
+        condition: service_healthy
+      app-read-2:
+        condition: service_healthy
+      mirror-app:
+        condition: service_healthy
+      mirror-read-1:
+        condition: service_healthy
+      mirror-read-2:
+        condition: service_healthy
+    volumes:
+      - ./nginx/start-lab5.sh:/etc/nginx/start-lab5.sh:ro
+      - ./nginx/lab5-nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./nginx/lab5-upstreams.conf.template:/etc/nginx/templates/00-lab5-upstreams.conf.template:ro
+      - ./nginx/lab5-api-routes.conf:/etc/nginx/mypills/api-routes.conf:ro
+      - ./nginx/lab5-api-proxy.conf:/etc/nginx/mypills/lab5-api-proxy.conf:ro
+      - ./nginx/lab5-mirror-routes.conf:/etc/nginx/mypills/lab5-mirror-routes.conf:ro
+      - lab5_logs:/var/log/mypills
+
+  mirror-gui:
+    build:
+      context: ./gui
+      args:
+        VITE_BASE_PATH: /mirror/legacy/
+        VITE_API_BASE_URL: /mirror
+    restart: "no"
+
+  db:
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - max_slot_wal_keep_size=1GB
+      - -c
+      - hba_file=/etc/postgresql/lab5-pg_hba.conf
+    volumes:
+      - ./lab5/primary-pg_hba.conf:/etc/postgresql/lab5-pg_hba.conf:ro
+
+  db-bootstrap:
+    image: postgres:16-alpine
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${DB_USER}
+      PGPASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      PGDATABASE: ${DB_NAME}
+      LAB5_MONITOR_PASSWORD: ${LAB5_MONITOR_PASSWORD:?Set LAB5_MONITOR_PASSWORD in .env}
+      LAB5_READ_PASSWORD: ${LAB5_READ_PASSWORD:?Set LAB5_READ_PASSWORD in .env}
+      LAB5_REPLICATION_PASSWORD: ${LAB5_REPLICATION_PASSWORD:?Set LAB5_REPLICATION_PASSWORD in .env}
+    volumes:
+      - ./lab5/bootstrap.sql:/lab5/bootstrap.sql:ro
+      - ./lab5/migrate-legacy-cabinets.sql:/lab5/migrate-legacy-cabinets.sql:ro
+    entrypoint:
+      - sh
+      - -ec
+      - |
+        exec psql -X -v ON_ERROR_STOP=1 \
+          -v db_user="$$PGUSER" \
+          -v db_name="$$PGDATABASE" \
+          -v read_password="$$LAB5_READ_PASSWORD" \
+          -v replication_password="$$LAB5_REPLICATION_PASSWORD" \
+          -f /lab5/bootstrap.sql -f /lab5/migrate-legacy-cabinets.sql
+
+  db-replica:
+    image: postgres:16-alpine
+    restart: "no"
+    depends_on:
+      db-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      POSTGRES_DB: ${DB_NAME}
+      PRIMARY_HOST: db
+      REPLICATION_USER: lab5_replication
+      PGPASSWORD: ${LAB5_REPLICATION_PASSWORD:?Set LAB5_REPLICATION_PASSWORD in .env}
+    volumes:
+      - lab5_replica_data:/var/lib/postgresql/data
+      - ./lab5/replica-entrypoint.sh:/lab5/replica-entrypoint.sh:ro
+    entrypoint: ["sh", "/lab5/replica-entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\" && test \"$$(psql -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\" -Atqc 'SHOW transaction_read_only')\" = on"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  app:
+    image: mypills-web5-app:local
+    depends_on:
+      db-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      DB_MAX_OPEN_CONNS: ${LAB5_DB_MAX_OPEN_CONNS:-6}
+      DB_MAX_IDLE_CONNS: ${LAB5_DB_MAX_IDLE_CONNS:-6}
+      LOG_FILE: /root/logs/lab5-app.jsonl
+    volumes:
+      - lab5_logs:/root/logs
+    healthcheck: &app-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:$$SERVER_PORT/ready"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  app-read-1: &primary-reader
+    image: mypills-web5-app:local
+    restart: "no"
+    depends_on:
+      app:
+        condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      APP_MODE: read_only
+      DB_USER: lab5_reader
+      DB_PASSWORD: ${LAB5_READ_PASSWORD:?Set LAB5_READ_PASSWORD in .env}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: db
+      DB_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      TOKEN_DURATION: ${TOKEN_DURATION:-}
+      DB_MAX_OPEN_CONNS: ${LAB5_DB_MAX_OPEN_CONNS:-6}
+      DB_MAX_IDLE_CONNS: ${LAB5_DB_MAX_IDLE_CONNS:-6}
+      DB_CONN_MAX_LIFETIME: ${DB_CONN_MAX_LIFETIME:-}
+      DB_CONN_MAX_IDLE_TIME: ${DB_CONN_MAX_IDLE_TIME:-}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+      LOG_FILE: /root/logs/lab5-app-read-1.jsonl
+      SERVER_PORT: 8082
+    volumes:
+      - lab5_logs:/root/logs
+    healthcheck: *app-healthcheck
+
+  app-read-2:
+    <<: *primary-reader
+    environment:
+      APP_MODE: read_only
+      DB_USER: lab5_reader
+      DB_PASSWORD: ${LAB5_READ_PASSWORD:?Set LAB5_READ_PASSWORD in .env}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: db
+      DB_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      TOKEN_DURATION: ${TOKEN_DURATION:-}
+      DB_MAX_OPEN_CONNS: ${LAB5_DB_MAX_OPEN_CONNS:-6}
+      DB_MAX_IDLE_CONNS: ${LAB5_DB_MAX_IDLE_CONNS:-6}
+      DB_CONN_MAX_LIFETIME: ${DB_CONN_MAX_LIFETIME:-}
+      DB_CONN_MAX_IDLE_TIME: ${DB_CONN_MAX_IDLE_TIME:-}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+      LOG_FILE: /root/logs/lab5-app-read-2.jsonl
+      SERVER_PORT: 8083
+
+  mirror-app:
+    <<: *primary-reader
+    depends_on:
+      app:
+        condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: db
+      DB_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      TOKEN_DURATION: ${TOKEN_DURATION:-}
+      DB_MAX_OPEN_CONNS: ${LAB5_DB_MAX_OPEN_CONNS:-6}
+      DB_MAX_IDLE_CONNS: ${LAB5_DB_MAX_IDLE_CONNS:-6}
+      DB_CONN_MAX_LIFETIME: ${DB_CONN_MAX_LIFETIME:-}
+      DB_CONN_MAX_IDLE_TIME: ${DB_CONN_MAX_IDLE_TIME:-}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+      LOG_FILE: /root/logs/lab5-mirror-app.jsonl
+      SERVER_PORT: 8084
+      APP_URL_PREFIX: /mirror
+
+  mirror-read-1: &replica-reader
+    <<: *primary-reader
+    depends_on:
+      app:
+        condition: service_healthy
+      db-replica:
+        condition: service_healthy
+    environment:
+      APP_MODE: read_only
+      DB_USER: lab5_reader
+      DB_PASSWORD: ${LAB5_READ_PASSWORD:?Set LAB5_READ_PASSWORD in .env}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: db-replica
+      DB_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      TOKEN_DURATION: ${TOKEN_DURATION:-}
+      DB_MAX_OPEN_CONNS: ${LAB5_DB_MAX_OPEN_CONNS:-6}
+      DB_MAX_IDLE_CONNS: ${LAB5_DB_MAX_IDLE_CONNS:-6}
+      DB_CONN_MAX_LIFETIME: ${DB_CONN_MAX_LIFETIME:-}
+      DB_CONN_MAX_IDLE_TIME: ${DB_CONN_MAX_IDLE_TIME:-}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+      LOG_FILE: /root/logs/lab5-mirror-read-1.jsonl
+      SERVER_PORT: 8085
+      APP_URL_PREFIX: /mirror
+
+  mirror-read-2:
+    <<: *replica-reader
+    environment:
+      APP_MODE: read_only
+      DB_USER: lab5_reader
+      DB_PASSWORD: ${LAB5_READ_PASSWORD:?Set LAB5_READ_PASSWORD in .env}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: db-replica
+      DB_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      TOKEN_DURATION: ${TOKEN_DURATION:-}
+      DB_MAX_OPEN_CONNS: ${LAB5_DB_MAX_OPEN_CONNS:-6}
+      DB_MAX_IDLE_CONNS: ${LAB5_DB_MAX_IDLE_CONNS:-6}
+      DB_CONN_MAX_LIFETIME: ${DB_CONN_MAX_LIFETIME:-}
+      DB_CONN_MAX_IDLE_TIME: ${DB_CONN_MAX_IDLE_TIME:-}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+      LOG_FILE: /root/logs/lab5-mirror-read-2.jsonl
+      SERVER_PORT: 8086
+      APP_URL_PREFIX: /mirror
+
+  prometheus:
+    image: prom/prometheus:v3.8.0
+    environment:
+      APP_PORT: ${APP_PORT:-8081}
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        sed "s/@APP_PORT@/$$APP_PORT/g" /etc/prometheus/mypills.yml > /tmp/prometheus.yml
+        exec /bin/prometheus --config.file=/tmp/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=7d
+    volumes:
+      - ./lab5/monitoring/prometheus.yml:/etc/prometheus/mypills.yml:ro
+      - lab5_prometheus:/prometheus
+
+  postgres-exporter: &postgres-exporter
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.19.1
+    depends_on:
+      db-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      DATA_SOURCE_URI: db:5432/${DB_NAME}?sslmode=disable
+      DATA_SOURCE_USER: lab5_monitor
+      DATA_SOURCE_PASS: ${LAB5_MONITOR_PASSWORD:?Set LAB5_MONITOR_PASSWORD in .env}
+
+  replica-exporter:
+    <<: *postgres-exporter
+    depends_on:
+      db-replica:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_URI: db-replica:5432/${DB_NAME}?sslmode=disable
+      DATA_SOURCE_USER: lab5_monitor
+      DATA_SOURCE_PASS: ${LAB5_MONITOR_PASSWORD:?Set LAB5_MONITOR_PASSWORD in .env}
+
+  loki:
+    image: grafana/loki:3.6.2
+    command: ["-config.file=/etc/loki/mypills.yml"]
+    volumes:
+      - ./lab5/monitoring/loki.yml:/etc/loki/mypills.yml:ro
+      - lab5_loki:/loki
+
+  alloy:
+    image: grafana/alloy:v1.12.2
+    command: ["run", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
+    depends_on:
+      loki:
+        condition: service_started
+    volumes:
+      - ./lab5/monitoring/config.alloy:/etc/alloy/config.alloy:ro
+      - lab5_alloy:/var/lib/alloy/data
+      - lab5_logs:/var/log/mypills:ro
+
+  grafana:
+    image: grafana/grafana:12.3.3
+    environment:
+      GF_SERVER_ROOT_URL: http://127.0.0.1:${WEB_PORT:-8088}/monitoring/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_BASIC_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/mypills.json
+    volumes:
+      - ./lab5/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./lab5/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./lab5/monitoring/mypills.json:/var/lib/grafana/dashboards/mypills.json:ro
+      - lab5_grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+
+volumes:
+  lab5_replica_data:
+  lab5_logs:
+  lab5_prometheus:
+  lab5_loki:
+  lab5_alloy:
+  lab5_grafana:

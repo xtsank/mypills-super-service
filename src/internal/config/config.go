@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -28,6 +29,8 @@ type Config struct {
 	DBConnMaxIdleTime time.Duration
 
 	ServerAddress string
+	ReadOnly      bool
+	URLPrefix     string
 
 	LogFile  string
 	LogLevel slog.Level
@@ -54,6 +57,16 @@ func NewConfig(i do.Injector) (*Config, error) {
 		logFile = "logs/app.log"
 	}
 
+	mode := os.Getenv("APP_MODE")
+	if mode != "" && mode != "read_write" && mode != "read_only" {
+		return nil, fmt.Errorf("invalid APP_MODE %q: expected read_write or read_only", mode)
+	}
+
+	prefix := os.Getenv("APP_URL_PREFIX")
+	if prefix != "" && prefix != "/mirror" {
+		return nil, fmt.Errorf("invalid APP_URL_PREFIX %q: expected /mirror or empty", prefix)
+	}
+
 	return &Config{
 		DBUser:        os.Getenv("DB_USER"),
 		DBPassword:    os.Getenv("DB_PASSWORD"),
@@ -69,6 +82,8 @@ func NewConfig(i do.Injector) (*Config, error) {
 		DBConnMaxIdleTime: maxIdleTime,
 
 		ServerAddress: os.Getenv("SERVER_PORT"),
+		ReadOnly:      mode == "read_only",
+		URLPrefix:     prefix,
 
 		LogFile:  logFile,
 		LogLevel: logLevel,

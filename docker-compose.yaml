@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile
+      target: lab4
     depends_on:
       app:
         condition: service_started
@@ -16,7 +17,8 @@ services:
     environment:
       APP_PORT: ${APP_PORT:-8081}
       ADMIN_USER: ${ADMIN_USER:-webadmin}
-      NGINX_ENVSUBST_FILTER: "^APP_PORT$$"
+      HEALTH_CACHE_CONTROL: no-store
+      NGINX_ENVSUBST_FILTER: "^(APP_PORT|HEALTH_CACHE_CONTROL)$$"
     secrets:
       - source: admin_password
         mode: 0400
@@ -24,6 +26,7 @@ services:
       - "127.0.0.1:${WEB_PORT:-8088}:80"
     volumes:
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./nginx/api-routes.conf:/etc/nginx/mypills/api-routes.conf:ro
       - ./static:/usr/share/nginx/html:ro
       - ./docs/web/images:/usr/share/nginx/lab1-images:ro
       - ./docs:/srv/docs:ro

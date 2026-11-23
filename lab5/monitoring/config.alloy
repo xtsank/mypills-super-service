@@ -1,0 +1,22 @@
+loki.source.file "mypills" {
+  targets = [
+    { __path__ = "/var/log/mypills/lab5-app.jsonl",           job = "mypills-api", backend = "app" },
+    { __path__ = "/var/log/mypills/lab5-app-read-1.jsonl",    job = "mypills-api", backend = "app-read-1" },
+    { __path__ = "/var/log/mypills/lab5-app-read-2.jsonl",    job = "mypills-api", backend = "app-read-2" },
+    { __path__ = "/var/log/mypills/lab5-mirror-app.jsonl",    job = "mypills-api", backend = "mirror-app" },
+    { __path__ = "/var/log/mypills/lab5-mirror-read-1.jsonl", job = "mypills-api", backend = "mirror-read-1" },
+    { __path__ = "/var/log/mypills/lab5-mirror-read-2.jsonl", job = "mypills-api", backend = "mirror-read-2" },
+    { __path__ = "/var/log/mypills/lab5-nginx.jsonl",         job = "mypills-nginx", backend = "nginx" },
+  ]
+  file_match {
+    enabled = true
+    sync_period = "2s"
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

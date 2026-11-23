@@ -44,10 +44,17 @@ var sqliteMedicineSchema = []string{
 }
 
 var sqliteCabinetSchema = []string{
+	`CREATE TABLE Cabinets (
+		id TEXT PRIMARY KEY,
+		user_id TEXT NOT NULL,
+		name TEXT NOT NULL,
+		UNIQUE (user_id, name)
+	)`,
 	`CREATE TABLE User_Medicine (
 		id TEXT PRIMARY KEY,
 		user_id TEXT NOT NULL,
 		medicine_id TEXT NOT NULL,
+		cabinet_id TEXT NOT NULL REFERENCES Cabinets(id),
 		date_of_manufacture TIMESTAMP NOT NULL,
 		quantity REAL NOT NULL
 	)`,

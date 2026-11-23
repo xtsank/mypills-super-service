@@ -1,0 +1,174 @@
+{
+  "metrics": {
+    "vus_max": {
+      "value": 18,
+      "min": 18,
+      "max": 18
+    },
+    "http_req_duration{expected_response:true}": {
+      "max": 52.778243,
+      "avg": 2.416330093926554,
+      "med": 2.2107855,
+      "p(95)": 4.042139699999999
+    },
+    "http_req_blocked": {
+      "med": 0.0082255,
+      "p(95)": 0.015348499999999989,
+      "max": 0.622534,
+      "avg": 0.010302487052730723
+    },
+    "http_req_sending": {
+      "avg": 0.03503016384180794,
+      "med": 0.032933,
+      "p(95)": 0.05666199999999999,
+      "max": 0.282832
+    },
+    "web5_errors{phase:measure}": {
+      "passes": 0,
+      "fails": 3601,
+      "thresholds": {
+        "rate<0.01": false
+      },
+      "value": 0
+    },
+    "web5_read_ms": {
+      "avg": 2.08399400952381,
+      "med": 2.0931085,
+      "p(95)": 2.7142727999999994,
+      "max": 12.83679
+    },
+    "dropped_iterations": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count==0": false
+      }
+    },
+    "http_req_duration": {
+      "avg": 2.416330093926554,
+      "med": 2.2107855,
+      "p(95)": 4.042139699999999,
+      "max": 52.778243
+    },
+    "http_req_waiting": {
+      "avg": 2.26948286746705,
+      "med": 2.0493115,
+      "p(95)": 3.9576899,
+      "max": 52.570234
+    },
+    "http_req_tls_handshaking": {
+      "avg": 0,
+      "med": 0,
+      "p(95)": 0,
+      "max": 0
+    },
+    "web5_read_backend": {
+      "count": 3360,
+      "rate": 15.749070848597428
+    },
+    "data_received": {
+      "count": 22840647,
+      "rate": 107059.2166163108
+    },
+    "web5_requests": {
+      "count": 4202,
+      "rate": 19.695713007680475
+    },
+    "http_req_receiving": {
+      "avg": 0.11181706261770251,
+      "med": 0.11156350000000001,
+      "p(95)": 0.20296964999999995,
+      "max": 0.528964
+    },
+    "data_sent": {
+      "count": 1773167,
+      "rate": 8311.229973034213
+    },
+    "http_req_failed": {
+      "passes": 0,
+      "fails": 4248,
+      "value": 0
+    },
+    "web5_read_ms{phase:measure,ingress:root}": {
+      "med": 2.0656915,
+      "p(95)": 2.6105441,
+      "max": 12.167877,
+      "avg": 2.0523236694444433,
+      "thresholds": {
+        "p(95)<=1000": false
+      }
+    },
+    "vus": {
+      "max": 0,
+      "value": 0,
+      "min": 0
+    },
+    "http_reqs": {
+      "count": 4248,
+      "rate": 19.91132528715532
+    },
+    "iteration_duration": {
+      "avg": 2.84755346239886,
+      "med": 2.695433,
+      "p(95)": 4.45378935,
+      "max": 16.120551
+    },
+    "iterations": {
+      "count": 4202,
+      "rate": 19.695713007680475
+    },
+    "web5_read_ms{phase:measure,ingress:mirror}": {
+      "avg": 2.1350899729166692,
+      "med": 2.167966,
+      "p(95)": 2.7668896,
+      "max": 12.83679,
+      "thresholds": {
+        "p(95)<=1000": false
+      }
+    },
+    "web5_errors": {
+      "passes": 0,
+      "fails": 4202,
+      "value": 0
+    },
+    "http_req_connecting": {
+      "avg": 0.0009438302730696798,
+      "med": 0,
+      "p(95)": 0,
+      "max": 0.477956
+    }
+  },
+  "setup_data": {
+    "readPath": "/api/v2/cabinets/9765c37f-4125-499d-b964-16f96933a1e7/items?limit=20",
+    "writeCabinet": "fd9939fd-dc2b-4421-b1c2-49a787afd45a",
+    "writeItems": [
+      "dcd6f15d-102a-4ab6-9e41-1e279ea2f5d8",
+      "d50bd4b4-2648-4904-b60d-ae2a1734bc62",
+      "78868f7c-a0d0-4939-8f46-681b934d09de",
+      "336b8d4a-6058-4209-bb95-72d68958f475",
+      "905a9e83-cd35-427a-a0bc-00059b2dfc79",
+      "11dcbac4-f297-43db-a2ba-c3008436cecf",
+      "cccbf4f3-4f44-42b0-b3f8-d213766f880f",
+      "c9ce1713-8f27-420f-8a99-570c2fc3cf72",
+      "1a269c01-554c-4c79-8dac-99de1f5a3714",
+      "119d3dc4-c518-441f-a416-bbba04b99b22",
+      "fd9b69db-3a87-4bcb-a71e-dba806d01fcf",
+      "60d04495-840b-4e5a-9294-7400ef2d167a",
+      "4ce76aae-d180-4a8e-82ea-3f6b7671bf74",
+      "7252211e-7529-4552-8e14-61f8dbb7a59b",
+      "114ef82e-d7d7-47b8-bf24-8db5f0983fee",
+      "3a740fbf-0e1b-4353-a4d0-639c6d33ce02",
+      "4c99f5b0-9ac5-4e5a-af91-2924c598068a",
+      "9f35d771-0880-4acf-86d7-e2fe04e0c6cb",
+      "bdb0d98e-1bd1-4c9d-99d0-3b96f46f17f2",
+      "177abb33-6680-46e5-89db-045a225a802a"
+    ]
+  },
+  "root_group": {
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": {},
+    "checks": {},
+    "name": ""
+  }
+}

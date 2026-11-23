@@ -11,18 +11,18 @@ type CabinetItemQueries struct {
 }
 
 var CabinetItem = CabinetItemQueries{
-	SelectByUserID: `SELECT * FROM User_Medicine WHERE user_id = $1`,
+	SelectByUserID: `SELECT id, user_id, medicine_id, date_of_manufacture, quantity FROM User_Medicine WHERE user_id = $1`,
 	SelectByUserIDWithName: `SELECT um.id, um.user_id, um.medicine_id, m.name AS medicine_name,
 			  um.date_of_manufacture, um.quantity,
 			  (um.date_of_manufacture + (m.expire_time || ' months')::interval) AS expires_at
 			  FROM User_Medicine um
 			  JOIN Medicine m ON m.id = um.medicine_id
 			  WHERE um.user_id = $1`,
-	SelectExistingByKey: `SELECT * FROM User_Medicine 
+	SelectExistingByKey: `SELECT id, user_id, medicine_id, date_of_manufacture, quantity FROM User_Medicine
               WHERE user_id = $1 AND medicine_id = $2 AND date_of_manufacture = $3::date`,
-	SelectByID:     `SELECT * FROM User_Medicine WHERE id = $1`,
+	SelectByID:     `SELECT id, user_id, medicine_id, date_of_manufacture, quantity FROM User_Medicine WHERE id = $1`,
 	UpdateQuantity: `UPDATE User_Medicine SET quantity = :quantity WHERE id = :id`,
-	InsertItem: `INSERT INTO User_Medicine (id, user_id, medicine_id, date_of_manufacture, quantity)
-              VALUES (:id, :user_id, :medicine_id, :date_of_manufacture, :quantity)`,
+	InsertItem: `INSERT INTO User_Medicine (id, user_id, cabinet_id, medicine_id, date_of_manufacture, quantity)
+              VALUES ($1, $2, $3, $4, $5, $6)`,
 	DeleteByID: `DELETE FROM User_Medicine WHERE id = $1`,
 }

@@ -1,0 +1,27 @@
+2026-11-23T11:51:46Z
+docker_cpus=12 docker_memory_bytes=15366344704
+project=mypills-lab5-exp-6-1795434662
+max_open=6
+max_idle=6
+warmup_seconds=30
+measure_seconds=180
+CONTAINER                                           REPOSITORY                                      TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+mypills-lab5-exp-6-1795434662-adminer-1             adminer                                         6.3.0-standalone    linux/amd64         3a07decd833c        44MB                12 days ago
+mypills-lab5-exp-6-1795434662-alloy-1               grafana/alloy                                   v1.12.2             linux/amd64         f94b1c82957a        154MB               3 days ago
+mypills-lab5-exp-6-1795434662-app-1                 mypills-web5-app                                local               linux/amd64         7760674d2d3d        32.1MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-app-read-1-1          mypills-web5-app                                local               linux/amd64         7760674d2d3d        32.1MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-app-read-2-1          mypills-web5-app                                local               linux/amd64         7760674d2d3d        32.1MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-db-1                  postgres                                        16-alpine           linux/amd64         32ebb7185baf        110MB               7 months ago
+mypills-lab5-exp-6-1795434662-db-bootstrap-1        postgres                                        16-alpine           linux/amd64         32ebb7185baf        110MB               7 months ago
+mypills-lab5-exp-6-1795434662-db-replica-1          postgres                                        16-alpine           linux/amd64         32ebb7185baf        110MB               7 months ago
+mypills-lab5-exp-6-1795434662-grafana-1             grafana/grafana                                 12.3.3              linux/amd64         9e1e77ade304        210MB               11 days ago
+mypills-lab5-exp-6-1795434662-gui-1                 mypills-lab5-exp-6-1795434662-gui               latest              linux/amd64         9f8ef5cba004        26.1MB              37 seconds ago
+mypills-lab5-exp-6-1795434662-loki-1                grafana/loki                                    3.6.2               linux/amd64         fad94db64eeb        41.5MB              3 days ago
+mypills-lab5-exp-6-1795434662-mirror-app-1          mypills-web5-app                                local               linux/amd64         7760674d2d3d        32.1MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-mirror-gui-1          mypills-lab5-exp-6-1795434662-mirror-gui        latest              linux/amd64         ebad21ea5859        26.1MB              37 seconds ago
+mypills-lab5-exp-6-1795434662-mirror-read-1-1       mypills-web5-app                                local               linux/amd64         7760674d2d3d        32.1MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-mirror-read-2-1       mypills-web5-app                                local               linux/amd64         7760674d2d3d        32.1MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-nginx-1               mypills-lab5-exp-6-1795434662-nginx             latest              linux/amd64         c99865fb2829        66.4MB              15 seconds ago
+mypills-lab5-exp-6-1795434662-postgres-exporter-1   quay.io/prometheuscommunity/postgres-exporter   v0.19.1             linux/amd64         e96064f87622        11.5MB              3 days ago
+mypills-lab5-exp-6-1795434662-prometheus-1          prom/prometheus                                 v3.8.0              linux/amd64         d936808bdea5        136MB               3 days ago
+mypills-lab5-exp-6-1795434662-replica-exporter-1    quay.io/prometheuscommunity/postgres-exporter   v0.19.1             linux/amd64         e96064f87622        11.5MB              3 days ago

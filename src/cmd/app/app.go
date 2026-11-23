@@ -2,12 +2,17 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/samber/do/v2"
 	"github.com/swaggo/files"
 	swaggerFilesV2 "github.com/swaggo/files/v2"
@@ -85,26 +90,39 @@ func (app *App) provideAll() {
 }
 
 func (app *App) initSwagger() {
+	prefix := do.MustInvoke[*config.Config](app.i).URLPrefix
 	app.router.GET("/api/spec/v2.yaml", func(c *gin.Context) {
-		c.File("docs/openapi/v2.yaml")
+		const contractPath = "docs/openapi/v2.yaml"
+		if prefix == "" {
+			c.File(contractPath)
+			return
+		}
+		contract, err := os.ReadFile(contractPath)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		// The source contract lists paths from /api/v2 and has no servers entry.
+		mirroredContract := append([]byte("servers:\n  - url: "+prefix+"\n"), contract...)
+		c.Data(http.StatusOK, "application/yaml", mirroredContract)
 	})
 	app.router.GET("/swagger", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/swagger/")
+		c.Redirect(http.StatusFound, prefix+"/swagger/")
 	})
 	swagger := app.router.Group("/swagger")
 	v2Files := http.StripPrefix("/swagger/", http.FileServer(http.FS(swaggerFilesV2.FS)))
 	swagger.GET("/*any", func(c *gin.Context) {
 		if c.Param("any") == "/swagger-initializer.js" {
-			c.Data(http.StatusOK, "application/javascript", []byte(`window.onload = function () {
+			c.Data(http.StatusOK, "application/javascript", []byte(fmt.Sprintf(`window.onload = function () {
   const ui = SwaggerUIBundle({
-    url: "/api/spec/v2.yaml",
+    url: %q,
     dom_id: "#swagger-ui",
     deepLinking: true,
     presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
     layout: "StandaloneLayout",
     responseInterceptor: function (response) {
       if (response.status === 200 && response.url &&
-          new URL(response.url, window.location.origin).pathname === "/api/v2/sessions") {
+          new URL(response.url, window.location.origin).pathname === %q) {
         try {
           const body = response.body || JSON.parse(response.text || "{}");
           if (typeof body.token === "string") {
@@ -117,21 +135,21 @@ func (app *App) initSwagger() {
       return response;
     }
   });
-};`))
+};`, prefix+"/api/spec/v2.yaml", prefix+"/api/v2/sessions")))
 			return
 		}
 		v2Files.ServeHTTP(c.Writer, c.Request)
 	})
 	app.router.GET("/swagger-v1", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/swagger-v1/index.html")
+		c.Redirect(http.StatusFound, prefix+"/swagger-v1/index.html")
 	})
-	legacySwaggerDocs.SwaggerInfo.BasePath = "/api/v1"
+	legacySwaggerDocs.SwaggerInfo.BasePath = prefix + "/api/v1"
 	legacySwagger := app.router.Group("/swagger-v1")
 	v1Files := *swaggerFiles.Handler
 	v1Swagger := ginSwagger.WrapHandler(&v1Files)
 	legacySwagger.GET("/*any", func(c *gin.Context) {
 		if c.Param("any") == "/" {
-			c.Redirect(http.StatusFound, "/swagger-v1/index.html")
+			c.Redirect(http.StatusFound, prefix+"/swagger-v1/index.html")
 			return
 		}
 		v1Swagger(c)
@@ -157,6 +175,9 @@ func (app *App) initMiddlewares() {
 	app.router.Use(middleware.Logger(app.i))
 	app.router.Use(middleware.ResponseHandler())
 	app.router.Use(middleware.ErrorHandler())
+	if do.MustInvoke[*config.Config](app.i).ReadOnly {
+		app.router.Use(middleware.ReadOnly())
+	}
 }
 
 func (app *App) initRoutes() {
@@ -202,6 +223,13 @@ func (app *App) initRoutes() {
 func (app *App) initAll() {
 	app.initSwagger()
 	app.initReadiness()
+
+	db := do.MustInvoke[*sqlx.DB](app.i)
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(collectors.NewDBStatsCollector(db.DB, "application"))
+	app.router.GET("/metrics", gin.WrapH(promhttp.HandlerFor(registry, promhttp.HandlerOpts{})))
+	app.router.Use(middleware.HTTPMetrics(registry))
+
 	app.initMiddlewares()
 	app.initRoutes()
 }
